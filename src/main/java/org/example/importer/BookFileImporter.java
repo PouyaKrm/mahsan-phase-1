@@ -39,13 +39,14 @@ public class BookFileImporter implements BookImporter {
     private Book[] importBooks() throws FileNotFoundException {
         List<Book> books = new ArrayList<>();
         var fileReader = new FileReader(new File(filePath.toUri()));
-        var scanner = new Scanner(fileReader);
-        while (scanner.hasNextLine()) {
-            var line = scanner.nextLine();
-            var book = createBook(line);
-            books.add(book);
+
+        try(var scanner = new Scanner(fileReader)) {
+            while (scanner.hasNextLine()) {
+                var line = scanner.nextLine();
+                var book = createBook(line);
+                books.add(book);
+            }
         }
-        scanner.close();
 
         Book[] bookArray = new Book[books.size()];
         books.toArray(bookArray);
