@@ -1,3 +1,0 @@
-title,author,01-02-2024,EXIST
-title2,author2,01-02-2024,BORROWED
-title3,author3,01-02-2024,BANNED

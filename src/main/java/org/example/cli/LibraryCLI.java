@@ -3,6 +3,7 @@ package org.example.cli;
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
 import org.example.library.Book;
+import org.example.library.Library;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -18,14 +19,15 @@ public class LibraryCLI {
 
     private final Scanner scanner = new Scanner(System.in);
     private final BookImporter bookImporter = new BookImporterImpl();
+    private final Library library = new Library();
 
     public void start() throws IOException {
         System.out.println("Welcome to the Library CLI");
-        System.out.println("1. File import,  2. Direct Input from terminal");
-        var op = getMainOptions();
-        Book[] books = importBooks(op);
-        writeToFile(books);
-        scanner.close();
+        while(true) {
+            System.out.println("1. File import,  2. Direct Input from terminal, 3. search by title, 4. export");
+            var op = getMainOptions();
+            handleOption(op);
+        }
     }
 
     private Options getMainOptions() {
@@ -38,11 +40,34 @@ public class LibraryCLI {
         return Arrays.stream(Options.values()).filter(item -> item.value == fnVal).findFirst().get();
     }
 
+    private void handleOption(Options options) throws IOException {
+        if(options == Options.FILE || options == Options.STDIN) {
+            var bs = importBooks(options);
+            library.addAll(bs);
+        } else if (options == Options.SEARCH) {
+            searchBook();
+        } else {
+            writeToFile(library.getBooks());
+        }
+    }
+
+
+    private void searchBook() {
+            var title = scanner.nextLine();
+            var b = library.findByTitle(title);
+            if (b.isEmpty()) {
+                System.out.println("Book not found");
+            } else {
+                System.out.println(b.get());
+            }
+    }
+
     private Integer getNumberOption() {
         var p = scanner.nextLine();
+        var vals = Arrays.stream(Options.values()).map(item -> item.value).toList();
         try {
             var n = Integer.parseInt(p);
-            if (n == 1 || n == 2) {
+            if (vals.contains(n)) {
                 return n;
             }
             return null;
@@ -54,9 +79,10 @@ public class LibraryCLI {
     private static enum Options {
 
         FILE(1),
-        STDIN(2);
+        STDIN(2),
+        SEARCH(3),
+        EXPORT(4);
         private final int value;
-
         Options(int i) {
             this.value = i;
         }
@@ -68,15 +94,17 @@ public class LibraryCLI {
         try {
             var fileReader = new FileReader(filePath);
             var fileScanner = new Scanner(fileReader);
-            return bookImporter.getBooks(fileScanner, ",", "dd-MM-yyyy");
+            var bs = bookImporter.getBooks(fileScanner, ",", "dd-MM-yyyy");
+            fileScanner.close();
+            return bs;
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     private Book[] direcImport() {
-        System.out.println("Enter each book line by line(use CTR + D to exit): ");
-        return bookImporter.getBooks(scanner, ",", "dd-MM-yyyy");
+        System.out.println("Enter each book line by line(use \\q to exit): ");
+        return bookImporter.getBooks(scanner, ",", "dd-MM-yyyy", "\\q");
     }
 
     private Book[] importBooks(Options option) {

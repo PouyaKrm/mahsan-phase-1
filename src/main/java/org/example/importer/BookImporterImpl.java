@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class BookImporterImpl implements BookImporter {
@@ -26,18 +27,32 @@ public class BookImporterImpl implements BookImporter {
 
     @Override
     public Book[] getBooks(Scanner scanner, String delimeter, String dateFormat) {
+       return getBooks(scanner, delimeter, dateFormat, Optional.empty());
+    }
+
+    @Override
+    public Book[] getBooks(Scanner scanner, String delimeter, String dateFormat, String terminationLine) {
+        return getBooks(scanner, delimeter, dateFormat, Optional.of(terminationLine));
+    }
+
+
+    private Book[] getBooks(Scanner scanner, String delimeter, String dateFormat, Optional<String> terminationLine) {
         List<Book> books = new ArrayList<>();
         while (scanner.hasNextLine()) {
             try {
                 var line = scanner.nextLine();
+                if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
+                    break;
+                }
                 var book = createBook(line, delimeter, dateFormat);
                 books.add(book);
+
             } catch (InvalidParameterException e) {
                 e.printStackTrace();
             }
 
         }
-        scanner.close();
+
         Book[] bookArray = new Book[books.size()];
         books.toArray(bookArray);
         return bookArray;
