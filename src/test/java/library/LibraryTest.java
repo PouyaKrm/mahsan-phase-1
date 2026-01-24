@@ -13,7 +13,7 @@ public class LibraryTest {
     public void add_book_works_correctly() {
         var library = new Library();
 
-        library.addBook(new Book("book1", "author1", LocalDate.now(), Book.Status.Exist));
+        library.addBook(new Book("book1", "author1", LocalDate.now(), Book.Status.EXIST));
 
         Assert.assertEquals(library.getBooks().size(), 1);
     }
@@ -22,7 +22,7 @@ public class LibraryTest {
     public void search_by_title_works_correctly() {
         var library = new Library();
         var title = "title";
-        var book = new Book(title, "author1", LocalDate.now(), Book.Status.Exist);
+        var book = new Book(title, "author1", LocalDate.now(), Book.Status.EXIST);
         library.addBook(book);
 
         var searched = library.findByTitle(title);
@@ -35,7 +35,7 @@ public class LibraryTest {
     public void search_by_author_works_correctly() {
         var library = new Library();
         var author = "title";
-        var book = new Book("title", author, LocalDate.now(), Book.Status.Exist);
+        var book = new Book("title", author, LocalDate.now(), Book.Status.EXIST);
         library.addBook(book);
 
         var searched = library.findByAuthor(author);
@@ -47,7 +47,7 @@ public class LibraryTest {
     @Test
     public void remove_book_works_correctly() {
         var library = new Library();
-        var book = new Book("book1", "author1", LocalDate.now(), Book.Status.Exist);
+        var book = new Book("book1", "author1", LocalDate.now(), Book.Status.EXIST);
         library.addBook(book);
 
         library.removeBook(book);
@@ -59,8 +59,8 @@ public class LibraryTest {
     public void sort_works_correctly() {
 
         var library = new Library();
-        var book1 = new Book("book1", "author1", LocalDate.now(), Book.Status.Exist);
-        var book2 = new Book("book2", "author2", LocalDate.now().minusYears(1), Book.Status.Exist);
+        var book1 = new Book("book1", "author1", LocalDate.now(), Book.Status.EXIST);
+        var book2 = new Book("book2", "author2", LocalDate.now().minusYears(1), Book.Status.EXIST);
         library.addBook(book1);
         library.addBook(book2);
 
