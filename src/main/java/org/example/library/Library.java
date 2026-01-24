@@ -1,13 +1,10 @@
 package org.example.library;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Library {
 
-    private final List<Book> books = new ArrayList();
+    private final List<Book> books = new LinkedList<Book>();
 
     public void addBook(Book book) {
         books.add(book);

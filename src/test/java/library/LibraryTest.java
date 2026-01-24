@@ -66,7 +66,6 @@ public class LibraryTest {
 
         library.sortByPublicationDate();
 
-        var books = library.getBooks();
         Assert.assertEquals(library.getBooks().get(0), book2);
         Assert.assertEquals(library.getBooks().get(1), book1);
     }
