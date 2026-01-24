@@ -12,8 +12,8 @@ public class BookArrayListTest {
     public void add_book_below_capacity() {
         BookArrayList list = new BookArrayList(2);
 
-        list.addBook(createBook());
-        list.addBook(createBook());
+        list.addBook(TestUtils.createBook());
+        list.addBook(TestUtils.createBook());
 
         Assert.assertEquals(list.getBooks().length, 2);
     }
@@ -22,9 +22,9 @@ public class BookArrayListTest {
     public void add_book_above_capacity() {
         BookArrayList list = new BookArrayList(2);
         Book[] books = new Book[] {
-                createBook(),
-                createBook(),
-                createBook(),
+                TestUtils.createBook(),
+                TestUtils.createBook(),
+                TestUtils.createBook(),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -38,8 +38,8 @@ public class BookArrayListTest {
     public void remove_book() {
         BookArrayList list = new BookArrayList(2);
         Book[] books = new Book[] {
-                createBook(),
-                createBook(),
+                TestUtils.createBook(),
+                TestUtils.createBook(),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -54,9 +54,9 @@ public class BookArrayListTest {
     public void search_by_title_works_correctly() {
         BookArrayList list = new BookArrayList(3);
         Book[] books = new Book[] {
-                createBook("t1"),
-                createBook("t2"),
-                createBook("t3"),
+                TestUtils.createBook("t1"),
+                TestUtils.createBook("t2"),
+                TestUtils.createBook("t3"),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -72,9 +72,9 @@ public class BookArrayListTest {
     public void search_by_author_works_correctly() {
         BookArrayList list = new BookArrayList(3);
         Book[] books = new Book[] {
-                createBookByAuthro("auth1"),
-                createBookByAuthro("auth2"),
-                createBookByAuthro("auth3"),
+                TestUtils.createBookByAuthro("auth1"),
+                TestUtils.createBookByAuthro("auth2"),
+                TestUtils.createBookByAuthro("auth3"),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -91,9 +91,9 @@ public class BookArrayListTest {
     public void add_after_remove_works_correctly() {
         BookArrayList list = new BookArrayList(3);
         Book[] books = new Book[] {
-                createBookByAuthro("auth1"),
-                createBookByAuthro("auth2"),
-                createBookByAuthro("auth3"),
+                TestUtils.createBookByAuthro("auth1"),
+                TestUtils.createBookByAuthro("auth2"),
+                TestUtils.createBookByAuthro("auth3"),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -110,9 +110,9 @@ public class BookArrayListTest {
     public void sort_works_correctly() {
         BookArrayList list = new BookArrayList(3);
         Book[] books = new Book[] {
-                createBookByPubDate(LocalDate.now()),
-                createBookByPubDate(LocalDate.now().minusYears(1)),
-                createBookByPubDate(LocalDate.now().minusYears(2)),
+                TestUtils.createBookByPubDate(LocalDate.now()),
+                TestUtils.createBookByPubDate(LocalDate.now().minusYears(1)),
+                TestUtils.createBookByPubDate(LocalDate.now().minusYears(2)),
         };
         list.addBook(books[0]);
         list.addBook(books[1]);
@@ -125,19 +125,5 @@ public class BookArrayListTest {
 
     }
 
-    public Book createBook() {
-        return new Book("book2", "author2", LocalDate.now().minusYears(1), Book.Status.Exist);
-    }
 
-    public Book createBook(String title) {
-        return new Book(title, "author2", LocalDate.now().minusYears(1), Book.Status.Exist);
-    }
-
-    public Book createBookByAuthro(String author) {
-        return new Book("title", author, LocalDate.now().minusYears(1), Book.Status.Exist);
-    }
-
-    public Book createBookByPubDate(LocalDate localDate) {
-        return new Book("title", "author", localDate, Book.Status.Exist);
-    }
 }
