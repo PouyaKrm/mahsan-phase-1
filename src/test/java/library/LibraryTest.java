@@ -15,7 +15,7 @@ public class LibraryTest {
 
         library.addBook(new Book("book1", "author1", LocalDate.now(), Book.Status.Exist));
 
-        Assert.assertEquals(library.getBooks().size(), 1);
+        Assert.assertEquals(1, library.getBooks().length);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LibraryTest {
 
         library.removeBook(book);
 
-        Assert.assertEquals(library.getBooks().size(), 0);
+        Assert.assertEquals(library.getBooks().length, 0);
     }
 
     @Test
@@ -66,8 +66,8 @@ public class LibraryTest {
 
         library.sortByPublicationDate();
 
-        Assert.assertEquals(library.getBooks().get(0), book2);
-        Assert.assertEquals(library.getBooks().get(1), book1);
+        Assert.assertEquals(library.getBooks()[0], book2);
+        Assert.assertEquals(library.getBooks()[1], book1);
     }
 
 }

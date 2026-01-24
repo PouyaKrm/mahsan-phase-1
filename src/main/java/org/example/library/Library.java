@@ -4,14 +4,15 @@ import java.util.*;
 
 public class Library {
 
+    private final BookCollection bookCollection = new BookArrayList();
     private final List<Book> books = new LinkedList<Book>();
 
     public void addBook(Book book) {
-        books.add(book);
+        bookCollection.addBook(book);
     }
 
     public void removeBook(Book book) {
-        books.remove(book);
+        bookCollection.removeBook(book);
     }
 
     public void printBooks() {
@@ -19,18 +20,19 @@ public class Library {
     }
 
     public Optional<Book> findByTitle(String title) {
-       return books.stream().filter(book -> book.getTitle().contains(title)).findFirst();
+        return bookCollection.searchByTitle(title);
     }
 
     public Optional<Book> findByAuthor(String author) {
-        return books.stream().filter(book -> book.getAuthor().contains(author)).findFirst();
+        return bookCollection.searchByAuthor(author);
     }
 
     public void sortByPublicationDate() {
-        books.sort(Comparator.comparingLong(book -> book.getPubDate().toEpochDay()));
+        bookCollection.sortByPubDate();
     }
 
-    public List<Book> getBooks() {
-        return new ArrayList<>(books);
+    public Book[] getBooks() {
+
+        return bookCollection.getBooks();
     }
 }
