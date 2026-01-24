@@ -58,9 +58,9 @@ public class Book {
     }
 
     public static enum Status {
-        Banned,
-        Borrowed,
-        Exist
+        BANNED,
+        BORROWED,
+        EXIST
     }
 
 }
