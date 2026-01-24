@@ -24,14 +24,13 @@ public class BookFileImporter implements BookImporter {
     }
 
 
-
     @Override
     public Book[] getBooks() throws FileNotFoundException {
         if (!Objects.isNull(books) && books.length > 0) {
             return (Book[]) Arrays.stream(books).toArray();
         }
         books = importBooks();
-        var  copy  = new Book[books.length];
+        var copy = new Book[books.length];
         Arrays.stream(books).toList().toArray(copy);
         return copy;
     }
@@ -40,13 +39,19 @@ public class BookFileImporter implements BookImporter {
         List<Book> books = new ArrayList<>();
         var fileReader = new FileReader(new File(filePath.toUri()));
 
-        try(var scanner = new Scanner(fileReader)) {
-            while (scanner.hasNextLine()) {
+
+        var scanner = new Scanner(fileReader);
+        while (scanner.hasNextLine()) {
+            try {
                 var line = scanner.nextLine();
                 var book = createBook(line);
                 books.add(book);
+            } catch (InvalidParameterException e) {
+                e.printStackTrace();
             }
+
         }
+        scanner.close();
 
         Book[] bookArray = new Book[books.size()];
         books.toArray(bookArray);
