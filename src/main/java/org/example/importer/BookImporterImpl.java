@@ -1,0 +1,45 @@
+package org.example.importer;
+
+import org.example.library.Book;
+
+import java.security.InvalidParameterException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class BookImporterImpl implements BookImporter {
+
+
+    public Book createBook(String line, String delimeter, String dateFormat)  {
+        line.trim();
+        String[] fields = line.split(delimeter);
+        if (fields.length != 4) {
+            throw new InvalidParameterException("Invalid book line: " + line);
+        }
+
+        var dateField = fields[2];
+        var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(dateFormat));
+        return new Book(fields[0], fields[1], date, Enum.valueOf(Book.Status.class, fields[3]));
+    }
+
+    @Override
+    public Book[] getBooks(Scanner scanner, String delimeter, String dateFormat) {
+        List<Book> books = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+            try {
+                var line = scanner.nextLine();
+                var book = createBook(line, delimeter, dateFormat);
+                books.add(book);
+            } catch (InvalidParameterException e) {
+                e.printStackTrace();
+            }
+
+        }
+        scanner.close();
+        Book[] bookArray = new Book[books.size()];
+        books.toArray(bookArray);
+        return bookArray;
+    }
+}
