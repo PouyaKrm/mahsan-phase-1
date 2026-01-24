@@ -60,6 +60,13 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
         updateTail();
     }
 
+    @Override
+    public void addAll(T[] books) {
+        for (var book : books) {
+            addBook(book);
+        }
+    }
+
     public Object[] getAll() {
         var ts = new Object[size];
         var nx = head;
