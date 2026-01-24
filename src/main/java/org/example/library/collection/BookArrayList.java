@@ -92,4 +92,11 @@ public class BookArrayList implements LibraryCollection<Book> {
     public void sort(Comparator<Book> comparator) {
         Arrays.sort(books, comparator);
     }
+
+    @Override
+    public void addAll(Book[] books) {
+        for(var book : books) {
+            addBook(book);
+        }
+    }
 }
