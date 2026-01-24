@@ -1,11 +1,14 @@
-package org.example.library;
+package org.example.library.collection;
+
+import org.example.library.Book;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
-public class BookArrayList implements BookCollection {
+public class BookArrayList implements LibraryCollection<Book> {
 
 
     private Book[] books;
@@ -62,7 +65,7 @@ public class BookArrayList implements BookCollection {
     }
 
     @Override
-    public Book removeBook(Book book) {
+    public Book remove(Book book) {
         for (int i = 0; i < books.length; i++) {
             if (books[i].equals(book)) {
                 var t = books[i];
@@ -76,9 +79,9 @@ public class BookArrayList implements BookCollection {
     }
 
     @Override
-    public Optional<Book> searchByTitle(String title) {
+    public Optional<Book> search(Predicate<Book> predicate) {
         for (int i = 0; i < books.length; i++) {
-            if (books[i].getTitle().contains(title)) {
+            if (predicate.test(books[i])) {
                 return Optional.of(books[i]);
             }
         }
@@ -86,17 +89,7 @@ public class BookArrayList implements BookCollection {
     }
 
     @Override
-    public Optional<Book> searchByAuthor(String author) {
-        for (int i = 0; i < books.length; i++) {
-            if (books[i].getAuthor().contains(author)) {
-                return Optional.of(books[i]);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public void sortByPubDate() {
-        Arrays.sort(books, Comparator.comparingLong(book -> book.getPubDate().toEpochDay()));
+    public void sort(Comparator<Book> comparator) {
+        Arrays.sort(books, comparator);
     }
 }

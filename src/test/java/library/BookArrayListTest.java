@@ -1,11 +1,12 @@
 package library;
 
 import org.example.library.Book;
-import org.example.library.BookArrayList;
+import org.example.library.collection.BookArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class BookArrayListTest {
     @Test
@@ -44,7 +45,7 @@ public class BookArrayListTest {
         list.addBook(books[0]);
         list.addBook(books[1]);
 
-        list.removeBook(books[1]);
+        list.remove(books[1]);
 
         Assert.assertArrayEquals(new Book[]{books[0], null}, list.getOriginalBooks());
         Assert.assertArrayEquals(list.getBooks(), new Book[]{books[0]});
@@ -62,7 +63,7 @@ public class BookArrayListTest {
         list.addBook(books[1]);
         list.addBook(books[2]);
 
-        var b = list.searchByTitle(books[1].getTitle());
+        var b = list.search(book -> book.getTitle().equals(books[1].getTitle()));
 
         Assert.assertTrue(b.isPresent());
         Assert.assertEquals(b.get(), books[1]);
@@ -80,7 +81,7 @@ public class BookArrayListTest {
         list.addBook(books[1]);
         list.addBook(books[2]);
 
-        var b = list.searchByAuthor(books[1].getAuthor());
+        var b = list.search(book -> book.getAuthor().equals(books[1].getAuthor()));
 
         Assert.assertTrue(b.isPresent());
         Assert.assertEquals(b.get(), books[1]);
@@ -99,7 +100,7 @@ public class BookArrayListTest {
         list.addBook(books[1]);
         list.addBook(books[2]);
 
-        list.removeBook(books[1]);
+        list.remove(books[1]);
         list.addBook(books[1]);
 
         Assert.assertArrayEquals(list.getBooks(), new Book[]{books[0], books[1], books[2]});
@@ -118,7 +119,7 @@ public class BookArrayListTest {
         list.addBook(books[1]);
         list.addBook(books[2]);
 
-        list.sortByPubDate();
+        list.sort(Comparator.comparingLong(book -> book.getPubDate().compareTo(LocalDate.now())));
         Assert.assertEquals(list.getBooks()[0], books[2]);
         Assert.assertEquals(list.getBooks()[1], books[1]);
         Assert.assertEquals(list.getBooks()[2], books[0]);

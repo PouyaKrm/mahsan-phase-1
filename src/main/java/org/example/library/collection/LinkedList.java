@@ -1,17 +1,24 @@
 package org.example.library.collection;
 
+import org.example.library.Book;
+
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class LinkedList<T> {
+public class LinkedList<T extends Book> implements LibraryCollection<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size = 0;
+    @Override
+    public T[] getBooks() {
+        return null;
+    }
 
-    public void add(T data) {
-        var node = new Node<>(data);
+    @Override
+    public void addBook(T book) {
+        var node = new Node<>(book);
         if (head == null) {
             head = node;
             tail = head;

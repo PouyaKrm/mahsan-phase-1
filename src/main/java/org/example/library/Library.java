@@ -1,10 +1,13 @@
 package org.example.library;
 
+import org.example.library.collection.BookArrayList;
+import org.example.library.collection.LibraryCollection;
+
 import java.util.*;
 
 public class Library {
 
-    private final BookCollection bookCollection = new BookArrayList();
+    private final LibraryCollection<Book> bookCollection = new BookArrayList();
     private final List<Book> books = new LinkedList<Book>();
 
     public void addBook(Book book) {
@@ -12,7 +15,7 @@ public class Library {
     }
 
     public void removeBook(Book book) {
-        bookCollection.removeBook(book);
+        bookCollection.remove(book);
     }
 
     public void printBooks() {
@@ -20,19 +23,18 @@ public class Library {
     }
 
     public Optional<Book> findByTitle(String title) {
-        return bookCollection.searchByTitle(title);
+        return bookCollection.search(book -> book.getTitle().contains(title));
     }
 
     public Optional<Book> findByAuthor(String author) {
-        return bookCollection.searchByAuthor(author);
+        return bookCollection.search(book -> book.getAuthor().contains(author));
     }
 
     public void sortByPublicationDate() {
-        bookCollection.sortByPubDate();
+        bookCollection.sort(Comparator.comparingLong(book -> book.getPubDate().toEpochDay()));
     }
 
     public Book[] getBooks() {
-
         return bookCollection.getBooks();
     }
 }
