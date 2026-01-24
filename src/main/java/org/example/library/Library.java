@@ -37,4 +37,8 @@ public class Library {
     public Book[] getBooks() {
         return bookCollection.getBooks();
     }
+
+    public void addAll(Book[] books) {
+        bookCollection.addAll(books);
+    }
 }
