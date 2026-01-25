@@ -1,18 +1,10 @@
-package org.example.library;
+package org.example.library.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import org.example.constansts.ResourceType;
-import org.example.library.model.BaseModel;
 
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
-@ToString
+
 public class Book extends BaseModel {
     private String author;
     private Status status;
@@ -33,6 +25,21 @@ public class Book extends BaseModel {
         return ResourceType.BOOK;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
     public static enum Status {
         BANNED,

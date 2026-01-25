@@ -1,6 +1,6 @@
 package org.example.importer;
 
-import org.example.library.Book;
+import org.example.library.model.Book;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
@@ -22,7 +22,7 @@ public class BookImporterImpl implements BookImporter {
 
         var dateField = fields[2];
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(dateFormat));
-        return new Book(fields[0], fields[1], date, Enum.valueOf(Book.Status.class, fields[3]));
+        return new Book(date, fields[0], fields[1], Enum.valueOf(Book.Status.class, fields[3]));
     }
 
     @Override

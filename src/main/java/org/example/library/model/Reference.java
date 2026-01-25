@@ -1,16 +1,10 @@
 package org.example.library.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.example.constansts.ResourceType;
 
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
-@ToString
+
 public class Reference extends BaseModel {
     private String author;
     private String content;
@@ -29,5 +23,30 @@ public class Reference extends BaseModel {
     @Override
     public ResourceType resourceType() {
         return ResourceType.REFERENCE;
+    }
+
+    @Override
+    public String toString() {
+        return "Reference{" +
+                "author='" + author + '\'' +
+                ", content='" + content + '\'' +
+                ", pubDate=" + pubDate +
+                '}';
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

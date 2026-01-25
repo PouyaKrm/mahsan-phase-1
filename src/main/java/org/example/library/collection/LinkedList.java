@@ -1,21 +1,15 @@
 package org.example.library.collection;
 
-import org.example.library.Book;
+import org.example.library.model.BaseModel;
 
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 
-public class LinkedList<T extends Book> implements LibraryCollection<T> {
+public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size = 0;
-
-    @Override
-    public T[] getItems() {
-        return null;
-    }
 
     @Override
     public void add(T book) {
@@ -73,7 +67,8 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
         }
     }
 
-    public Object[] getAll() {
+    @Override
+    public T[] getItems() {
         var ts = new Object[size];
         var nx = head;
         int i = 0;
@@ -81,7 +76,7 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
             ts[i++] = nx.getData();
             nx = nx.getNext();
         }
-        return ts;
+        return (T[]) ts;
     }
 
     public int getSize() {

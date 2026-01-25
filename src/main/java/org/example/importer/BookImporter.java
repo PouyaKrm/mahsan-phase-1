@@ -1,9 +1,7 @@
 package org.example.importer;
 
-import org.example.library.Book;
+import org.example.library.model.Book;
 
-import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.Scanner;
 
 public interface BookImporter {

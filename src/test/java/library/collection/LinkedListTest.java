@@ -1,7 +1,7 @@
 package library.collection;
 
-import utils.TestUtils;
 import org.example.library.model.Book;
+import utils.TestUtils;
 import org.example.library.collection.LinkedList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class LinkedListTest {
         list.add(b);
 
         Assert.assertEquals(list.getSize(), 1);
-        Assert.assertEquals(b, list.getAll()[0]);
+        Assert.assertEquals(b, list.getItems()[0]);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class LinkedListTest {
         list.remove(b2);
 
         Assert.assertEquals(1, list.getSize());
-        Assert.assertEquals(b, list.getAll()[0]);
+        Assert.assertEquals(b, list.getItems()[0]);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class LinkedListTest {
 
         list.sort(Comparator.comparingLong(item -> item.getPubDate().toEpochDay()));
 
-        Assert.assertEquals(b2, list.getAll()[0]);
-        Assert.assertEquals(b, list.getAll()[1]);
+        Assert.assertEquals(b2, list.getItems()[0]);
+        Assert.assertEquals(b, list.getItems()[1]);
     }
 
     @Test

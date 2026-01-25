@@ -1,6 +1,6 @@
 package utils;
 
-import org.example.library.Book;
+import org.example.library.model.Book;
 import org.example.library.model.Article;
 import org.example.library.model.Magazine;
 import org.example.library.model.Reference;
