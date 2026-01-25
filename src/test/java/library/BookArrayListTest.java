@@ -102,8 +102,8 @@ public class BookArrayListTest {
 
         list.remove(books[1]);
         list.addBook(books[1]);
-
-        Assert.assertArrayEquals(list.getBooks(), new Book[]{books[0], books[1], books[2]});
+var bs = list.getOriginalBooks();
+        Assert.assertArrayEquals(new Book[]{books[0], books[2], books[1]}, list.getBooks());
 
     }
 
