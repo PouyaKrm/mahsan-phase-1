@@ -8,7 +8,6 @@ import java.util.*;
 public class Library {
 
     private final LibraryCollection<Book> bookCollection = new BookArrayList();
-    private final List<Book> books = new LinkedList<Book>();
 
     public void addBook(Book book) {
         bookCollection.addBook(book);
@@ -19,7 +18,9 @@ public class Library {
     }
 
     public void printBooks() {
-        books.forEach(book -> System.out.println(book));
+        for (var book : bookCollection.getBooks()) {
+            System.out.println(book);
+        }
     }
 
     public Optional<Book> findByTitle(String title) {

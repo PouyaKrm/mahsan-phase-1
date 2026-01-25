@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class LibraryCLI {
@@ -24,20 +25,19 @@ public class LibraryCLI {
     public void start() throws IOException {
         System.out.println("Welcome to the Library CLI");
         while(true) {
-            System.out.println("1. File import,  2. Direct Input from terminal, 3. search by title, 4. export");
+            System.out.println("1.File import,  2.Direct Input from terminal, 3.search by title, 4.export");
             var op = getMainOptions();
             handleOption(op);
         }
     }
 
     private Options getMainOptions() {
-        Integer option = null;
-        while (Objects.isNull(option)) {
+        Optional<Integer> option = Optional.empty();
+        while (option.isEmpty()) {
             System.out.println("Enter selected option: ");
             option = getNumberOption();
         }
-        final Integer fnVal = option;
-        return Arrays.stream(Options.values()).filter(item -> item.value == fnVal).findFirst().get();
+        return Options.fromValue(option.get());
     }
 
     private void handleOption(Options options) throws IOException {
@@ -55,29 +55,24 @@ public class LibraryCLI {
     private void searchBook() {
             var title = scanner.nextLine();
             var b = library.findByTitle(title);
-            if (b.isEmpty()) {
-                System.out.println("Book not found");
-            } else {
-                System.out.println(b.get());
-            }
+            b.ifPresentOrElse(book -> System.out.println(b.get()), () -> System.out.println("Book not found"));
     }
 
-    private Integer getNumberOption() {
+    private Optional<Integer> getNumberOption() {
         var p = scanner.nextLine();
         var vals = Arrays.stream(Options.values()).map(item -> item.value).toList();
         try {
             var n = Integer.parseInt(p);
             if (vals.contains(n)) {
-                return n;
+                return Optional.of(n);
             }
-            return null;
+            return Optional.empty();
         } catch (NumberFormatException e) {
-            return null;
+            return Optional.empty();
         }
     }
 
     private static enum Options {
-
         FILE(1),
         STDIN(2),
         SEARCH(3),
@@ -85,6 +80,9 @@ public class LibraryCLI {
         private final int value;
         Options(int i) {
             this.value = i;
+        }
+        static Options fromValue(int i) {
+            return Arrays.stream(Options.values()).filter(item -> item.value == i).findFirst().get();
         }
     }
 
