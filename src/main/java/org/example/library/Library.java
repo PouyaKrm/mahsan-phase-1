@@ -2,44 +2,51 @@ package org.example.library;
 
 import org.example.library.collection.BookArrayList;
 import org.example.library.collection.LibraryCollection;
+import org.example.library.model.BaseModel;
+import org.example.library.model.Book;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Library {
 
-    private final LibraryCollection<Book> bookCollection = new BookArrayList();
+    private final LibraryCollection bookCollection = new BookArrayList();
 
-    public void addBook(Book book) {
-        bookCollection.addBook(book);
+    public <T extends BaseModel> void addItem(T book) {
+        bookCollection.add(book);
     }
 
-    public void removeBook(Book book) {
+    public <T extends BaseModel> void removeItem(T book) {
         bookCollection.remove(book);
     }
 
     public void printBooks() {
-        for (var book : bookCollection.getBooks()) {
+        for (var book : bookCollection.getItems()) {
             System.out.println(book);
         }
     }
 
-    public Optional<Book> findByTitle(String title) {
-        return bookCollection.search(book -> book.getTitle().contains(title));
+    public <T extends BaseModel> T[] search(Predicate<T> predicate) {
+        return (T[]) bookCollection.search(predicate);
     }
 
-    public Optional<Book> findByAuthor(String author) {
-        return bookCollection.search(book -> book.getAuthor().contains(author));
+//    public <T extends BaseModel> T[] findByTitle(String title) {
+//        return bookCollection.search(book -> book.getTitle().contains(title));
+//    }
+//
+//    public Optional<Book> findByAuthor(String author) {
+//        return bookCollection.search(book -> book.getAuthor().contains(author));
+//    }
+
+    public <T extends BaseModel> void sortByPublicationDate() {
+        bookCollection.sort(Comparator.comparingLong(book -> ((BaseModel) book).getPubDate().toEpochDay()));
     }
 
-    public void sortByPublicationDate() {
-        bookCollection.sort(Comparator.comparingLong(book -> book.getPubDate().toEpochDay()));
+    public <T extends BaseModel> T[] getAll() {
+        return (T[]) bookCollection.getItems();
     }
 
-    public Book[] getBooks() {
-        return bookCollection.getBooks();
-    }
-
-    public void addAll(Book[] books) {
+    public <T extends BaseModel> void addAll(T[] books) {
         bookCollection.addAll(books);
     }
 }

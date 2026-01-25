@@ -47,15 +47,16 @@ public class LibraryCLI {
         } else if (options == Options.SEARCH) {
             searchBook();
         } else {
-            writeToFile(library.getBooks());
+            writeToFile(library.getAll());
         }
     }
 
 
     private void searchBook() {
-            var title = scanner.nextLine();
-            var b = library.findByTitle(title);
-            b.ifPresentOrElse(book -> System.out.println(b.get()), () -> System.out.println("Book not found"));
+        System.out.println("Enter search term comma seperated(<field name>  <value>)");
+            var searchTerm = scanner.nextLine();
+            var searchTerms = Arrays.stream(searchTerm.split(","));
+
     }
 
     private Optional<Integer> getNumberOption() {

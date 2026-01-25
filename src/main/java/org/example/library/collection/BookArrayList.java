@@ -1,6 +1,6 @@
 package org.example.library.collection;
 
-import org.example.library.Book;
+import org.example.library.model.BaseModel;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -8,52 +8,52 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class BookArrayList implements LibraryCollection<Book> {
+public class BookArrayList<T extends BaseModel> implements LibraryCollection<T> {
 
 
-    private Book[] books;
+    private Object[] items;
     private final int defualtCapacity = 2;
     private int size = 0;
     private int added = 0;
 
     public BookArrayList() {
-        books = new Book[defualtCapacity];
+        items = new Object[defualtCapacity];
     }
 
     public BookArrayList(int capacity) {
-        books = new Book[capacity];
+        items = new Object[capacity];
     }
 
     @Override
-    public Book[] getBooks() {
-        var copy = new Book[size];
+    public T[] getItems() {
+        var copy = new Object[size];
         var i = 0;
-        for(var book : books) {
+        for(var book : items) {
             if (Objects.isNull(book)) {
                 continue;
             }
             copy[i] = book;
             i++;
         }
-        return copy;
+        return (T[]) copy;
     }
 
-    public Book[] getOriginalBooks() {
-        return books;
+    public T[] getOriginalBooks() {
+        return (T[]) items;
     }
 
     @Override
-    public void addBook(Book book) {
-        if (added == books.length) {
-            books = expandArray(books);
+    public void add(T book) {
+        if (added == items.length) {
+            items = expandArray(items);
         }
-        books[added] = book;
+        items[added] = book;
         added++;
         size++;
     }
 
-    private Book[] expandArray(Book[] bs) {
-        var newArray = new Book[2 * books.length];
+    private Object[] expandArray(Object[] bs) {
+        var newArray = new Object[2 * items.length];
         var i = 0;
         for(var b : bs) {
             if(Objects.isNull(b)) {
@@ -66,37 +66,43 @@ public class BookArrayList implements LibraryCollection<Book> {
     }
 
     @Override
-    public Book remove(Book book) {
-        for (int i = 0; i < books.length; i++) {
-            if (books[i].equals(book)) {
-                var t = books[i];
-                books[i] = null;
+    public T remove(T book) {
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].equals(book)) {
+                var t = items[i];
+                items[i] = null;
                 size--;
-                return t;
+                return (T) t;
             }
         }
         return null;
     }
 
     @Override
-    public Optional<Book> search(Predicate<Book> predicate) {
-        for (int i = 0; i < books.length; i++) {
-            if (predicate.test(books[i])) {
-                return Optional.of(books[i]);
+    public T[] search(Predicate<T> predicate) {
+        int count = 0;
+        Object[] arr = new Object[items.length];
+        for (int i = 0; i < items.length; i++) {
+            if (predicate.test((T) items[i])) {
+                arr[count] = items[i];
+                count++;
             }
         }
-        return Optional.empty();
+        var result = new Object[count];
+        System.arraycopy(arr, 0, result, 0, count);
+        return (T[]) result;
     }
 
     @Override
-    public void sort(Comparator<Book> comparator) {
-        Arrays.sort(books, comparator);
+    public void sort(Comparator<T> comparator) {
+        T[] array = (T[]) items;
+        Arrays.sort(array, comparator);
     }
 
     @Override
-    public void addAll(Book[] books) {
+    public void addAll(T[] books) {
         for(var book : books) {
-            addBook(book);
+            add(book);
         }
     }
 }

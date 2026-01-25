@@ -1,26 +1,24 @@
-package org.example.library;
+package org.example.library.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import org.example.constansts.ResourceType;
-import org.example.library.model.BaseModel;
 
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @ToString
-public class Book extends BaseModel {
+public class Reference extends BaseModel {
     private String author;
-    private Status status;
+    private String content;
 
-    public Book(LocalDate pubDate, String title, String author, Status status) {
+    public Reference(LocalDate pubDate, String title, String author, String content) {
         super(title, pubDate);
         this.author = author;
-        this.status = status;
+        this.content = content;
     }
 
     @Override
@@ -30,14 +28,6 @@ public class Book extends BaseModel {
 
     @Override
     public ResourceType resourceType() {
-        return ResourceType.BOOK;
+        return ResourceType.REFERENCE;
     }
-
-
-    public static enum Status {
-        BANNED,
-        BORROWED,
-        EXIST
-    }
-
 }

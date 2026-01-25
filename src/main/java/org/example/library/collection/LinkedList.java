@@ -13,12 +13,12 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
     private int size = 0;
 
     @Override
-    public T[] getBooks() {
+    public T[] getItems() {
         return null;
     }
 
     @Override
-    public void addBook(T book) {
+    public void add(T book) {
         var node = new Node<>(book);
         if (head == null) {
             head = node;
@@ -45,15 +45,20 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
         return null;
     }
 
-    public Optional<T> search(Predicate<T> predicate) {
+    public T[] search(Predicate<T> predicate) {
         var nx = head;
+        int count = 0;
+        Object[] arr = new Object[size];
         while (nx != null) {
             if (predicate.test(nx.getData())) {
-                return Optional.of(nx.getData());
+                arr[count] = nx.getData();
+                count++;
             }
             nx = nx.getNext();
         }
-        return Optional.empty();
+        var result = new Object[count];
+        System.arraycopy(arr, 0, result, 0, count);
+        return (T[]) result;
     }
 
     public void sort(Comparator<T> comparator) {
@@ -64,7 +69,7 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
     @Override
     public void addAll(T[] books) {
         for (var book : books) {
-            addBook(book);
+            add(book);
         }
     }
 

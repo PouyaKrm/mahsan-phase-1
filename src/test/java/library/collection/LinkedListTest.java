@@ -1,13 +1,11 @@
 package library.collection;
 
-import library.TestUtils;
-import org.example.library.Book;
+import utils.TestUtils;
+import org.example.library.model.Book;
 import org.example.library.collection.LinkedList;
-import org.example.library.collection.Node;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 
 public class LinkedListTest {
@@ -17,7 +15,7 @@ public class LinkedListTest {
         LinkedList<Book> list = new LinkedList<Book>();
         var b = TestUtils.createBook();
 
-        list.addBook(b);
+        list.add(b);
 
         Assert.assertEquals(list.getSize(), 1);
         Assert.assertEquals(b, list.getAll()[0]);
@@ -28,8 +26,8 @@ public class LinkedListTest {
         LinkedList<Book> list = new LinkedList<Book>();
         var b = TestUtils.createBook();
         var b2 = TestUtils.createBook();
-        list.addBook(b);
-        list.addBook(b2);
+        list.add(b);
+        list.add(b2);
 
         list.remove(b2);
 
@@ -43,8 +41,8 @@ public class LinkedListTest {
         var b = TestUtils.createBook();
         var b2 = TestUtils.createBook();
         b2.setPubDate(b2.getPubDate().minusYears(1));
-        list.addBook(b);
-        list.addBook(b2);
+        list.add(b);
+        list.add(b2);
 
         list.sort(Comparator.comparingLong(item -> item.getPubDate().toEpochDay()));
 
@@ -57,12 +55,12 @@ public class LinkedListTest {
         LinkedList<Book> list = new LinkedList<Book>();
         var b = TestUtils.createBook();
         var b2 = TestUtils.createBook("new titlw");
-        list.addBook(b);
-        list.addBook(b2);
+        list.add(b);
+        list.add(b2);
 
         var result = list.search(book -> book.getTitle().equals(b.getTitle()));
 
-        Assert.assertTrue(result.isPresent());
-        Assert.assertEquals(b, result.get());
+        Assert.assertEquals(1, result.length);
+        Assert.assertEquals(b, result[0]);
     }
 }
