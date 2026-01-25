@@ -1,8 +1,11 @@
 package org.example.library;
 
+import lombok.Data;
+
 import java.time.LocalDate;
 
-public class Book {
+@Data
+public class Book extends BaseModel {
     private String title;
     private String author;
     private LocalDate pubDate;
@@ -15,36 +18,9 @@ public class Book {
         this.status = status;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public LocalDate getPubDate() {
-        return pubDate;
-    }
-
-    public void setPubDate(LocalDate pubDate) {
-        this.pubDate = pubDate;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
+    @Override
+    public void display() {
+        System.out.println(toString());
     }
 
     @Override
