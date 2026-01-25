@@ -13,10 +13,8 @@ public class BookArrayList implements LibraryCollection<Book> {
 
     private Book[] books;
     private final int defualtCapacity = 2;
-
-
+    private int size = 0;
     private int added = 0;
-    private int firstEmptySlut = 0;
 
     public BookArrayList() {
         books = new Book[defualtCapacity];
@@ -28,8 +26,15 @@ public class BookArrayList implements LibraryCollection<Book> {
 
     @Override
     public Book[] getBooks() {
-        var copy = new Book[added];
-        System.arraycopy(books, 0, copy, 0, added);
+        var copy = new Book[size];
+        var i = 0;
+        for(var book : books) {
+            if (Objects.isNull(book)) {
+                continue;
+            }
+            copy[i] = book;
+            i++;
+        }
         return copy;
     }
 
@@ -39,29 +44,25 @@ public class BookArrayList implements LibraryCollection<Book> {
 
     @Override
     public void addBook(Book book) {
-        if (Objects.isNull(books[firstEmptySlut])) {
-            books[firstEmptySlut] = book;
-        } else if (added == books.length) {
-            var newArray = new Book[2 * books.length];
-            System.arraycopy(books, 0, newArray, 0, added);
-            books = newArray;
-            books[added] = book;
-        } else {
-            var i = findNewEmptySlut();
-            books[i] = book;
-            firstEmptySlut = i;
+        if (added == books.length) {
+            books = expandArray(books);
         }
-
+        books[added] = book;
         added++;
+        size++;
     }
 
-    private int findNewEmptySlut() {
-        for (int i = firstEmptySlut; i < books.length; i++) {
-            if (books[i] == null) {
-                return i;
+    private Book[] expandArray(Book[] bs) {
+        var newArray = new Book[2 * books.length];
+        var i = 0;
+        for(var b : bs) {
+            if(Objects.isNull(b)) {
+                continue;
             }
+            newArray[i] = b;
+            i++;
         }
-        return -1;
+        return newArray;
     }
 
     @Override
@@ -70,8 +71,7 @@ public class BookArrayList implements LibraryCollection<Book> {
             if (books[i].equals(book)) {
                 var t = books[i];
                 books[i] = null;
-                firstEmptySlut = i;
-                added--;
+                size--;
                 return t;
             }
         }
