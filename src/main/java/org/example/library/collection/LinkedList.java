@@ -11,6 +11,7 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size = 0;
+
     @Override
     public T[] getBooks() {
         return null;
@@ -83,47 +84,45 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
     }
 
     // Merge Sort
-    private Node mergeSort(Node node, Comparator<T> comparator) {
+    private Node<T> mergeSort(Node<T> node, Comparator<T> comparator) {
         if (node == null || node.getNext() == null)
             return node;
 
-        Node middle = getMiddle(node);
-        Node nextOfMiddle = middle.getNext();
+        Node<T> middle = getMiddle(node);
+        Node<T> nextOfMiddle = middle.getNext();
         middle.setNext(null);
 
-        Node left = mergeSort(node, comparator);
-        Node right = mergeSort(nextOfMiddle, comparator);
+        Node<T> left = mergeSort(node, comparator);
+        Node<T> right = mergeSort(nextOfMiddle, comparator);
 
         return sortedMerge(left, right, comparator);
     }
 
-    // Merge two sorted lists
-    private Node sortedMerge(Node a, Node b, Comparator<T> comparator) {
+
+    private Node<T> sortedMerge(Node<T> a, Node<T> b, Comparator<T> comparator) {
         if (a == null) return b;
         if (b == null) return a;
-
-        Node result;
-
-        if (comparator.compare((T) a.getData(), (T) b.getData()) <= 0) {
-            result = a;
-            var nx = sortedMerge(a.getNext(), b, comparator);
-            nx.setNext(nx);
-        } else {
-            result = b;
-            var nx = sortedMerge(a, b.getNext(), comparator);
-            nx.setNext(nx);
+        var dummy = new Node<T>(null);
+        Node<T> t = dummy;
+        while (a != null && b != null) {
+            if (comparator.compare((T) a.getData(), (T) b.getData()) <= 0) {
+                t.setNext(a);
+                a = a.getNext();
+            } else {
+                t.setNext(b);
+                b = b.getNext();
+            }
         }
-
-        return result;
+        tail.setNext(a != null ? a : b);
+        return dummy.getNext();
     }
 
-    // Find middle of list
-    private Node getMiddle(Node node) {
+    private Node<T> getMiddle(Node<T> node) {
         if (node == null)
             return node;
 
-        Node slow = node;
-        Node fast = node.getNext();
+        Node<T> slow = node;
+        Node<T> fast = node.getNext();
 
         while (fast != null && fast.getNext() != null) {
 
@@ -140,7 +139,7 @@ public class LinkedList<T extends Book> implements LibraryCollection<T> {
             return;
         }
 
-        Node curr = head;
+        Node<T> curr = head;
         while (curr.getNext() != null) {
             curr = curr.getNext();
         }
