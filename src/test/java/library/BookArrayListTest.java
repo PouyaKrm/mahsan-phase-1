@@ -1,7 +1,7 @@
 package library;
 
-import org.example.library.Book;
 import org.example.library.collection.BookArrayList;
+import org.example.library.model.Book;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;
