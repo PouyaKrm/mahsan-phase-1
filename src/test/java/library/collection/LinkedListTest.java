@@ -41,7 +41,8 @@ public class LinkedListTest {
     public void sort() {
         LinkedList<Book> list = new LinkedList<Book>();
         var b = TestUtils.createBook();
-        var b2 = TestUtils.createBookByPubDate(LocalDate.now().minusYears(1));
+        var b2 = TestUtils.createBook();
+        b2.setPubDate(b2.getPubDate().minusYears(1));
         list.addBook(b);
         list.addBook(b2);
 
