@@ -44,15 +44,6 @@ public class Library {
         }
     }
 
-//    public <T extends BaseModel> T[] search(Predicate<T> predicate) {
-//        return Arrays.copyOf(
-//                books,
-//                objects.length,
-//                BaseModel[].class
-//        );
-//        return (T[]) bookCollection.search(predicate, Book.class);
-//    }
-
     public BaseModel[] search(Map<SearchField, String> fields) {
         var bookSearch = bookCollection.search(getPredicates(fields, Book.class), Book.class);
         var magazineSearch = magazines.search(getPredicates(fields, Magazine.class), Magazine.class);
