@@ -1,6 +1,6 @@
 package library;
 
-import org.example.library.collection.BookArrayList;
+import org.example.library.collection.ArrayList;
 import org.example.library.model.book.Book;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import java.util.Comparator;
 public class BookArrayListTest {
     @Test
     public void add_book_below_capacity() {
-        BookArrayList<Book> list = new BookArrayList<Book>(2);
+        ArrayList<Book> list = new ArrayList<Book>(2);
 
         list.add(TestUtils.createBook());
         list.add(TestUtils.createBook());
@@ -22,7 +22,7 @@ public class BookArrayListTest {
 
     @Test
     public void add_book_above_capacity() {
-        BookArrayList<Book> list = new BookArrayList(2);
+        ArrayList<Book> list = new ArrayList(2);
         Book[] books = new Book[]{
                 TestUtils.createBook(),
                 TestUtils.createBook(),
@@ -38,7 +38,7 @@ public class BookArrayListTest {
 
     @Test
     public void remove_book() {
-        BookArrayList<Book> list = new BookArrayList(2);
+        ArrayList<Book> list = new ArrayList(2);
         Book[] books = new Book[]{
                 TestUtils.createBook(),
                 TestUtils.createBook(),
@@ -54,7 +54,7 @@ public class BookArrayListTest {
 
     @Test
     public void search_by_title_works_correctly() {
-        BookArrayList<Book> list = new BookArrayList<Book>(3);
+        ArrayList<Book> list = new ArrayList<Book>(3);
         Book[] books = new Book[]{
                 TestUtils.createBook("t1"),
                 TestUtils.createBook("t2"),
@@ -72,7 +72,7 @@ public class BookArrayListTest {
 
     @Test
     public void search_by_author_works_correctly() {
-        BookArrayList<Book> list = new BookArrayList(3);
+        ArrayList<Book> list = new ArrayList(3);
         Book[] books = new Book[]{
                 TestUtils.createBookByAuthro("auth1"),
                 TestUtils.createBookByAuthro("auth2"),
@@ -91,7 +91,7 @@ public class BookArrayListTest {
 
     @Test
     public void add_after_remove_works_correctly() {
-        BookArrayList<Book> list = new BookArrayList(3);
+        ArrayList<Book> list = new ArrayList(3);
         Book[] books = new Book[]{
                 TestUtils.createBookByAuthro("auth1"),
                 TestUtils.createBookByAuthro("auth2"),
@@ -109,7 +109,7 @@ public class BookArrayListTest {
 
     @Test
     public void sort_works_correctly() {
-        BookArrayList<Book> list = new BookArrayList(3);
+        ArrayList<Book> list = new ArrayList(3);
         Book[] books = new Book[]{
                 TestUtils.createBookByPubDate(LocalDate.now()),
                 TestUtils.createBookByPubDate(LocalDate.now().minusYears(1)),

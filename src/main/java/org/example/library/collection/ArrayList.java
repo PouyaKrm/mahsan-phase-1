@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class BookArrayList<T> implements LibraryCollection<T> {
+public class ArrayList<T> implements LibraryCollection<T> {
 
 
     private Object[] items;
@@ -13,11 +13,11 @@ public class BookArrayList<T> implements LibraryCollection<T> {
     private int size = 0;
     private int added = 0;
 
-    public BookArrayList() {
+    public ArrayList() {
         items = new Object[defualtCapacity];
     }
 
-    public BookArrayList(int capacity) {
+    public ArrayList(int capacity) {
         items = new Object[capacity];
     }
 

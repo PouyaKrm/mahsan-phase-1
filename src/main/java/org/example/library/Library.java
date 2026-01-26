@@ -2,7 +2,7 @@ package org.example.library;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.example.constansts.SearchField;
-import org.example.library.collection.BookArrayList;
+import org.example.library.collection.ArrayList;
 import org.example.library.collection.LibraryCollection;
 import org.example.library.model.*;
 import org.example.library.model.article.Article;
@@ -15,9 +15,9 @@ import java.util.function.Predicate;
 
 public class Library {
 
-    private final LibraryCollection<Book> bookCollection = new BookArrayList();
-    private final LibraryCollection<Article> articles = new BookArrayList<>();
-    private final LibraryCollection<Magazine> magazines = new BookArrayList<>();
+    private final LibraryCollection<Book> bookCollection = new ArrayList();
+    private final LibraryCollection<Article> articles = new ArrayList<>();
+    private final LibraryCollection<Magazine> magazines = new ArrayList<>();
     private final Map<String, PatriciaTrie<BaseModel>> items = new HashMap();
 
     private List<Field> getStringFields(BaseModel model) {
