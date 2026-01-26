@@ -18,7 +18,6 @@ public class Library {
     private final LibraryCollection<Book> bookCollection = new ArrayList();
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
-    private final Map<String, PatriciaTrie<BaseModel>> items = new HashMap();
 
     private List<Field> getStringFields(BaseModel model) {
         var clazz = model.getClass();
