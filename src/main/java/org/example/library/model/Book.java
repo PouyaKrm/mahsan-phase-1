@@ -6,12 +6,10 @@ import java.time.LocalDate;
 
 
 public class Book extends BaseModel {
-    private String author;
     private Status status;
 
-    public Book(LocalDate pubDate, String title, String author, Status status) {
-        super(title, pubDate);
-        this.author = author;
+    public Book(LocalDate pubDate, String title, String author, String content, Status status) {
+        super(title, author, content, pubDate);
         this.status = status;
     }
 
@@ -23,14 +21,6 @@ public class Book extends BaseModel {
     @Override
     public ResourceType resourceType() {
         return ResourceType.BOOK;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public Status getStatus() {

@@ -6,11 +6,9 @@ import java.time.LocalDate;
 
 
 public class Magazine extends BaseModel {
-    private String author;
-    private String content;
 
     public Magazine(LocalDate pubDate, String title, String author, String content) {
-        super(title, pubDate);
+        super(title, author, content, pubDate);
         this.author = author;
         this.content = content;
     }
@@ -25,14 +23,6 @@ public class Magazine extends BaseModel {
         return ResourceType.REFERENCE;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     @Override
     public String toString() {
         return "Magazine{" +
@@ -40,13 +30,5 @@ public class Magazine extends BaseModel {
                 ", content='" + content + '\'' +
                 ", pubDate=" + pubDate +
                 '}';
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }

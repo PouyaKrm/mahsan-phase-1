@@ -16,13 +16,13 @@ public class BookImporterImpl implements BookImporter {
     public Book createBook(String line, String delimeter, String dateFormat)  {
         line.trim();
         String[] fields = line.split(delimeter);
-        if (fields.length != 4) {
+        if (fields.length != 5) {
             throw new InvalidParameterException("Invalid book line: " + line);
         }
 
         var dateField = fields[2];
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(dateFormat));
-        return new Book(date, fields[0], fields[1], Enum.valueOf(Book.Status.class, fields[3]));
+        return new Book(date, fields[0], fields[1], fields[3], Enum.valueOf(Book.Status.class, fields[4]));
     }
 
     @Override

@@ -2,8 +2,7 @@ package org.example.library.collection;
 
 import org.example.library.model.BaseModel;
 
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
@@ -39,7 +38,8 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
         return null;
     }
 
-    public T[] search(Predicate<T> predicate) {
+    @Override
+    public T[] search(Predicate<T> predicate, Class<T> clazz) {
         var nx = head;
         int count = 0;
         Object[] arr = new Object[size];
@@ -52,7 +52,9 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
         }
         var result = new Object[count];
         System.arraycopy(arr, 0, result, 0, count);
-        return (T[]) result;
+        return Arrays.copyOf(result, result.length,
+                (Class<? extends T[]>) java.lang.reflect.Array
+                        .newInstance(clazz, 0).getClass());
     }
 
     public void sort(Comparator<T> comparator) {
@@ -67,8 +69,9 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
         }
     }
 
+
     @Override
-    public T[] getItems() {
+    public T[] getItems(Class<T> clazz) {
         var ts = new Object[size];
         var nx = head;
         int i = 0;
@@ -76,7 +79,9 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
             ts[i++] = nx.getData();
             nx = nx.getNext();
         }
-        return (T[]) ts;
+        return Arrays.copyOf(ts, ts.length,
+                (Class<? extends T[]>) java.lang.reflect.Array
+                        .newInstance(clazz, 0).getClass());
     }
 
     public int getSize() {

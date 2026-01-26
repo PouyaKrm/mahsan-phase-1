@@ -2,8 +2,8 @@ package org.example.cli;
 
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
-import org.example.library.Book;
 import org.example.library.Library;
+import org.example.library.model.Book;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 

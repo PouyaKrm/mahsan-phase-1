@@ -18,7 +18,7 @@ public class LinkedListTest {
         list.add(b);
 
         Assert.assertEquals(list.getSize(), 1);
-        Assert.assertEquals(b, list.getItems()[0]);
+        Assert.assertEquals(b, list.getItems(Book.class)[0]);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class LinkedListTest {
         list.remove(b2);
 
         Assert.assertEquals(1, list.getSize());
-        Assert.assertEquals(b, list.getItems()[0]);
+        Assert.assertEquals(b, list.getItems(Book.class)[0]);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class LinkedListTest {
 
         list.sort(Comparator.comparingLong(item -> item.getPubDate().toEpochDay()));
 
-        Assert.assertEquals(b2, list.getItems()[0]);
-        Assert.assertEquals(b, list.getItems()[1]);
+        Assert.assertEquals(b2, list.getItems(Book.class)[0]);
+        Assert.assertEquals(b, list.getItems(Book.class)[1]);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class LinkedListTest {
         list.add(b);
         list.add(b2);
 
-        var result = list.search(book -> book.getTitle().equals(b.getTitle()));
+        var result = list.search(book -> book.getTitle().equals(b.getTitle()), Book.class);
 
         Assert.assertEquals(1, result.length);
         Assert.assertEquals(b, result[0]);

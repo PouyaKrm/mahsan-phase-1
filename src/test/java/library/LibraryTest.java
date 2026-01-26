@@ -1,6 +1,5 @@
 package library;
 
-import org.example.library.Book;
 import org.example.library.Library;
 import org.junit.Assert;
 import org.junit.Test;
