@@ -19,12 +19,6 @@ public class Library {
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
 
-    private List<Field> getStringFields(BaseModel model) {
-        var clazz = model.getClass();
-        var fields = clazz.getDeclaredFields();
-        return Arrays.stream(fields).filter(field -> field.getType() == String.class).toList();
-    }
-
 
     public <T extends BaseModel> void addItem(T book) {
         switch (book.resourceType()) {
