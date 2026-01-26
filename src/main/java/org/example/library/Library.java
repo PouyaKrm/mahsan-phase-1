@@ -38,9 +38,9 @@ public class Library {
     }
 
     public BaseModel[] search(Map<SearchField, String> fields) {
-        var bookSearch = bookCollection.search(getPredicates(fields, Book.class), Book.class);
-        var magazineSearch = magazines.search(getPredicates(fields, Magazine.class), Magazine.class);
-        var articleSearch  = articles.search(getPredicates(fields, Article.class), Article.class);
+        var bookSearch = bookCollection.search(getPredicates(fields), Book.class);
+        var magazineSearch = magazines.search(getPredicates(fields), Magazine.class);
+        var articleSearch  = articles.search(getPredicates(fields), Article.class);
         var result = new BaseModel[bookSearch.length + magazineSearch.length + articleSearch.length];
         System.arraycopy(bookSearch, 0, result, 0, bookSearch.length);
         System.arraycopy(magazineSearch, 0, result, bookSearch.length, magazineSearch.length);
@@ -66,7 +66,7 @@ public class Library {
         }
     }
 
-    private <T extends BaseModel> Predicate<T> getPredicates(Map<SearchField, String> fields, Class<T> clazz) {
+    private <T extends BaseModel> Predicate<T> getPredicates(Map<SearchField, String> fields) {
         Predicate<T> predicate = (b) -> true;
         for (var field : fields.keySet()) {
             Predicate<BaseModel> pr;
