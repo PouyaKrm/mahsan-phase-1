@@ -18,7 +18,7 @@ public class Book extends BaseModel {
 
     @Override
     public void display() {
-        System.out.println(toString());
+        System.out.println(this);
     }
 
     @Override
@@ -40,4 +40,15 @@ public class Book extends BaseModel {
         EXIST
     }
 
+    @Override
+    public String toString() {
+        return "Book{" +
+                "status=" + status +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", content='" + content + '\'' +
+                ", borrowDate=" + borrowDate +
+                ", pubDate=" + pubDate +
+                '}';
+    }
 }

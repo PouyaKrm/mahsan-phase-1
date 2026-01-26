@@ -53,6 +53,7 @@ public class BookImporterImpl implements BookImporter {
         }
 
         Object[] result = new Object[books.size()];
+        books.toArray(result);
         return Arrays.copyOf(result, result.length,
                 (Class<? extends T[]>) java.lang.reflect.Array
                         .newInstance(clazz, 0).getClass());

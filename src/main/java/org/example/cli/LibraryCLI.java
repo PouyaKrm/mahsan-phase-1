@@ -1,6 +1,7 @@
 package org.example.cli;
 
 import org.example.constansts.ResourceType;
+import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
 import org.example.library.Library;
@@ -36,7 +37,7 @@ public class LibraryCLI {
     public void start() throws IOException {
         System.out.println("Welcome to the Library CLI");
         while(true) {
-            System.out.println("1.File import,  2.Direct Input from terminal, 3.search by title, 4.export");
+            System.out.println("1.File import,  2.Direct Input from terminal, 3.Search by title, 4.Export, 5.borrow book, 6.Show borrow");
             var op = getMainOptions();
             handleOption(op);
         }
@@ -52,13 +53,23 @@ public class LibraryCLI {
     }
 
     private void handleOption(Options options) throws IOException {
-        if(options == Options.FILE || options == Options.STDIN) {
-            var bs = importBooks(options);
-            library.addAll(bs);
-        } else if (options == Options.SEARCH) {
-            searchBook();
-        } else {
-            writeToFile(library.getAll());
+        switch (options) {
+            case FILE:
+            case STDIN:
+                var bs = importBooks(options);
+                library.addAll(bs);
+                break;
+            case BORROW:
+                borrowBook();
+                break;
+            case SHOW_BORROWED:
+                System.out.println(library.getBorrowedItems());
+                break;
+            case Options.SEARCH:
+                searchBook();
+                break;
+            default:
+                writeToFile(library.getAll());
         }
     }
 
@@ -88,7 +99,9 @@ public class LibraryCLI {
         FILE(1),
         STDIN(2),
         SEARCH(3),
-        EXPORT(4);
+        EXPORT(4),
+        BORROW(5),
+        SHOW_BORROWED(6),;
         private final int value;
         Options(int i) {
             this.value = i;
@@ -122,6 +135,17 @@ public class LibraryCLI {
             return fileImport();
         }
         return direcImport();
+    }
+
+    private void borrowBook() {
+        System.out.print("Enter book title: ");
+        var title = scanner.nextLine();
+        try {
+            var item = library.borrowItem(title);
+            item.display();
+        } catch (ItemNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private <T extends BaseModel> void writeToFile(T[] books) throws IOException {

@@ -9,6 +9,7 @@ public abstract class BaseModel {
     protected String title;
     protected String author;
     protected String content;
+    protected LocalDate borrowDate;
     protected LocalDate pubDate;
 
     public BaseModel(String title, String author, String content, LocalDate pubDate) {
@@ -54,6 +55,14 @@ public abstract class BaseModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public LocalDate getBorrowDate() {
+        return borrowDate;
+    }
+
+    public void setBorrowDate(LocalDate borrowDate) {
+        this.borrowDate = borrowDate;
     }
 }
 
