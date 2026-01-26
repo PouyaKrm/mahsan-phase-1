@@ -1,15 +1,13 @@
 package library;
 
 import org.example.library.collection.BookArrayList;
-import org.example.library.model.Book;
+import org.example.library.model.book.Book;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.function.Predicate;
 
 public class BookArrayListTest {
     @Test

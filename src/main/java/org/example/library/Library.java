@@ -1,19 +1,23 @@
 package org.example.library;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.example.constansts.SearchField;
 import org.example.library.collection.BookArrayList;
 import org.example.library.collection.LibraryCollection;
-import org.example.library.model.BaseModel;
-import org.example.library.model.Book;
+import org.example.library.model.*;
+import org.example.library.model.article.Article;
+import org.example.library.model.book.Book;
+import org.example.library.model.magazine.Magazine;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 public class Library {
 
-    private final LibraryCollection bookCollection = new BookArrayList();
+    private final LibraryCollection<Book> bookCollection = new BookArrayList();
+    private final LibraryCollection<Article> articles = new BookArrayList<>();
+    private final LibraryCollection<Magazine> magazines = new BookArrayList<>();
     private final Map<String, PatriciaTrie<BaseModel>> items = new HashMap();
 
     private List<Field> getStringFields(BaseModel model) {
@@ -23,47 +27,73 @@ public class Library {
     }
 
 
-    public <T extends BaseModel> void addItem(T book) throws IllegalAccessException {
-        var fields = getStringFields(book);
-        for (var field : fields) {
-            var name = field.getName();
-            var trie = items.getOrDefault(name, new PatriciaTrie<>());
-            trie.put((String) field.get(book), book);
+    public <T extends BaseModel> void addItem(T book) {
+        switch (book.resourceType()) {
+            case BOOK -> bookCollection.add((Book) book);
+            case ARTICLE -> articles.add((Article) book);
+            case MAGAZINE -> magazines.add((Magazine) book);
         }
     }
 
 
-    public <T extends BaseModel> void removeItem(T book) throws IllegalAccessException {
-        var fields = getStringFields(book);
-        for (var field : fields) {
-            var name = field.getName();
-            var trie = items.getOrDefault(name, new PatriciaTrie<>());
-            trie.remove((String) field.get(book), book);
+    public <T extends BaseModel> void removeItem(T book) {
+        switch (book.resourceType()) {
+            case BOOK -> bookCollection.remove((Book) book);
+            case ARTICLE -> articles.remove((Article) book);
+            case MAGAZINE -> magazines.remove((Magazine) book);
         }
     }
 
-    public <T extends BaseModel> T[] search(Predicate<T> predicate) {
-        return (T[]) bookCollection.search(predicate, Book.class);
+//    public <T extends BaseModel> T[] search(Predicate<T> predicate) {
+//        return Arrays.copyOf(
+//                books,
+//                objects.length,
+//                BaseModel[].class
+//        );
+//        return (T[]) bookCollection.search(predicate, Book.class);
+//    }
+
+    public BaseModel[] search(Map<SearchField, String> fields) {
+        var bookSearch = bookCollection.search(getPredicates(fields, Book.class), Book.class);
+        var magazineSearch = magazines.search(getPredicates(fields, Magazine.class), Magazine.class);
+        var articleSearch  = articles.search(getPredicates(fields, Article.class), Article.class);
+        var result = new BaseModel[bookSearch.length + magazineSearch.length + articleSearch.length];
+        System.arraycopy(bookSearch, 0, result, 0, bookSearch.length);
+        System.arraycopy(magazineSearch, 0, result, bookSearch.length, magazineSearch.length);
+        System.arraycopy(articleSearch, 0, result, bookSearch.length + magazineSearch.length, articleSearch.length);
+        return result;
     }
-
-
-//    public <T extends BaseModel> T[] findByTitle(String title) {
-//        return bookCollection.search(book -> book.getTitle().contains(title));
-//    }
-//
-//    public Optional<Book> findByAuthor(String author) {
-//        return bookCollection.search(book -> book.getAuthor().contains(author));
-//    }
 
     public <T extends BaseModel> void sortByPublicationDate() {
         bookCollection.sort(Comparator.comparingLong(book -> ((BaseModel) book).getPubDate().toEpochDay()));
     }
 
-    public <T extends BaseModel> T[] getAll() {
-        return (T[]) bookCollection.getItems(Book.class);
+    public BaseModel[] getAll() {
+        var result = new BaseModel[bookCollection.size() + magazines.size() + articles.size()];
+        System.arraycopy(bookCollection.getItems(Book.class), 0, result, 0, bookCollection.size());
+        System.arraycopy(magazines.getItems(Magazine.class), 0, result, bookCollection.size(), magazines.size());
+        System.arraycopy(articles.getItems(Article.class), 0, result, bookCollection.size() + magazines.size(), articles.size());
+        return result;
     }
 
     public <T extends BaseModel> void addAll(T[] books) {
-        bookCollection.addAll(books);
+        for (var book : books) {
+            addItem(book);
+        }
     }
+
+    private <T extends BaseModel> Predicate<T> getPredicates(Map<SearchField, String> fields, Class<T> clazz) {
+        Predicate<T> predicate = (b) -> true;
+        for (var field : fields.keySet()) {
+            Predicate<BaseModel> pr;
+            if(field == SearchField.TITLE) {
+                pr = (book) -> book.getTitle().contains(fields.get(field));
+            } else {
+                pr = (book) -> book.getAuthor().contains(fields.get(field));
+            }
+            predicate = predicate.and(pr);
+        }
+        return predicate;
+    }
+
 }

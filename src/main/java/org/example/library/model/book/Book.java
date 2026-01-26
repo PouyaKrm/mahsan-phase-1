@@ -1,8 +1,11 @@
-package org.example.library.model;
+package org.example.library.model.book;
 
 import org.example.constansts.ResourceType;
+import org.example.library.model.BaseModel;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 public class Book extends BaseModel {

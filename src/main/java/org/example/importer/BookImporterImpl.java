@@ -1,50 +1,49 @@
 package org.example.importer;
 
-import org.example.library.model.Book;
+import org.example.constansts.ResourceType;
+import org.example.library.model.BaseModel;
+import org.example.library.model.ModelFactory;
+import org.example.library.model.article.ArticleFactory;
+import org.example.library.model.book.BookFactory;
+import org.example.library.model.magazine.MagazineFactory;
 
 import java.security.InvalidParameterException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class BookImporterImpl implements BookImporter {
 
 
-    public Book createBook(String line, String delimeter, String dateFormat)  {
-        line.trim();
-        String[] fields = line.split(delimeter);
-        if (fields.length != 5) {
-            throw new InvalidParameterException("Invalid book line: " + line);
-        }
+    private final Map<ResourceType, ModelFactory<?>> factories = Map.ofEntries(
+            Map.entry(ResourceType.BOOK, BookFactory.getFactory()),
+            Map.entry(ResourceType.ARTICLE, ArticleFactory.getFactory()),
+            Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
+    );
 
-        var dateField = fields[2];
-        var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(dateFormat));
-        return new Book(date, fields[0], fields[1], fields[3], Enum.valueOf(Book.Status.class, fields[4]));
+    public <T extends BaseModel> T createModel(ResourceType resourceType, String line, Class<T> clazz) {
+        var factory = factories.get(resourceType);
+        return clazz.cast(factory.createModelFromString(line));
     }
 
     @Override
-    public Book[] getBooks(Scanner scanner, String delimeter, String dateFormat) {
-       return getBooks(scanner, delimeter, dateFormat, Optional.empty());
+    public <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz) {
+        return getModels(scanner, resourceType, clazz, Optional.empty());
     }
 
     @Override
-    public Book[] getBooks(Scanner scanner, String delimeter, String dateFormat, String terminationLine) {
-        return getBooks(scanner, delimeter, dateFormat, Optional.of(terminationLine));
+    public <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz, String terminationLine) {
+        return getModels(scanner, resourceType, clazz, Optional.of(terminationLine));
     }
 
 
-    private Book[] getBooks(Scanner scanner, String delimeter, String dateFormat, Optional<String> terminationLine) {
-        List<Book> books = new ArrayList<>();
+    private <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) {
+        List<Object> books = new ArrayList<>();
         while (scanner.hasNextLine()) {
             try {
                 var line = scanner.nextLine();
                 if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
                     break;
                 }
-                var book = createBook(line, delimeter, dateFormat);
+                var book = createModel(resourceType, line, clazz);
                 books.add(book);
 
             } catch (InvalidParameterException e) {
@@ -53,8 +52,9 @@ public class BookImporterImpl implements BookImporter {
 
         }
 
-        Book[] bookArray = new Book[books.size()];
-        books.toArray(bookArray);
-        return bookArray;
+        Object[] result = new Object[books.size()];
+        return Arrays.copyOf(result, result.length,
+                (Class<? extends T[]>) java.lang.reflect.Array
+                        .newInstance(clazz, 0).getClass());
     }
 }

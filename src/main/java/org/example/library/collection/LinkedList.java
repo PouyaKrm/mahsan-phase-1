@@ -69,6 +69,11 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
         }
     }
 
+    @Override
+    public int size() {
+        return size;
+    }
+
 
     @Override
     public T[] getItems(Class<T> clazz) {

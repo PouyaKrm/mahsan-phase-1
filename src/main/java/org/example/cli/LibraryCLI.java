@@ -1,9 +1,15 @@
 package org.example.cli;
 
+import org.example.constansts.ResourceType;
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
 import org.example.library.Library;
-import org.example.library.model.Book;
+import org.example.library.model.BaseModel;
+import org.example.library.model.ModelFactory;
+import org.example.library.model.article.ArticleFactory;
+import org.example.library.model.book.Book;
+import org.example.library.model.book.BookFactory;
+import org.example.library.model.magazine.MagazineFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -12,6 +18,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -20,6 +27,11 @@ public class LibraryCLI {
     private final Scanner scanner = new Scanner(System.in);
     private final BookImporter bookImporter = new BookImporterImpl();
     private final Library library = new Library();
+    private final Map<ResourceType, ModelFactory<? extends BaseModel>> factories = Map.ofEntries(
+            Map.entry(ResourceType.BOOK, BookFactory.getFactory()),
+            Map.entry(ResourceType.ARTICLE, ArticleFactory.getFactory()),
+            Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
+    );
 
     public void start() throws IOException {
         System.out.println("Welcome to the Library CLI");
@@ -92,7 +104,7 @@ public class LibraryCLI {
         try {
             var fileReader = new FileReader(filePath);
             var fileScanner = new Scanner(fileReader);
-            var bs = bookImporter.getBooks(fileScanner, ",", "dd-MM-yyyy");
+            var bs = bookImporter.getModels(fileScanner, ResourceType.BOOK, Book.class);
             fileScanner.close();
             return bs;
         } catch (FileNotFoundException e) {
@@ -102,7 +114,7 @@ public class LibraryCLI {
 
     private Book[] direcImport() {
         System.out.println("Enter each book line by line(use \\q to exit): ");
-        return bookImporter.getBooks(scanner, ",", "dd-MM-yyyy", "\\q");
+        return bookImporter.getModels(scanner, ResourceType.BOOK, Book.class, "\\q");
     }
 
     private Book[] importBooks(Options option) {
@@ -112,10 +124,11 @@ public class LibraryCLI {
         return direcImport();
     }
 
-    private void writeToFile(Book[] books) throws IOException {
+    private <T extends BaseModel> void writeToFile(T[] books) throws IOException {
         try(FileWriter fileWriter = new FileWriter("src/main/resources/output.txt")) {
-            for (Book book : books) {
-                var line = MessageFormat.format("{0},{1},{2},{3}", book.getTitle(), book.getAuthor(), book.getPubDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")).toString(), book.getStatus());
+            for (T book : books) {
+                ModelFactory factory = factories.get(book.resourceType());
+                var line = factory.parseModelToString(book);
                 fileWriter.write(line);
                 fileWriter.write("\n");
             }

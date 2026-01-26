@@ -1,6 +1,8 @@
 package importer;
 
+import org.example.constansts.ResourceType;
 import org.example.importer.BookImporterImpl;
+import org.example.library.model.book.Book;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +22,7 @@ public class BookFileImporterTest {
         var scanner = new Scanner(fielReader);
         var importer = new BookImporterImpl();
 
-        var books = importer.getBooks(scanner, ",", "dd-MM-yyyy");
+        var books = importer.getModels(scanner, ResourceType.BOOK, Book.class);
 
         Assert.assertEquals(3, books.length);
     }

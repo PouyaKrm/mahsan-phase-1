@@ -84,6 +84,9 @@ public class BookArrayList<T> implements LibraryCollection<T> {
         int count = 0;
         Object[] arr = new Object[items.length];
         for (int i = 0; i < items.length; i++) {
+            if(Objects.isNull(items[i])) {
+                continue;
+            }
             if (predicate.test((T) items[i])) {
                 arr[count] = items[i];
                 count++;
@@ -107,5 +110,10 @@ public class BookArrayList<T> implements LibraryCollection<T> {
         for (var book : books) {
             add(book);
         }
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 }

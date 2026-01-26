@@ -1,13 +1,15 @@
-package org.example.library.model;
+package org.example.library.model.article;
 
 import org.example.constansts.ResourceType;
+import org.example.library.model.BaseModel;
 
 import java.time.LocalDate;
 
 
-public class Reference extends BaseModel {
+public class Article extends BaseModel {
 
-    public Reference(LocalDate pubDate, String title, String author, String content) {
+
+    public Article(LocalDate pubDate, String title, String author, String content) {
         super(title, author, content, pubDate);
     }
 
@@ -18,12 +20,12 @@ public class Reference extends BaseModel {
 
     @Override
     public ResourceType resourceType() {
-        return ResourceType.REFERENCE;
+        return ResourceType.ARTICLE;
     }
 
     @Override
     public String toString() {
-        return "Reference{" +
+        return "Article{" +
                 "author='" + author + '\'' +
                 ", content='" + content + '\'' +
                 ", pubDate=" + pubDate +

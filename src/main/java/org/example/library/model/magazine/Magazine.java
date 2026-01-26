@@ -1,6 +1,7 @@
-package org.example.library.model;
+package org.example.library.model.magazine;
 
 import org.example.constansts.ResourceType;
+import org.example.library.model.BaseModel;
 
 import java.time.LocalDate;
 
@@ -20,7 +21,7 @@ public class Magazine extends BaseModel {
 
     @Override
     public ResourceType resourceType() {
-        return ResourceType.REFERENCE;
+        return ResourceType.MAGAZINE;
     }
 
     @Override

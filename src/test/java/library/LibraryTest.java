@@ -1,58 +1,57 @@
 package library;
 
+import org.example.constansts.SearchField;
 import org.example.library.Library;
 import org.junit.Assert;
 import org.junit.Test;
+import utils.TestUtils;
 
-import java.time.LocalDate;
+import java.util.Map;
 
 public class LibraryTest {
 
-//    @Test
-//    public void add_book_works_correctly() {
-//        var library = new Library();
-//
-//        library.addItem(new Book("book1", "author1", LocalDate.now(), Book.Status.EXIST));
-//
-//        Assert.assertEquals(1, library.getAll().length);
-//    }
-//
-//    @Test
-//    public void search_by_title_works_correctly() {
-//        var library = new Library();
-//        var title = "title";
-//        var book = new Book(title, "author1", LocalDate.now(), Book.Status.EXIST);
-//        library.addItem(book);
-//
-//        var searched = library.findByTitle(title);
-//
-//        Assert.assertTrue(searched.isPresent());
-//        Assert.assertEquals(book, searched.get());
-//    }
-//
-//    @Test
-//    public void search_by_author_works_correctly() {
-//        var library = new Library();
-//        var author = "title";
-//        var book = new Book("title", author, LocalDate.now(), Book.Status.EXIST);
-//        library.addItem(book);
-//
-//        var searched = library.findByAuthor(author);
-//
-//        Assert.assertTrue(searched.isPresent());
-//        Assert.assertEquals(book, searched.get());
-//    }
-//
-//    @Test
-//    public void remove_book_works_correctly() {
-//        var library = new Library();
-//        var book = new Book("book1", "author1", LocalDate.now(), Book.Status.EXIST);
-//        library.addItem(book);
-//
-//        library.removeItem(book);
-//
-//        Assert.assertEquals(library.getAll().length, 0);
-//    }
+    @Test
+    public void add_book_works_correctly() throws IllegalAccessException {
+        var library = new Library();
+        library.addItem(TestUtils.createBook());
+        library.addItem(TestUtils.createArticle());
+        library.addItem(TestUtils.createMagazine());
+
+        Assert.assertEquals(3, library.getAll().length);
+    }
+
+    @Test
+    public void search_works_correctly() {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+
+        var searched = library.search(Map.ofEntries(Map.entry(SearchField.TITLE, article.getTitle())));
+
+        Assert.assertEquals(1, searched.length);
+        Assert.assertEquals(article, searched[0]);
+    }
+
+    @Test
+    public void remove_book_works_correctly() {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+
+        library.removeItem(book);
+
+        Assert.assertEquals(library.getAll().length, 2);
+        Assert.assertEquals(library.getAll()[0], magazine);
+        Assert.assertEquals(library.getAll()[1], article);
+    }
 //
 //    @Test
 //    public void sort_works_correctly() {

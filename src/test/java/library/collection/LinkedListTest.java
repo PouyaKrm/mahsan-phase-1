@@ -1,6 +1,6 @@
 package library.collection;
 
-import org.example.library.model.Book;
+import org.example.library.model.book.Book;
 import utils.TestUtils;
 import org.example.library.collection.LinkedList;
 import org.junit.Assert;

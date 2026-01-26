@@ -1,11 +1,6 @@
 package org.example.library.collection;
 
-import org.example.library.model.BaseModel;
-
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface LibraryCollection<T extends Object> {
@@ -15,4 +10,5 @@ public interface LibraryCollection<T extends Object> {
     T[] search(Predicate<T> predicate, Class<T> clazz);
     void sort(Comparator<T> comparator);
     void addAll(T[] books);
+    int size();
 }
