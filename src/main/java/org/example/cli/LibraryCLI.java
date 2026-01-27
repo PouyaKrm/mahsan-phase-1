@@ -36,7 +36,7 @@ public class LibraryCLI {
 
     public void start() throws IOException, ItemNotFoundException {
         System.out.println("Welcome to the Library CLI");
-        while(true) {
+        while (true) {
             System.out.println("1.File import,  2.Direct Input from terminal, 3.Search, 4.Export, 5.borrow book, 6.Show borrow 7.return item");
             var op = getMainOptions();
             handleOption(op);
@@ -76,11 +76,10 @@ public class LibraryCLI {
     }
 
 
-
     private void searchBook() {
         System.out.println("Enter search term comma seperated(<field name>  <value>)");
-            var searchTermsStr = scanner.nextLine();
-            var searchTerms = Arrays.stream(searchTermsStr.split(","));
+        var searchTermsStr = scanner.nextLine();
+        var searchTerms = Arrays.stream(searchTermsStr.split(","));
         var searchDtos = searchTerms.map(searchTerm -> {
             var termValue = searchTerm.split(" ");
             var field = SearchField.valueOf(termValue[0]);
@@ -98,6 +97,7 @@ public class LibraryCLI {
         var title = scanner.nextLine();
         library.returnItem(title);
     }
+
     private Optional<Integer> getNumberOption() {
         var p = scanner.nextLine();
         var vals = Arrays.stream(Options.values()).map(item -> item.value).toList();
@@ -121,9 +121,11 @@ public class LibraryCLI {
         SHOW_BORROWED(6),
         RETURN(7);
         private final int value;
+
         Options(int i) {
             this.value = i;
         }
+
         static Options fromValue(int i) {
             return Arrays.stream(Options.values()).filter(item -> item.value == i).findFirst().get();
         }
@@ -132,10 +134,10 @@ public class LibraryCLI {
     private Book[] fileImport() {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
-        try(var file = new FileInputStream(filePath.toString())) {
+        try (var file = new FileInputStream(filePath.toString())) {
             var bs = bookImporter.getModels(file, ResourceType.BOOK, Book.class);
             return bs;
-        }  catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -164,7 +166,7 @@ public class LibraryCLI {
     }
 
     private <T extends BaseModel> void writeToFile(T[] books) throws IOException {
-        try(FileWriter fileWriter = new FileWriter("src/main/resources/output.txt")) {
+        try (FileWriter fileWriter = new FileWriter("src/main/resources/output.txt")) {
             for (T book : books) {
                 AbstractModelFactory factory = factories.get(book.resourceType());
                 var line = factory.parseModelToString(book);

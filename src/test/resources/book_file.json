@@ -1,0 +1,24 @@
+[
+  {
+    "title": "title",
+    "author": "author",
+    "pubDate": "01-02-2024",
+    "content": "content",
+    "status": "EXIST"
+  },
+  {
+    "title": "title2",
+    "author": "author2",
+    "pubDate": "01-02-2024",
+    "content": "content",
+    "status": "BORROWED"
+  },
+  {
+    "title": "title3",
+    "author": "author3",
+    "pubDate": "01-02-2024",
+    "content": "content",
+    "status": "BANNED"
+  }
+]
+

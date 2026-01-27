@@ -11,6 +11,9 @@ import java.time.format.DateTimeFormatter;
 public class Book extends BaseModel {
     private Status status;
 
+    public Book() {
+    }
+
     public Book(LocalDate pubDate, String title, String author, String content, Status status) {
         super(title, author, content, pubDate);
         this.status = status;

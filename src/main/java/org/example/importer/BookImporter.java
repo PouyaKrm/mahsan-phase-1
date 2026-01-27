@@ -11,4 +11,6 @@ public interface BookImporter {
     <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz) throws IOException;
 
     <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, String terminationLine) throws IOException;
+
+    boolean supportsStdIn();
 }

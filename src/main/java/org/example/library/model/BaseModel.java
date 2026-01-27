@@ -1,5 +1,7 @@
 package org.example.library.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.example.constansts.AppConfigs;
 import org.example.constansts.ResourceType;
 
 import java.time.LocalDate;
@@ -9,7 +11,11 @@ public abstract class BaseModel {
     protected String title;
     protected String author;
     protected String content;
+
+    @JsonFormat(pattern = AppConfigs.DATE_FORMAT)
     protected LocalDate borrowDate;
+
+    @JsonFormat(pattern = AppConfigs.DATE_FORMAT)
     protected LocalDate pubDate;
 
     public BaseModel(String title, String author, String content, LocalDate pubDate) {
