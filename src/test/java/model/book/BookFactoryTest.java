@@ -1,7 +1,6 @@
-package model;
+package model.book;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.model.article.ArticleFactory;
 import org.example.library.model.book.BookFactory;
 import org.junit.Test;
 

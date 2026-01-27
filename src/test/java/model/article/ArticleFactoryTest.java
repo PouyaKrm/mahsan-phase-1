@@ -1,23 +1,23 @@
-package model;
+package model.article;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.model.book.BookFactory;
-import org.example.library.model.magazine.MagazineFactory;
+import org.example.library.model.article.ArticleFactory;
 import org.junit.Test;
 
-public class MagazineFactoryTest {
+public class ArticleFactoryTest {
+
     @Test(expected = InvalidInputData.class)
     public void createModelFromString_throws_InvalidInputData_on_invalid_date() throws InvalidInputData {
-        var line = "title,author,01-02-20";
-        var factory =  MagazineFactory.getFactory();
+        var line = "title,author,01-02-20,content";
+        var factory =  ArticleFactory.getFactory();
 
         factory.createModelFromString(line);
     }
 
     @Test(expected = InvalidInputData.class)
     public void createModelFromString_throws_InvalidInputData_on_invalid_fiels_count() throws InvalidInputData {
-        var line = "title,author,01-02-20,content";
-        var factory =  MagazineFactory.getFactory();
+        var line = "title,author,01-02-20";
+        var factory =  ArticleFactory.getFactory();
 
         factory.createModelFromString(line);
     }
