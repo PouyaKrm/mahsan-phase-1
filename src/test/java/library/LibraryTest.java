@@ -1,7 +1,7 @@
 package library;
 
 import org.example.constansts.ResourceType;
-import org.example.constansts.SEARCH_OPERATION;
+import org.example.constansts.SearchOperation;
 import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.Library;
@@ -36,8 +36,8 @@ public class LibraryTest {
         library.addItem(magazine);
         library.addItem(article);
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
-        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SEARCH_OPERATION.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.TITLE, book.getTitle(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.TITLE, book.getTitle(), SearchOperation.EQ));
 
         var searched = library.search(searchDTOS);
 
@@ -55,7 +55,7 @@ public class LibraryTest {
         library.addItem(magazine);
         library.addItem(article);
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();;
-        searchDTOS.add(new SearchDTO(SearchField.Status, book.getStatus().toString(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.Status, book.getStatus().toString(), SearchOperation.EQ));
 
         var searched = library.search(searchDTOS);
 

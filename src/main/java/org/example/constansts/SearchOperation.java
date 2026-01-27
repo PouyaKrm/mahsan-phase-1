@@ -1,6 +1,6 @@
 package org.example.constansts;
 
-public enum SEARCH_OPERATION {
+public enum SearchOperation {
     EQ,
     CONTAINS
 }
