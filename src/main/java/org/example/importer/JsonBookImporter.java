@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,16 @@ public class JsonBookImporter implements BookImporter {
     @Override
     public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, String terminationLine) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public <T extends BaseModel> void writeToFile(T[] data, Path filePath) throws IOException {
+
+    }
+
+    @Override
+    public Object[] getModels(InputStream inputStream) throws IOException {
+        return new Object[0];
     }
 
     @Override

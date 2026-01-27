@@ -40,4 +40,9 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
     public String parseModelToString(Magazine model) {
         return MessageFormat.format("{0},{1},{2},{3},{4}", model.getTitle(), model.getAuthor(), model.getPubDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)).toString(), model.getContent());
     }
+
+    @Override
+    public String getDelimeter() {
+        return DELIMETER;
+    }
 }

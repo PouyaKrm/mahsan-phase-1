@@ -41,4 +41,9 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
     public String parseModelToString(Article model) {
         return MessageFormat.format("{0},{1},{2},{3}", model.getTitle(), model.getAuthor(), model.getPubDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)).toString(), model.getContent());
     }
+
+    @Override
+    public String getDelimeter() {
+        return DELIMETER;
+    }
 }

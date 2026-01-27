@@ -40,4 +40,9 @@ public class BookFactory extends AbstractModelFactory<Book> {
     public String parseModelToString(Book model) {
         return MessageFormat.format("{0},{1},{2},{3},{4}", model.getTitle(), model.getAuthor(), model.getPubDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)).toString(), model.getContent(), model.getStatus());
     }
+
+    @Override
+    public String getDelimeter() {
+        return DELIMETER;
+    }
 }

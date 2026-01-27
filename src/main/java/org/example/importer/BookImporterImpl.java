@@ -2,17 +2,15 @@ package org.example.importer;
 
 import org.example.constansts.ResourceType;
 import org.example.exception.InvalidInputData;
+import org.example.library.model.AbstractModelFactory;
 import org.example.library.model.BaseModel;
 import org.example.library.model.ModelFactory;
+import org.example.utils.Utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class BookImporterImpl implements BookImporter {
 
@@ -29,12 +27,43 @@ public class BookImporterImpl implements BookImporter {
     }
 
     @Override
+    public <T extends BaseModel> void writeToFile(T[] data, Path filePath) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(filePath.toFile())) {
+            for (T item : data) {
+                var f = factory.getFactory(item.getClass());
+                var line = createStoreLine(item);
+                fileWriter.write(line);
+                fileWriter.write("\n");
+            }
+        }
+    }
+
+    @Override
+    public Object[] getModels(InputStream inputStream) throws IOException {
+        List<Object> books = new ArrayList<>();
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                var book = recreateData(line);
+                books.add(book);
+            }
+
+        } catch (InvalidInputData e) {
+            throw new RuntimeException(e);
+        }
+        var arr = new Object[books.size()];
+        books.toArray(arr);
+        return arr;
+    }
+
+
+    @Override
     public boolean supportsStdIn() {
         return true;
     }
 
 
-    private   <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) throws IOException {
+    private <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) throws IOException {
         List<Object> books = new ArrayList<>();
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
@@ -56,6 +85,25 @@ public class BookImporterImpl implements BookImporter {
         return Arrays.copyOf(result, result.length,
                 (Class<? extends T[]>) java.lang.reflect.Array
                         .newInstance(clazz, 0).getClass());
+    }
+
+    private BaseModel recreateData(String line) throws InvalidInputData {
+        try {
+            var splited = line.split(",");
+            Class cs = Class.forName(splited[0]);
+            var f = factory.getFactory(cs);
+            splited = line.split(f.getDelimeter());
+            var originalLine = String.join(f.getDelimeter(), Arrays.copyOfRange(splited, 1, splited.length));
+            return factory.create(originalLine, cs);
+        } catch (ClassNotFoundException e) {
+            throw new InvalidInputData(MessageFormat.format("invalid class name in: {0}", line), e);
+        }
+
+    }
+
+    private <T extends BaseModel> String createStoreLine(T item) {
+        var f = factory.getFactory(item.getClass());
+        return MessageFormat.format("{0}" + "," + "{1}", item.getClass().toString(), factory.parseToString(item));
     }
 
 }
