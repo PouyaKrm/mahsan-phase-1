@@ -8,6 +8,10 @@ import org.example.library.model.article.ArticleFactory;
 import org.example.library.model.book.BookFactory;
 import org.example.library.model.magazine.MagazineFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.InvalidParameterException;
 import java.util.*;
 
@@ -26,33 +30,31 @@ public class BookImporterImpl implements BookImporter {
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz) {
-        return getModels(scanner, resourceType, clazz, Optional.empty());
+    public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz) throws IOException {
+        return getModels(inputStream, resourceType, clazz, Optional.empty());
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz, String terminationLine) {
-        return getModels(scanner, resourceType, clazz, Optional.of(terminationLine));
+    public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, String terminationLine) throws IOException {
+        return getModels(inputStream, resourceType, clazz, Optional.of(terminationLine));
     }
 
 
-    private <T extends BaseModel> T[] getModels(Scanner scanner, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) {
+    private <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) throws IOException {
         List<Object> books = new ArrayList<>();
-        while (scanner.hasNextLine()) {
-            try {
-                var line = scanner.nextLine();
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
                 if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
                     break;
                 }
                 var book = createModel(resourceType, line, clazz);
                 books.add(book);
 
-            } catch (InvalidParameterException e) {
-                e.printStackTrace();
-            } catch (InvalidInputData e) {
-                System.err.println(e.getMessage());
             }
 
+        } catch (InvalidInputData e) {
+            throw new RuntimeException(e);
         }
 
         Object[] result = new Object[books.size()];
@@ -62,3 +64,4 @@ public class BookImporterImpl implements BookImporter {
                         .newInstance(clazz, 0).getClass());
     }
 }
+

@@ -15,12 +15,7 @@ import org.example.library.model.book.Book;
 import org.example.library.model.book.BookFactory;
 import org.example.library.model.magazine.MagazineFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.time.format.DateTimeFormatter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -135,23 +130,20 @@ public class LibraryCLI {
     private Book[] fileImport() {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
-        try {
-            var fileReader = new FileReader(filePath);
-            var fileScanner = new Scanner(fileReader);
-            var bs = bookImporter.getModels(fileScanner, ResourceType.BOOK, Book.class);
-            fileScanner.close();
+        try(var file = new FileInputStream(filePath.toString())) {
+            var bs = bookImporter.getModels(file, ResourceType.BOOK, Book.class);
             return bs;
-        } catch (FileNotFoundException e) {
+        }  catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Book[] direcImport() {
+    private Book[] direcImport() throws IOException {
         System.out.println("Enter each book line by line(use \\q to exit): ");
-        return bookImporter.getModels(scanner, ResourceType.BOOK, Book.class, "\\q");
+        return bookImporter.getModels(System.in, ResourceType.BOOK, Book.class, "\\q");
     }
 
-    private Book[] importBooks(Options option) {
+    private Book[] importBooks(Options option) throws IOException {
         if (option == Options.FILE) {
             return fileImport();
         }
