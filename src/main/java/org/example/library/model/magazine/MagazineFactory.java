@@ -1,5 +1,8 @@
 package org.example.library.model.magazine;
 
+import org.example.exception.InvalidInputData;
+import org.example.library.ModelDataValidator;
+import org.example.library.ModelDataValidatorImpl;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.book.Book;
 import org.example.library.model.book.BookFactory;
@@ -13,6 +16,7 @@ public class MagazineFactory extends ModelFactory<Magazine> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
     private static final MagazineFactory factory = new MagazineFactory();
+    private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
     private MagazineFactory() {
 
@@ -23,13 +27,14 @@ public class MagazineFactory extends ModelFactory<Magazine> {
     }
 
     @Override
-    public Magazine createModelFromString(String string) {
+    public Magazine createModelFromString(String string) throws InvalidInputData {
         var str = string.trim();
         String[] fields = str.split(DELIMETER);
-        if (fields.length != 5) {
-            throw new InvalidParameterException("Invalid book line: " + str);
+        if (fields.length != 4) {
+            throw new InvalidInputData("Invalid book line: " + str);
         }
         var dateField = fields[2];
+        validator.validateDate(dateField, DATE_FORMAT);
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(DATE_FORMAT));
         return new Magazine(date, fields[0], fields[1], fields[3]);
     }

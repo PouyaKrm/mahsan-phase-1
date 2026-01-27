@@ -1,5 +1,8 @@
 package org.example.library.model.book;
 
+import org.example.exception.InvalidInputData;
+import org.example.library.ModelDataValidator;
+import org.example.library.ModelDataValidatorImpl;
 import org.example.library.model.ModelFactory;
 
 import java.security.InvalidParameterException;
@@ -11,6 +14,7 @@ public class BookFactory extends ModelFactory<Book> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
     private static final BookFactory factory = new BookFactory();
+    private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
     private BookFactory() {
 
@@ -21,13 +25,14 @@ public class BookFactory extends ModelFactory<Book> {
     }
 
     @Override
-    public Book createModelFromString(String string) {
+    public Book createModelFromString(String string) throws InvalidInputData {
         var str = string.trim();
         String[] fields = str.split(DELIMETER);
         if (fields.length != 5) {
-            throw new InvalidParameterException("Invalid book line: " + str);
+            throw new InvalidInputData("Invalid book line: " + str);
         }
         var dateField = fields[2];
+        validator.validateDate(dateField, DATE_FORMAT);
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(DATE_FORMAT));
         return new Book(date, fields[0], fields[1], fields[3], Enum.valueOf(Book.Status.class, fields[4]));
     }

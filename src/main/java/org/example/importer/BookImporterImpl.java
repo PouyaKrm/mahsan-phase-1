@@ -1,6 +1,7 @@
 package org.example.importer;
 
 import org.example.constansts.ResourceType;
+import org.example.exception.InvalidInputData;
 import org.example.library.model.BaseModel;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.article.ArticleFactory;
@@ -19,7 +20,7 @@ public class BookImporterImpl implements BookImporter {
             Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
     );
 
-    public <T extends BaseModel> T createModel(ResourceType resourceType, String line, Class<T> clazz) {
+    public <T extends BaseModel> T createModel(ResourceType resourceType, String line, Class<T> clazz) throws InvalidInputData {
         var factory = factories.get(resourceType);
         return clazz.cast(factory.createModelFromString(line));
     }
@@ -48,6 +49,8 @@ public class BookImporterImpl implements BookImporter {
 
             } catch (InvalidParameterException e) {
                 e.printStackTrace();
+            } catch (InvalidInputData e) {
+                System.err.println(e.getMessage());
             }
 
         }
