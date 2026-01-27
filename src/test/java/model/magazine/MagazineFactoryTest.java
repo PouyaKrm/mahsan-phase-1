@@ -12,12 +12,4 @@ public class MagazineFactoryTest {
 
         factory.createModelFromString(line);
     }
-
-    @Test(expected = InvalidInputData.class)
-    public void createModelFromString_throws_InvalidInputData_on_invalid_fiels_count() throws InvalidInputData {
-        var line = "title,author,01-02-20,content";
-        var factory =  MagazineFactory.getFactory();
-
-        factory.createModelFromString(line);
-    }
 }

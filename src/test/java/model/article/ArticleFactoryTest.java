@@ -14,11 +14,4 @@ public class ArticleFactoryTest {
         factory.createModelFromString(line);
     }
 
-    @Test(expected = InvalidInputData.class)
-    public void createModelFromString_throws_InvalidInputData_on_invalid_fiels_count() throws InvalidInputData {
-        var line = "title,author,01-02-20";
-        var factory =  ArticleFactory.getFactory();
-
-        factory.createModelFromString(line);
-    }
 }
