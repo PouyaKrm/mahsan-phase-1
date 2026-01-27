@@ -103,8 +103,22 @@ public class LibraryTest {
 
     }
 
+    @Test(expected = ItemNotFoundException.class)
+    public void borrow_book_throws_ItemNotFoundException() throws ItemNotFoundException {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+
+        library.borrowItem("fake");
+    }
+
+
     @Test
-    public void get_borrowed_book_works_correctly() throws ItemNotFoundException {
+    public void get_borrowed_book_works_correctly() {
         var library = new Library();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);
@@ -119,6 +133,38 @@ public class LibraryTest {
 
         Assert.assertEquals(1, items.length);
         Assert.assertEquals(book, items[0]);
+    }
+
+    @Test
+    public void return_book_works_correctly() throws ItemNotFoundException {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        book.setStatus(Book.Status.BORROWED);
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+        library.addItem(TestUtils.createBook("book new"));
+
+        var item = library.returnItem(book.getTitle());
+
+        Assert.assertEquals(book, item);
+        Assert.assertEquals(book.getStatus(), Book.Status.EXIST);
+    }
+
+    @Test(expected = ItemNotFoundException.class)
+    public void return_book_throws_item_not_found_exception() throws ItemNotFoundException {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        book.setStatus(Book.Status.BORROWED);
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+
+        library.returnItem("fake");
     }
 //
 //    @Test

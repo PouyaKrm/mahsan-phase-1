@@ -109,15 +109,16 @@ public class Library {
         return item;
     }
 
-    public BaseModel returnItem(BaseModel item) throws ItemNotFoundException {
+    public BaseModel returnItem(String title) throws ItemNotFoundException {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.TITLE, item.getTitle(), SearchOperation.CONTAINS));
+        searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.BORROWED.toString(), SearchOperation.EQ));
         var result = search(searchDTOS);
         if (result.length == 0) {
             throw new ItemNotFoundException("item not found");
         }
+        var item = result[0];
         ((Book) item).setStatus(Book.Status.EXIST);
         return item;
     }
