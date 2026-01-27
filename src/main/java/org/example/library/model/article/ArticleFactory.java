@@ -3,13 +3,13 @@ package org.example.library.model.article;
 import org.example.exception.InvalidInputData;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
-import org.example.library.model.ModelFactory;
+import org.example.library.model.AbstractModelFactory;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ArticleFactory extends ModelFactory<Article> {
+public class ArticleFactory extends AbstractModelFactory<Article> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
     private static final ArticleFactory factory = new ArticleFactory();

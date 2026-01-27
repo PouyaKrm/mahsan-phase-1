@@ -9,7 +9,7 @@ import org.example.importer.BookImporterImpl;
 import org.example.library.Library;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseModel;
-import org.example.library.model.ModelFactory;
+import org.example.library.model.AbstractModelFactory;
 import org.example.library.model.article.ArticleFactory;
 import org.example.library.model.book.Book;
 import org.example.library.model.book.BookFactory;
@@ -19,8 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +29,7 @@ public class LibraryCLI {
     private final Scanner scanner = new Scanner(System.in);
     private final BookImporter bookImporter = new BookImporterImpl();
     private final Library library = new Library();
-    private final Map<ResourceType, ModelFactory<? extends BaseModel>> factories = Map.ofEntries(
+    private final Map<ResourceType, AbstractModelFactory<? extends BaseModel>> factories = Map.ofEntries(
             Map.entry(ResourceType.BOOK, BookFactory.getFactory()),
             Map.entry(ResourceType.ARTICLE, ArticleFactory.getFactory()),
             Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
@@ -172,7 +170,7 @@ public class LibraryCLI {
     private <T extends BaseModel> void writeToFile(T[] books) throws IOException {
         try(FileWriter fileWriter = new FileWriter("src/main/resources/output.txt")) {
             for (T book : books) {
-                ModelFactory factory = factories.get(book.resourceType());
+                AbstractModelFactory factory = factories.get(book.resourceType());
                 var line = factory.parseModelToString(book);
                 fileWriter.write(line);
                 fileWriter.write("\n");
