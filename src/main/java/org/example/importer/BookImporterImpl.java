@@ -17,13 +17,6 @@ import java.util.*;
 
 public class BookImporterImpl extends AbstractImporter {
 
-
-    private final ModelFactory factory = ModelFactory.getInstance();
-
-    public <T extends BaseModel> T createModel(ResourceType resourceType, String line, Class<T> clazz) throws InvalidInputData {
-        return factory.create(resourceType, line, clazz);
-    }
-
     @Override
     public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz) throws IOException {
         return getModels(inputStream, resourceType, clazz, Optional.empty());
@@ -35,28 +28,6 @@ public class BookImporterImpl extends AbstractImporter {
     }
 
 
-    private <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) throws IOException {
-        List<Object> books = new ArrayList<>();
-        try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
-                    break;
-                }
-                var book = createModel(resourceType, line, clazz);
-                books.add(book);
 
-            }
-
-        } catch (InvalidInputData e) {
-            throw new RuntimeException(e);
-        }
-
-        Object[] result = new Object[books.size()];
-        books.toArray(result);
-        return Arrays.copyOf(result, result.length,
-                (Class<? extends T[]>) java.lang.reflect.Array
-                        .newInstance(clazz, 0).getClass());
-    }
 }
 
