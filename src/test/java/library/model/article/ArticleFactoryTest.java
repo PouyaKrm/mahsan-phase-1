@@ -1,4 +1,4 @@
-package model.article;
+package library.model.article;
 
 import org.example.exception.InvalidInputData;
 import org.example.library.model.article.ArticleFactory;

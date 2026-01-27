@@ -1,7 +1,7 @@
-package model;
+package library.validator;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.ModelDataValidatorImpl;
+import org.example.library.validator.ModelDataValidatorImpl;
 import org.junit.Test;
 
 public class ModelDataValidatorTestImpl {

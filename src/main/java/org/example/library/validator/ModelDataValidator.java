@@ -1,4 +1,4 @@
-package org.example.library;
+package org.example.library.validator;
 
 import org.example.exception.InvalidInputData;
 

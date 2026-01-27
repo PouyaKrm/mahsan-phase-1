@@ -1,13 +1,10 @@
 package org.example.library.model.article;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.ModelDataValidator;
-import org.example.library.ModelDataValidatorImpl;
+import org.example.library.validator.ModelDataValidator;
+import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.ModelFactory;
-import org.example.library.model.book.Book;
-import org.example.library.model.book.BookFactory;
 
-import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
