@@ -2,10 +2,12 @@ package org.example.library;
 
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.example.constansts.ResourceType;
+import org.example.constansts.SEARCH_OPERATION;
 import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.collection.ArrayList;
 import org.example.library.collection.LibraryCollection;
+import org.example.library.dto.SearchDTO;
 import org.example.library.model.*;
 import org.example.library.model.article.Article;
 import org.example.library.model.book.Book;
@@ -40,10 +42,10 @@ public class Library {
         }
     }
 
-    public BaseModel[] search(Map<SearchField, String> fields) {
-        var bookSearch = bookCollection.search(getPredicates(fields), Book.class);
-        var magazineSearch = magazines.search(getPredicates(fields), Magazine.class);
-        var articleSearch = articles.search(getPredicates(fields), Article.class);
+    public BaseModel[] search(List<SearchDTO> searchDTOS) {
+        var bookSearch = bookCollection.search(getPredicates(searchDTOS), Book.class);
+        var magazineSearch = magazines.search(getPredicates(searchDTOS), Magazine.class);
+        var articleSearch = articles.search(getPredicates(searchDTOS), Article.class);
         var result = new BaseModel[bookSearch.length + magazineSearch.length + articleSearch.length];
         System.arraycopy(bookSearch, 0, result, 0, bookSearch.length);
         System.arraycopy(magazineSearch, 0, result, bookSearch.length, magazineSearch.length);
@@ -69,29 +71,38 @@ public class Library {
         }
     }
 
-    private <T extends BaseModel> Predicate<T> getPredicates(Map<SearchField, String> fields) {
+    private <T extends BaseModel> Predicate<T> getPredicates(List<SearchDTO> searchDTOS) {
         Predicate<T> predicate = (b) -> true;
-        for (var field : fields.keySet()) {
-            Predicate<BaseModel> pr;
-            if (field == SearchField.TITLE) {
-                pr = (book) -> book.getTitle().contains(fields.get(field));
-            } else if (field == SearchField.AUTHOR) {
-                pr = (book) -> book.getAuthor().contains(fields.get(field));
-            } else {
-                pr = (book) -> book.resourceType().equals(fields.get(field));
-            }
+        for (var field : searchDTOS) {
+            Predicate<BaseModel> pr = getPredicate(field);
             predicate = predicate.and(pr);
         }
         return predicate;
     }
 
+    private <T extends BaseModel> Predicate<T> getPredicate(SearchDTO dto) {
+        switch (dto.field()) {
+            case TITLE:
+                return dto.operation() == SEARCH_OPERATION.EQ ? (T book) -> book.getTitle().equals(dto.value()) : (T book) -> book.getTitle().contains(dto.value());
+            case AUTHOR:
+                return dto.operation() == SEARCH_OPERATION.EQ ? (T book) -> book.getAuthor().equals(dto.value()) : (T book) -> book.getAuthor().contains(dto.value());
+            case RESOURCE_TYPE:
+                return (T book) -> book.resourceType().toString().equals(dto.value());
+            case Status:
+                return (T book) -> book.resourceType().equals(ResourceType.BOOK) && ((Book) book).getStatus().toString().equals(dto.value());
+            default:
+                return (T book) -> false;
+        }
+
+    }
+
     public BaseModel borrowItem(String title) throws ItemNotFoundException {
-        Map<SearchField, String> fields = new HashMap();
-        fields.put(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString());
-        fields.put(SearchField.TITLE, title);
-        fields.put(SearchField.Status, Book.Status.EXIST.toString());
-        var result = search(fields);
-        if(result.length == 0) {
+        List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
+        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.EXIST.toString(), SEARCH_OPERATION.EQ));
+        var result = search(searchDTOS);
+        if (result.length == 0) {
             throw new ItemNotFoundException("item not found");
         }
         var item = result[0];
@@ -101,12 +112,12 @@ public class Library {
     }
 
     public BaseModel returnItem(BaseModel item) throws ItemNotFoundException {
-        Map<SearchField, String> fields = new HashMap();
-        fields.put(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString());
-        fields.put(SearchField.TITLE, item.getTitle());
-        fields.put(SearchField.Status, Book.Status.BORROWED.toString());
-        var result = search(fields);
-        if(result.length == 0) {
+        List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
+        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.TITLE, item.getTitle(), SEARCH_OPERATION.CONTAINS));
+        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.BORROWED.toString(), SEARCH_OPERATION.EQ));
+        var result = search(searchDTOS);
+        if (result.length == 0) {
             throw new ItemNotFoundException("item not found");
         }
         ((Book) item).setStatus(Book.Status.EXIST);
@@ -114,9 +125,9 @@ public class Library {
     }
 
     public BaseModel[] getBorrowedItems() {
-        Map<SearchField, String> fields = new HashMap();
-        fields.put(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString());
-        fields.put(SearchField.TITLE, Book.Status.BORROWED.toString());
-        return search(fields);
+        List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
+        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.BORROWED.toString(), SEARCH_OPERATION.EQ));
+        return search(searchDTOS);
     }
 }

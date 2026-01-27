@@ -63,7 +63,7 @@ public class LibraryCLI {
                 borrowBook();
                 break;
             case SHOW_BORROWED:
-                System.out.println(library.getBorrowedItems());
+                Arrays.stream(library.getBorrowedItems()).toList().forEach(item -> item.display());
                 break;
             case Options.SEARCH:
                 searchBook();

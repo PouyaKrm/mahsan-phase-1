@@ -1,12 +1,17 @@
 package library;
 
+import org.example.constansts.ResourceType;
+import org.example.constansts.SEARCH_OPERATION;
 import org.example.constansts.SearchField;
+import org.example.exception.ItemNotFoundException;
 import org.example.library.Library;
+import org.example.library.dto.SearchDTO;
+import org.example.library.model.book.Book;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;
 
-import java.util.Map;
+import java.util.List;
 
 public class LibraryTest {
 
@@ -21,7 +26,27 @@ public class LibraryTest {
     }
 
     @Test
-    public void search_works_correctly() {
+    public void search_by_title_resource_type_works_correctly() {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        article.setTitle(book.getTitle());
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+        List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
+        searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SEARCH_OPERATION.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.TITLE, book.getTitle(), SEARCH_OPERATION.EQ));
+
+        var searched = library.search(searchDTOS);
+
+        Assert.assertEquals(1, searched.length);
+        Assert.assertEquals(book, searched[0]);
+    }
+
+    @Test
+    public void search_by_status_works_correctly() {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -29,12 +54,17 @@ public class LibraryTest {
         library.addItem(book);
         library.addItem(magazine);
         library.addItem(article);
+        List<SearchDTO> searchDTOS = new java.util.ArrayList<>();;
+        searchDTOS.add(new SearchDTO(SearchField.Status, book.getStatus().toString(), SEARCH_OPERATION.EQ));
 
-        var searched = library.search(Map.ofEntries(Map.entry(SearchField.TITLE, article.getTitle())));
+        var searched = library.search(searchDTOS);
 
         Assert.assertEquals(1, searched.length);
-        Assert.assertEquals(article, searched[0]);
+        Assert.assertEquals(book, searched[0]);
+
     }
+
+
 
     @Test
     public void remove_book_works_correctly() {
@@ -51,6 +81,44 @@ public class LibraryTest {
         Assert.assertEquals(library.getAll().length, 2);
         Assert.assertEquals(library.getAll()[0], magazine);
         Assert.assertEquals(library.getAll()[1], article);
+    }
+
+    @Test
+    public void borrow_book_works_correctly() throws ItemNotFoundException {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+        library.addItem(TestUtils.createBook("book new"));
+
+        library.borrowItem(book.getTitle());
+
+        var items = library.getBorrowedItems();
+        Assert.assertEquals(1, items.length);
+        Assert.assertEquals(book, items[0]);
+        Assert.assertEquals(book.getStatus(), Book.Status.BORROWED);
+
+    }
+
+    @Test
+    public void get_borrowed_book_works_correctly() throws ItemNotFoundException {
+        var library = new Library();
+        var book = TestUtils.createBook();
+        book.setStatus(Book.Status.BORROWED);
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book);
+        library.addItem(magazine);
+        library.addItem(article);
+        library.addItem(TestUtils.createBook("book new"));
+
+        var items = library.getBorrowedItems();
+
+        Assert.assertEquals(1, items.length);
+        Assert.assertEquals(book, items[0]);
     }
 //
 //    @Test
