@@ -55,7 +55,7 @@ public class LibraryTest {
         library.addItem(magazine);
         library.addItem(article);
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();;
-        searchDTOS.add(new SearchDTO(SearchField.Status, book.getStatus().toString(), SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.STATUS, book.getStatus().toString(), SearchOperation.EQ));
 
         var searched = library.search(searchDTOS);
 

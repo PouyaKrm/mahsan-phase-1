@@ -1,10 +1,13 @@
 package org.example.cli;
 
 import org.example.constansts.ResourceType;
+import org.example.constansts.SearchField;
+import org.example.constansts.SearchOperation;
 import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
 import org.example.library.Library;
+import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseModel;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.article.ArticleFactory;
@@ -34,10 +37,10 @@ public class LibraryCLI {
             Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
     );
 
-    public void start() throws IOException {
+    public void start() throws IOException, ItemNotFoundException {
         System.out.println("Welcome to the Library CLI");
         while(true) {
-            System.out.println("1.File import,  2.Direct Input from terminal, 3.Search by title, 4.Export, 5.borrow book, 6.Show borrow");
+            System.out.println("1.File import,  2.Direct Input from terminal, 3.Search, 4.Export, 5.borrow book, 6.Show borrow 7.return item");
             var op = getMainOptions();
             handleOption(op);
         }
@@ -52,7 +55,7 @@ public class LibraryCLI {
         return Options.fromValue(option.get());
     }
 
-    private void handleOption(Options options) throws IOException {
+    private void handleOption(Options options) throws IOException, ItemNotFoundException {
         switch (options) {
             case FILE:
             case STDIN:
@@ -68,19 +71,36 @@ public class LibraryCLI {
             case Options.SEARCH:
                 searchBook();
                 break;
+            case RETURN:
+                returnBook();
             default:
                 writeToFile(library.getAll());
         }
     }
 
 
+
     private void searchBook() {
         System.out.println("Enter search term comma seperated(<field name>  <value>)");
-            var searchTerm = scanner.nextLine();
-            var searchTerms = Arrays.stream(searchTerm.split(","));
-
+            var searchTermsStr = scanner.nextLine();
+            var searchTerms = Arrays.stream(searchTermsStr.split(","));
+        var searchDtos = searchTerms.map(searchTerm -> {
+            var termValue = searchTerm.split(" ");
+            var field = SearchField.valueOf(termValue[0]);
+            var op = SearchOperation.valueOf(termValue[2]);
+            return new SearchDTO(field, termValue[1], op);
+        }).toList();
+        var result = library.search(searchDtos);
+        for (var dto : result) {
+            dto.display();
+        }
     }
 
+    private void returnBook() throws ItemNotFoundException {
+        System.out.print("Enter book title: ");
+        var title = scanner.nextLine();
+        library.returnItem(title);
+    }
     private Optional<Integer> getNumberOption() {
         var p = scanner.nextLine();
         var vals = Arrays.stream(Options.values()).map(item -> item.value).toList();
@@ -101,7 +121,8 @@ public class LibraryCLI {
         SEARCH(3),
         EXPORT(4),
         BORROW(5),
-        SHOW_BORROWED(6),;
+        SHOW_BORROWED(6),
+        RETURN(7);
         private final int value;
         Options(int i) {
             this.value = i;

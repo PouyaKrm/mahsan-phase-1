@@ -86,7 +86,7 @@ public class Library {
                 return dto.operation() == SearchOperation.EQ ? (T book) -> book.getAuthor().equals(dto.value()) : (T book) -> book.getAuthor().contains(dto.value());
             case RESOURCE_TYPE:
                 return (T book) -> book.resourceType().toString().equals(dto.value());
-            case Status:
+            case STATUS:
                 return (T book) -> book.resourceType().equals(ResourceType.BOOK) && ((Book) book).getStatus().toString().equals(dto.value());
             default:
                 return (T book) -> false;
@@ -98,7 +98,7 @@ public class Library {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.EXIST.toString(), SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.EXIST.toString(), SearchOperation.EQ));
         var result = search(searchDTOS);
         if (result.length == 0) {
             throw new ItemNotFoundException("item not found");
@@ -113,7 +113,7 @@ public class Library {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.BORROWED.toString(), SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.BORROWED.toString(), SearchOperation.EQ));
         var result = search(searchDTOS);
         if (result.length == 0) {
             throw new ItemNotFoundException("item not found");
@@ -126,7 +126,7 @@ public class Library {
     public BaseModel[] getBorrowedItems() {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.Status, Book.Status.BORROWED.toString(), SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.BORROWED.toString(), SearchOperation.EQ));
         return search(searchDTOS);
     }
 }
