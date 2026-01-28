@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 
 public abstract class BaseModel {
+    protected Integer id;
     protected String title;
     protected String author;
     protected String content;
@@ -69,6 +70,14 @@ public abstract class BaseModel {
 
     public void setBorrowDate(LocalDate borrowDate) {
         this.borrowDate = borrowDate;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
 
