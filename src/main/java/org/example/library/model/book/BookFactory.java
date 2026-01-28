@@ -5,6 +5,8 @@ import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +36,24 @@ public class BookFactory extends AbstractModelFactory<Book> {
         validator.validateDate(dateField, DATE_FORMAT);
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(DATE_FORMAT));
         return new Book(date, fields[0], fields[1], fields[3], Enum.valueOf(Book.Status.class, fields[4]));
+    }
+
+    @Override
+    public Book createFromResultSet(ResultSet rs) throws SQLException {
+        var date = rs.getInt("date");
+        var pubDate = LocalDate.ofEpochDay(date);
+        var id = rs.getInt("id");
+        var status = rs.getString("status");
+        Book book = new Book(
+                pubDate,
+                rs.getString("title"),
+                rs.getString("author"),
+                rs.getString("content"),
+                Book.Status.valueOf(status)
+        );
+
+        book.setId(id);
+        return book;
     }
 
     @Override

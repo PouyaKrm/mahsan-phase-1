@@ -1,10 +1,13 @@
 package org.example.library.model.magazine;
 
 import org.example.exception.InvalidInputData;
+import org.example.library.model.book.Book;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -44,5 +47,21 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
     @Override
     public String getDelimeter() {
         return DELIMETER;
+    }
+
+    @Override
+    public Magazine createFromResultSet(ResultSet rs) throws SQLException {
+        var date = rs.getInt("date");
+        var pubDate = LocalDate.ofEpochDay(date);
+        var id = rs.getInt("id");
+        var book = new Magazine(
+                pubDate,
+                rs.getString("title"),
+                rs.getString("author"),
+                rs.getString("content")
+        );
+
+        book.setId(id);
+        return book;
     }
 }

@@ -17,29 +17,15 @@ public class BookRepositoryImpl implements ModeRepository<Book> {
     private final Connection connection = JdbcConnection.getInstance().getConnection();
 
     private final static String TABLE_NAME = "book";
+    private final BookFactory factory = BookFactory.getFactory();
 
     @Override
     public Book[] getAll() throws SQLException {
         List<Book> bookList = new ArrayList<>();
         PreparedStatement ps = connection.prepareStatement("select * from " + TABLE_NAME);
         ResultSet rs = ps.executeQuery();
-        var date = rs.getInt("date");
-        var pubDate = LocalDate.ofEpochDay(date);
-        var id = rs.getInt("id");
-        var status = rs.getString("status");
-
         while (rs.next()) {
-            Book book = new Book(
-                    pubDate,
-                    rs.getString("title"),
-                    rs.getString("author"),
-                    rs.getString("content"),
-                    Book.Status.valueOf(status)
-            );
-
-            book.setId(id);
-
-            bookList.add(book);
+            bookList.add(factory.createFromResultSet(rs));
         }
         return Utils.listToArray(bookList, Book.class);
     }
