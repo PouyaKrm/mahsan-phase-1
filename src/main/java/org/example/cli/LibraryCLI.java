@@ -6,6 +6,7 @@ import org.example.constansts.SearchOperation;
 import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
+import org.example.importer.JsonBookImporterImpl;
 import org.example.library.Library;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.AbstractModelFactory;
@@ -25,7 +26,7 @@ import java.util.*;
 public class LibraryCLI {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final BookImporter bookImporter = new BookImporterImpl();
+    private final BookImporter bookImporter = new JsonBookImporterImpl();
     private final Library library = new Library();
     private final Map<ResourceType, AbstractModelFactory<? extends BaseModel>> factories = Map.ofEntries(
             Map.entry(ResourceType.BOOK, BookFactory.getFactory()),

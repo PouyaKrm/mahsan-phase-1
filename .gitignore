@@ -31,7 +31,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-**/output.txt
+src/out
 
 ### VS Code ###
 .vscode/
