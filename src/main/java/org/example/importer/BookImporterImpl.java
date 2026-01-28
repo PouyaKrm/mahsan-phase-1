@@ -8,6 +8,7 @@ import org.example.library.model.ModelFactory;
 import org.example.utils.Utils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
@@ -16,19 +17,38 @@ public class BookImporterImpl implements BookImporter {
 
     private final ModelFactory factory = ModelFactory.getInstance();
 
+
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz) throws IOException {
-        return getModels(inputStream, resourceType, clazz, Optional.empty());
+    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz) throws IOException {
+        List<T> books = new ArrayList<>();
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                var book = recreateData(line);
+                books.add((T) book);
+            }
+
+        } catch (InvalidInputData e) {
+            throw new RuntimeException(e);
+        }
+
+        return Utils.listToArray(books, clazz);
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, String terminationLine) throws IOException {
-        return getModels(inputStream, resourceType, clazz, Optional.of(terminationLine));
+    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) throws IOException {
+        return getModels(inputStream, clazz, Optional.of(terminationLine));
     }
 
     @Override
-    public <T extends BaseModel> void writeToFile(T[] data, Path filePath) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(filePath.toFile())) {
+    public <T extends BaseModel> void writeToFile(T[] data,  Path folderPath, String fileName) throws IOException {
+        var extIn = fileName.lastIndexOf(".");
+        var bf = new StringBuffer();
+        bf.append(fileName.substring(0, extIn));
+        bf.append(".txt");
+        var filePath = folderPath.resolve(bf.toString());
+        Files.createDirectories(filePath.getParent());
+        try (FileWriter fileWriter = new FileWriter(filePath.toFile(), true)) {
             for (T item : data) {
                 var f = factory.getFactory(item.getClass());
                 var line = createStoreLine(item);
@@ -38,24 +58,6 @@ public class BookImporterImpl implements BookImporter {
         }
     }
 
-    @Override
-    public Object[] getModels(InputStream inputStream) throws IOException {
-        List<Object> books = new ArrayList<>();
-        try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                var book = recreateData(line);
-                books.add(book);
-            }
-
-        } catch (InvalidInputData e) {
-            throw new RuntimeException(e);
-        }
-        var arr = new Object[books.size()];
-        books.toArray(arr);
-        return arr;
-    }
-
 
     @Override
     public boolean supportsStdIn() {
@@ -63,7 +65,7 @@ public class BookImporterImpl implements BookImporter {
     }
 
 
-    private <T extends BaseModel> T[] getModels(InputStream inputStream, ResourceType resourceType, Class<T> clazz, Optional<String> terminationLine) throws IOException {
+    private <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz, Optional<String> terminationLine) throws IOException {
         List<Object> books = new ArrayList<>();
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
@@ -71,7 +73,7 @@ public class BookImporterImpl implements BookImporter {
                 if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
                     break;
                 }
-                var book = factory.create(resourceType, line, clazz);
+                var book = factory.create(line, clazz);
                 books.add(book);
 
             }
@@ -92,18 +94,20 @@ public class BookImporterImpl implements BookImporter {
             var splited = line.split(",");
             Class cs = Class.forName(splited[0]);
             var f = factory.getFactory(cs);
+            line = line.substring(splited[0].length() + 1);
             splited = line.split(f.getDelimeter());
-            var originalLine = String.join(f.getDelimeter(), Arrays.copyOfRange(splited, 1, splited.length));
+            var originalLine = String.join(f.getDelimeter(), splited);
             return factory.create(originalLine, cs);
         } catch (ClassNotFoundException e) {
             throw new InvalidInputData(MessageFormat.format("invalid class name in: {0}", line), e);
         }
-
     }
+
+
 
     private <T extends BaseModel> String createStoreLine(T item) {
         var f = factory.getFactory(item.getClass());
-        return MessageFormat.format("{0}" + "," + "{1}", item.getClass().toString(), factory.parseToString(item));
+        return MessageFormat.format("{0}" + "," + "{1}", item.getClass().getName(), factory.parseToString(item));
     }
 
 }

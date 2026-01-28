@@ -17,10 +17,4 @@ public class Main {
         var cli = new LibraryCLI();
         cli.start();
     }
-
-//    public static void main(String[] args) throws IOException {
-//         final Map<String, String> items = new HashMap();
-//       items.put("test", "result");
-//       System.out.println(items.get("test"));
-//    }
 }

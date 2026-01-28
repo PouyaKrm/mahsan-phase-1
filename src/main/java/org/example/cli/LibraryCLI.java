@@ -18,10 +18,9 @@ import org.example.library.model.magazine.MagazineFactory;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.*;
 
 public class LibraryCLI {
 
@@ -71,17 +70,14 @@ public class LibraryCLI {
             case RETURN:
                 returnBook();
             default:
-                writeToFile(library.getAll());
+                writeToFile();
         }
     }
 
 
     private void searchBook() {
-        System.out.println("Enter search term comma seperated(<field name>  <value>)");
-        var searchTermsStr = scanner.nextLine();
-        var searchTerms = Arrays.stream(searchTermsStr.split(","));
-        var searchDtos = searchTerms.map(searchTerm -> {
-            var termValue = searchTerm.split(" ");
+        var terms = getSearchTerms();
+        var searchDtos = Arrays.stream(terms).map(termValue -> {
             var field = SearchField.valueOf(termValue[0]);
             var op = SearchOperation.valueOf(termValue[2]);
             return new SearchDTO(field, termValue[1], op);
@@ -90,6 +86,19 @@ public class LibraryCLI {
         for (var dto : result) {
             dto.display();
         }
+    }
+
+    private String[][] getSearchTerms() {
+        while (true) {
+            System.out.println("Enter search term comma seperated(<field name>  <value>)");
+            var searchTermsStr = scanner.nextLine();
+            var searchTermsStream = Arrays.stream(searchTermsStr.split(",")).map(item -> item.split(" "));
+            var allMatch = searchTermsStream.allMatch(term -> term.length == 3);
+            if (allMatch) {
+                return Arrays.stream(searchTermsStr.split(",")).map(item -> item.split(" ")).toArray(String[][]::new);
+            }
+        }
+
     }
 
     private void returnBook() throws ItemNotFoundException {
@@ -135,7 +144,7 @@ public class LibraryCLI {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
         try (var file = new FileInputStream(filePath.toString())) {
-            var bs = bookImporter.getModels(file, ResourceType.BOOK, Book.class);
+            var bs = bookImporter.getModels(file, Book.class);
             return bs;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -144,7 +153,7 @@ public class LibraryCLI {
 
     private Book[] direcImport() throws IOException {
         System.out.println("Enter each book line by line(use \\q to exit): ");
-        return bookImporter.getModels(System.in, ResourceType.BOOK, Book.class, "\\q");
+        return bookImporter.getModels(System.in, Book.class, "\\q");
     }
 
     private Book[] importBooks(Options option) throws IOException {
@@ -165,14 +174,23 @@ public class LibraryCLI {
         }
     }
 
-    private <T extends BaseModel> void writeToFile(T[] books) throws IOException {
-        try (FileWriter fileWriter = new FileWriter("src/main/resources/output.txt")) {
-            for (T book : books) {
-                AbstractModelFactory factory = factories.get(book.resourceType());
-                var line = factory.parseModelToString(book);
-                fileWriter.write(line);
-                fileWriter.write("\n");
+    private <T extends BaseModel> void writeToFile() throws IOException {
+        var folderPath = getFilePath();
+        bookImporter.writeToFile(library.getAllBooks(), folderPath, "books.txt");
+        bookImporter.writeToFile(library.getAllArticles(), folderPath, "articles.txt");
+        bookImporter.writeToFile(library.getAllMagazines(), folderPath, "magazines.txt");
+    }
+
+    private Path getFilePath() {
+        while (true) {
+            try {
+                System.out.print("Enter folder path: ");
+                var path = scanner.nextLine();
+                return Path.of(path).toAbsolutePath();
+            } catch (InvalidPathException e) {
+                continue;
             }
+
         }
     }
 

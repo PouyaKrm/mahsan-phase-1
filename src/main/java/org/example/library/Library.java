@@ -63,6 +63,18 @@ public class Library {
         return result;
     }
 
+    public Book[] getAllBooks() {
+        return bookCollection.getItems(Book.class);
+    }
+
+    public Article[] getAllArticles() {
+        return articles.getItems(Article.class);
+    }
+
+    public Magazine[] getAllMagazines() {
+        return magazines.getItems(Magazine.class);
+    }
+
     public <T extends BaseModel> void addAll(T[] books) {
         for (var book : books) {
             addItem(book);
