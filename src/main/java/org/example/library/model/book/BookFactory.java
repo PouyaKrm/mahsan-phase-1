@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class BookFactory extends AbstractModelFactory<Book> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
@@ -42,7 +43,6 @@ public class BookFactory extends AbstractModelFactory<Book> {
     public Book createFromResultSet(ResultSet rs) throws SQLException {
         var date = rs.getInt("date");
         var pubDate = LocalDate.ofEpochDay(date);
-        var id = rs.getInt("id");
         var status = rs.getString("status");
         Book book = new Book(
                 pubDate,
@@ -52,7 +52,13 @@ public class BookFactory extends AbstractModelFactory<Book> {
                 Book.Status.valueOf(status)
         );
 
+        var id = rs.getInt("id");
         book.setId(id);
+        var bd = rs.getInt("borrow_date");
+        if(Objects.nonNull(bd)) {
+            var borrowDate = LocalDate.ofEpochDay(bd);
+            book.setBorrowDate(borrowDate);
+        }
         return book;
     }
 
