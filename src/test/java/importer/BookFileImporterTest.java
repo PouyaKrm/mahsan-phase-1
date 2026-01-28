@@ -1,6 +1,5 @@
 package importer;
 
-import org.example.constansts.ResourceType;
 import org.example.importer.BookImporterImpl;
 import org.example.library.Library;
 import org.example.library.model.book.Book;
@@ -12,7 +11,6 @@ import utils.TestUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
 
 public class BookFileImporterTest {
 
@@ -31,7 +29,7 @@ public class BookFileImporterTest {
     @Test
     public void import_books_successfully() throws IOException {
         var fileName = "src/test/resources/book_file.txt";
-        var stream = new FileInputStream(fileName);
+        Path stream = new FileInputStream(fileName);
         var importer = new BookImporterImpl();
 
         var books = importer.getModels(stream, Book.class);
@@ -53,7 +51,7 @@ public class BookFileImporterTest {
         var path = Path.of(testFolderPath);
         importer.writeToFile(library.getAll(), path, bookFileName);
 
-        InputStream stream = new FileInputStream(path.resolve(bookFileName).toFile());
+        Path stream = new FileInputStream(path.resolve(bookFileName).toFile());
         var data = importer.getModels(stream, Book.class);
         Assert.assertEquals(3, data.length);
 

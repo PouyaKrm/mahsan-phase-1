@@ -1,8 +1,6 @@
 package org.example.importer;
 
-import org.example.constansts.ResourceType;
 import org.example.exception.InvalidInputData;
-import org.example.library.model.AbstractModelFactory;
 import org.example.library.model.BaseModel;
 import org.example.library.model.ModelFactory;
 import org.example.utils.Utils;

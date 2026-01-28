@@ -1,5 +1,6 @@
 package org.example.cli;
 
+import org.example.concurrent.*;
 import org.example.constansts.ResourceType;
 import org.example.constansts.SearchField;
 import org.example.constansts.SearchOperation;
@@ -8,6 +9,7 @@ import org.example.importer.BookImporter;
 import org.example.importer.BookImporterImpl;
 import org.example.importer.JsonBookImporterImpl;
 import org.example.library.Library;
+import org.example.library.constants.LibraryOperationType;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.AbstractModelFactory;
 import org.example.library.model.BaseModel;
@@ -17,76 +19,62 @@ import org.example.library.model.book.BookFactory;
 import org.example.library.model.magazine.MagazineFactory;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class LibraryCLI {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final BookImporter bookImporter = new JsonBookImporterImpl();
-    private final Library library = new Library();
-    private final Map<ResourceType, AbstractModelFactory<? extends BaseModel>> factories = Map.ofEntries(
-            Map.entry(ResourceType.BOOK, BookFactory.getFactory()),
-            Map.entry(ResourceType.ARTICLE, ArticleFactory.getFactory()),
-            Map.entry(ResourceType.MAGAZINE, MagazineFactory.getFactory())
-    );
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final BlockingQueue<ConcurrentMessage> messages = new LinkedBlockingQueue<>();
 
     public void start() throws IOException, ItemNotFoundException {
+        executorService.execute(new LibraryRunnable(messages));
         System.out.println("Welcome to the Library CLI");
         while (true) {
             System.out.println("1.File import,  2.Direct Input from terminal, 3.Search, 4.Export, 5.borrow book, 6.Show borrow 7.return item");
             var op = getMainOptions();
-            handleOption(op);
+            try {
+                handleOption(op);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private Options getMainOptions() {
+    private LibraryOperationType getMainOptions() {
         Optional<Integer> option = Optional.empty();
         while (option.isEmpty()) {
             System.out.println("Enter selected option: ");
             option = getNumberOption();
         }
-        return Options.fromValue(option.get());
+        return LibraryOperationType.fromValue(option.get());
     }
 
-    private void handleOption(Options options) throws IOException, ItemNotFoundException {
+    private void handleOption(LibraryOperationType options) throws IOException, ItemNotFoundException, InterruptedException {
         switch (options) {
-            case FILE:
-            case STDIN:
-                var bs = importBooks(options);
-                library.addAll(bs);
-                break;
-            case BORROW:
-                borrowBook();
-                break;
-            case SHOW_BORROWED:
-                Arrays.stream(library.getBorrowedItems()).toList().forEach(item -> item.display());
-                break;
-            case Options.SEARCH:
-                searchBook();
-                break;
-            case RETURN:
-                returnBook();
-            default:
-                writeToFile();
+            case FILE -> importBooks(options);
+            case STDIN -> importBooks(options);
+            case BORROW -> borrowBook();
+            case SHOW_BORROWED -> messages.put(new ShowBorrowed());
+            case SEARCH -> searchBook();
+            case RETURN -> returnBook();
+            default -> writeToFile();
         }
     }
 
 
-    private void searchBook() {
+    private void searchBook() throws InterruptedException {
         var terms = getSearchTerms();
-        var searchDtos = Arrays.stream(terms).map(termValue -> {
-            var field = SearchField.valueOf(termValue[0]);
-            var op = SearchOperation.valueOf(termValue[2]);
-            return new SearchDTO(field, termValue[1], op);
-        }).toList();
-        var result = library.search(searchDtos);
-        for (var dto : result) {
-            dto.display();
-        }
+        messages.put(new Search(terms));
     }
 
     private String[][] getSearchTerms() {
@@ -102,15 +90,15 @@ public class LibraryCLI {
 
     }
 
-    private void returnBook() throws ItemNotFoundException {
+    private void returnBook() throws ItemNotFoundException, InterruptedException {
         System.out.print("Enter book title: ");
         var title = scanner.nextLine();
-        library.returnItem(title);
+        messages.put(new Return(title));
     }
 
     private Optional<Integer> getNumberOption() {
         var p = scanner.nextLine();
-        var vals = Arrays.stream(Options.values()).map(item -> item.value).toList();
+        var vals = Arrays.stream(LibraryOperationType.values()).map(item -> item.getValue()).toList();
         try {
             var n = Integer.parseInt(p);
             if (vals.contains(n)) {
@@ -122,64 +110,28 @@ public class LibraryCLI {
         }
     }
 
-    private static enum Options {
-        FILE(1),
-        STDIN(2),
-        SEARCH(3),
-        EXPORT(4),
-        BORROW(5),
-        SHOW_BORROWED(6),
-        RETURN(7);
-        private final int value;
 
-        Options(int i) {
-            this.value = i;
-        }
-
-        static Options fromValue(int i) {
-            return Arrays.stream(Options.values()).filter(item -> item.value == i).findFirst().get();
-        }
-    }
-
-    private Book[] fileImport() {
+    private void fileImport() throws FileNotFoundException, InterruptedException {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
-        try (var file = new FileInputStream(filePath.toString())) {
-            var bs = bookImporter.getModels(file, Book.class);
-            return bs;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        messages.put(new FileImport(Path.of(filePath)));
+    }
+
+    private void importBooks(LibraryOperationType option) throws IOException, InterruptedException {
+        if (option == LibraryOperationType.FILE) {
+            fileImport();
         }
     }
 
-    private Book[] direcImport() throws IOException {
-        System.out.println("Enter each book line by line(use \\q to exit): ");
-        return bookImporter.getModels(System.in, Book.class, "\\q");
-    }
-
-    private Book[] importBooks(Options option) throws IOException {
-        if (option == Options.FILE) {
-            return fileImport();
-        }
-        return direcImport();
-    }
-
-    private void borrowBook() {
+    private void borrowBook() throws InterruptedException {
         System.out.print("Enter book title: ");
         var title = scanner.nextLine();
-        try {
-            var item = library.borrowItem(title);
-            item.display();
-        } catch (ItemNotFoundException e) {
-            System.out.println(e.getMessage());
-        }
+        messages.put(new Borrow(title));
     }
 
-    private <T extends BaseModel> void writeToFile() throws IOException {
+    private <T extends BaseModel> void writeToFile() throws IOException, InterruptedException {
         var folderPath = getFilePath();
-        bookImporter.writeToFile(library.getAllBooks(), folderPath, "books.txt");
-        bookImporter.writeToFile(library.getAllArticles(), folderPath, "articles.txt");
-        bookImporter.writeToFile(library.getAllMagazines(), folderPath, "magazines.txt");
+        messages.put(new Export(folderPath));
     }
 
     private Path getFilePath() {

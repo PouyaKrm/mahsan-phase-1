@@ -10,7 +10,6 @@ import utils.TestUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -31,7 +30,7 @@ public class JsonBookImporterTest {
     @Test
     public void imports_json_file_successfully() throws IOException {
         var fileName = "src/test/resources/books.txt";
-        var stream = new FileInputStream(fileName);
+        Path stream = new FileInputStream(fileName);
         var importer = new JsonBookImporterImpl();
 
         var books = importer.getModels(stream, Book.class);
@@ -50,7 +49,7 @@ public class JsonBookImporterTest {
         var importer = new JsonBookImporterImpl();
         var path = Path.of(testFolderPath);
         importer.writeToFile(library.getAll(), path, bookFileName);
-        InputStream stream = new FileInputStream(path.resolve(bookFileName).toFile());
+        Path stream = new FileInputStream(path.resolve(bookFileName).toFile());
         var data = importer.getModels(stream, Book.class);
         Assert.assertEquals(3, data.length);
     }

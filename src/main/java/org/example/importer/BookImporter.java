@@ -1,6 +1,5 @@
 package org.example.importer;
 
-import org.example.constansts.ResourceType;
 import org.example.library.model.BaseModel;
 
 import java.io.IOException;
