@@ -2,9 +2,9 @@ package org.example.concurrent;
 
 import org.example.library.constants.LibraryOperationType;
 
-public class Return extends ConcurrentMessage {
+public class ReturnMessage extends ConcurrentMessage {
     private final String title;
-    public Return(String title) {
+    public ReturnMessage(String title) {
         this.title = title;
     }
 

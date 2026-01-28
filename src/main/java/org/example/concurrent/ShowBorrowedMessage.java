@@ -2,9 +2,10 @@ package org.example.concurrent;
 
 import org.example.library.constants.LibraryOperationType;
 
-public class End extends ConcurrentMessage{
+public class ShowBorrowedMessage extends ConcurrentMessage {
+
     @Override
     public LibraryOperationType getOperationType() {
-        return LibraryOperationType.END;
+        return LibraryOperationType.SHOW_BORROWED;
     }
 }

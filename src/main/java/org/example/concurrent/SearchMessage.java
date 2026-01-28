@@ -2,11 +2,11 @@ package org.example.concurrent;
 
 import org.example.library.constants.LibraryOperationType;
 
-public class Search extends ConcurrentMessage{
+public class SearchMessage extends ConcurrentMessage{
 
     private final String[][] searchTerms;
 
-    public Search(String[][] searchTerms) {
+    public SearchMessage(String[][] searchTerms) {
         this.searchTerms = searchTerms;
     }
 

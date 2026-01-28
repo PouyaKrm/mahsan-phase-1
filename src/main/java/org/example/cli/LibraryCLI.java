@@ -1,26 +1,11 @@
 package org.example.cli;
 
 import org.example.concurrent.*;
-import org.example.constansts.ResourceType;
-import org.example.constansts.SearchField;
-import org.example.constansts.SearchOperation;
 import org.example.exception.ItemNotFoundException;
-import org.example.importer.BookImporter;
-import org.example.importer.BookImporterImpl;
-import org.example.importer.JsonBookImporterImpl;
-import org.example.library.Library;
 import org.example.library.constants.LibraryOperationType;
-import org.example.library.dto.SearchDTO;
-import org.example.library.model.AbstractModelFactory;
 import org.example.library.model.BaseModel;
-import org.example.library.model.article.ArticleFactory;
-import org.example.library.model.book.Book;
-import org.example.library.model.book.BookFactory;
-import org.example.library.model.magazine.MagazineFactory;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -64,7 +49,7 @@ public class LibraryCLI {
             case FILE -> importBooks(options);
             case STDIN -> importBooks(options);
             case BORROW -> borrowBook();
-            case SHOW_BORROWED -> messages.put(new ShowBorrowed());
+            case SHOW_BORROWED -> messages.put(new ShowBorrowedMessage());
             case SEARCH -> searchBook();
             case RETURN -> returnBook();
             default -> writeToFile();
@@ -74,7 +59,7 @@ public class LibraryCLI {
 
     private void searchBook() throws InterruptedException {
         var terms = getSearchTerms();
-        messages.put(new Search(terms));
+        messages.put(new SearchMessage(terms));
     }
 
     private String[][] getSearchTerms() {
@@ -93,7 +78,7 @@ public class LibraryCLI {
     private void returnBook() throws ItemNotFoundException, InterruptedException {
         System.out.print("Enter book title: ");
         var title = scanner.nextLine();
-        messages.put(new Return(title));
+        messages.put(new ReturnMessage(title));
     }
 
     private Optional<Integer> getNumberOption() {
@@ -114,7 +99,7 @@ public class LibraryCLI {
     private void fileImport() throws FileNotFoundException, InterruptedException {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
-        messages.put(new FileImport(Path.of(filePath)));
+        messages.put(new FileImportMessage(Path.of(filePath)));
     }
 
     private void importBooks(LibraryOperationType option) throws IOException, InterruptedException {
@@ -126,12 +111,12 @@ public class LibraryCLI {
     private void borrowBook() throws InterruptedException {
         System.out.print("Enter book title: ");
         var title = scanner.nextLine();
-        messages.put(new Borrow(title));
+        messages.put(new BorrowMessage(title));
     }
 
     private <T extends BaseModel> void writeToFile() throws IOException, InterruptedException {
         var folderPath = getFilePath();
-        messages.put(new Export(folderPath));
+        messages.put(new ExportMessage(folderPath));
     }
 
     private Path getFilePath() {

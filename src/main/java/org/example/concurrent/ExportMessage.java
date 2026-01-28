@@ -4,11 +4,11 @@ import org.example.library.constants.LibraryOperationType;
 
 import java.nio.file.Path;
 
-public class Export extends ConcurrentMessage{
+public class ExportMessage extends ConcurrentMessage{
 
     private final Path folderPath;
 
-    public Export(Path filePath) {
+    public ExportMessage(Path filePath) {
         this.folderPath = filePath;
     }
 

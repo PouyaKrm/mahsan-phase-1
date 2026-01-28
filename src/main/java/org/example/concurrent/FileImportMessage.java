@@ -4,9 +4,9 @@ import org.example.library.constants.LibraryOperationType;
 
 import java.nio.file.Path;
 
-public class FileImport extends ConcurrentMessage {
+public class FileImportMessage extends ConcurrentMessage {
     private final Path filePath;
-    public FileImport(Path filePath) {
+    public FileImportMessage(Path filePath) {
         this.filePath = filePath;
     }
 

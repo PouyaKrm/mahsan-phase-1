@@ -2,9 +2,9 @@ package org.example.concurrent;
 
 import org.example.library.constants.LibraryOperationType;
 
-public class Borrow extends ConcurrentMessage {
+public class BorrowMessage extends ConcurrentMessage {
     private final String title;
-    public Borrow(String title) {
+    public BorrowMessage(String title) {
         this.title = title;
     }
 

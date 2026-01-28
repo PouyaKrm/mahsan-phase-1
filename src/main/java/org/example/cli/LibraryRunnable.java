@@ -13,7 +13,6 @@ import org.example.library.model.book.Book;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
@@ -41,16 +40,16 @@ public class LibraryRunnable implements Runnable {
 
     private void handleMessage(ConcurrentMessage message) {
         switch (message.getOperationType()) {
-            case LibraryOperationType.FILE -> fileImport((FileImport) message);
-            case LibraryOperationType.BORROW -> borrowBook((Borrow) message);
-            case LibraryOperationType.SEARCH -> searchBook((Search) message);
-            case LibraryOperationType.RETURN -> returnBook((Return) message);
-            case LibraryOperationType.EXPORT -> exportBook((Export) message);
+            case LibraryOperationType.FILE -> fileImport((FileImportMessage) message);
+            case LibraryOperationType.BORROW -> borrowBook((BorrowMessage) message);
+            case LibraryOperationType.SEARCH -> searchBook((SearchMessage) message);
+            case LibraryOperationType.RETURN -> returnBook((ReturnMessage) message);
+            case LibraryOperationType.EXPORT -> exportBook((ExportMessage) message);
             case LibraryOperationType.SHOW_BORROWED -> showBorrowed();
         }
     }
 
-    private void fileImport(FileImport fileImport) {
+    private void fileImport(FileImportMessage fileImport) {
         var filePath = fileImport.getFilePath();
         try (var file = new FileInputStream(filePath.toString())) {
             var bs = bookImporter.getModels(file, Book.class);
@@ -60,7 +59,7 @@ public class LibraryRunnable implements Runnable {
         }
     }
 
-    private void borrowBook(Borrow message) {
+    private void borrowBook(BorrowMessage message) {
         try {
             var item = library.borrowItem(message.getTitle());
             item.display();
@@ -69,7 +68,7 @@ public class LibraryRunnable implements Runnable {
         }
     }
 
-    private void searchBook(Search message) {
+    private void searchBook(SearchMessage message) {
         var terms = message.getSearchTerms();
         var searchDtos = Arrays.stream(terms).map(termValue -> {
             var field = SearchField.valueOf(termValue[0]);
@@ -86,7 +85,7 @@ public class LibraryRunnable implements Runnable {
         Arrays.stream(library.getBorrowedItems()).toList().forEach(item -> item.display());
     }
 
-    private void returnBook(Return message) {
+    private void returnBook(ReturnMessage message) {
         try {
             library.returnItem(message.getTitle());
         } catch (ItemNotFoundException e) {
@@ -94,7 +93,7 @@ public class LibraryRunnable implements Runnable {
         }
     }
 
-    private void exportBook(Export message) {
+    private void exportBook(ExportMessage message) {
         var folderPath = message.getFolderPath();
         try {
             bookImporter.writeToFile(library.getAllBooks(), folderPath, "books.txt");
