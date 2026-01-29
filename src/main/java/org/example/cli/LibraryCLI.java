@@ -89,9 +89,8 @@ public class LibraryCLI {
     }
 
     private void returnBook() throws ItemNotFoundException, InterruptedException {
-        System.out.print("Enter book title: ");
-        var title = scanner.nextLine();
-        messages.put(new ReturnMessage(title));
+        var id = getLongFromInput("Enter item id: ");
+        messages.put(new ReturnMessage(id));
     }
 
     private Optional<Integer> getNumberOption() {
@@ -146,21 +145,26 @@ public class LibraryCLI {
     }
 
     private void removeItem() throws InterruptedException {
-        Long id = null;
-        while (Objects.isNull(id)) {
-            System.out.println("Enter item id: ");
-            try {
-                 id = Long.parseLong(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                continue;
-            }
-        }
-
+        var id = getLongFromInput("Enter item id: ");
         messages.put(new RemoveMessage(id, ResourceType.BOOK));
     }
 
     private void exit() throws InterruptedException {
         messages.put(new ExitMessage());
         executorService.shutdown();
+    }
+
+
+    private Long getLongFromInput(String message) {
+        Long id = null;
+        while (Objects.isNull(id)) {
+            System.out.println(message);
+            try {
+                id = Long.parseLong(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                continue;
+            }
+        }
+        return id;
     }
 }

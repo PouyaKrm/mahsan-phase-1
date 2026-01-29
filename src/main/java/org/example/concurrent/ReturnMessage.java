@@ -3,9 +3,9 @@ package org.example.concurrent;
 import org.example.library.constants.LibraryOperationType;
 
 public class ReturnMessage extends ConcurrentMessage {
-    private final String title;
-    public ReturnMessage(String title) {
-        this.title = title;
+    private final Long id;
+    public ReturnMessage(Long id) {
+        this.id = id;
     }
 
     @Override
@@ -13,8 +13,8 @@ public class ReturnMessage extends ConcurrentMessage {
         return LibraryOperationType.RETURN;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getId() {
+        return id;
     }
 }
 

@@ -3,7 +3,6 @@ package library.model.book;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.book.BookRepositoryImpl;
 import org.example.sql.JdbcConnection;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
@@ -43,7 +42,7 @@ public class BookRepositoryImplTest {
         BookRepositoryImpl bookRepository = new BookRepositoryImpl();
         var book = TestUtils.createBook();
 
-        bookRepository.addOne(book);
+        bookRepository.save(book);
 
         var found = bookRepository.getOne(book.getId());
 
@@ -57,7 +56,7 @@ public class BookRepositoryImplTest {
     public void get_one_works_correctly() throws SQLException, ItemNotFoundException {
         BookRepositoryImpl bookRepository = new BookRepositoryImpl();
         var book = TestUtils.createBook();
-        bookRepository.addOne(book);
+        bookRepository.save(book);
 
         var found = bookRepository.getOne(book.getId());
 
@@ -71,8 +70,8 @@ public class BookRepositoryImplTest {
         BookRepositoryImpl bookRepository = new BookRepositoryImpl();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
-        bookRepository.addOne(book);
-        bookRepository.addOne(book2);
+        bookRepository.save(book);
+        bookRepository.save(book2);
 
         var found = bookRepository.getAll();
 
@@ -85,8 +84,8 @@ public class BookRepositoryImplTest {
         BookRepositoryImpl bookRepository = new BookRepositoryImpl();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
-        bookRepository.addOne(book);
-        bookRepository.addOne(book2);
+        bookRepository.save(book);
+        bookRepository.save(book2);
 
         var result = bookRepository.removeOne(book);
 
@@ -103,8 +102,8 @@ public class BookRepositoryImplTest {
         BookRepositoryImpl bookRepository = new BookRepositoryImpl();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
-        bookRepository.addOne(book);
-        bookRepository.addOne(book2);
+        bookRepository.save(book);
+        bookRepository.save(book2);
 
         var result = bookRepository.removeOne(book.getId());
 

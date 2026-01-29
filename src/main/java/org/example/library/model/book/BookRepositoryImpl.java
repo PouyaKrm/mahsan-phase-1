@@ -30,9 +30,8 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public Book addOne(Book model) throws SQLException {
-        var st = MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", TABLE_NAME);
-        var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
+    public Book save(Book model) throws SQLException {
+        var pst = connection.prepareStatement(getStatementForSave(model), Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
         pst.setString(2, model.getAuthor());
         pst.setString(3, model.getContent());
@@ -51,6 +50,13 @@ public class BookRepositoryImpl implements BookRepository {
         }
 
         return model;
+    }
+
+    private String getStatementForSave(Book model) throws SQLException {
+        if(Objects.isNull(model.getId())) {
+            return MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", TABLE_NAME);
+        }
+        return MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, status=?, borrow_date=?", TABLE_NAME);
     }
 
     @Override

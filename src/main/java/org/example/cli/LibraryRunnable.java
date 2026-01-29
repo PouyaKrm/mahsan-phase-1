@@ -58,10 +58,8 @@ public class LibraryRunnable implements Runnable {
         try (var file = new FileInputStream(filePath.toString())) {
             var bs = bookImporter.getModels(file, Book.class);
             library.addAll(bs);
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -93,9 +91,11 @@ public class LibraryRunnable implements Runnable {
 
     private void returnBook(ReturnMessage message) {
         try {
-            library.returnItem(message.getTitle());
+            library.returnItem(message.getId());
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

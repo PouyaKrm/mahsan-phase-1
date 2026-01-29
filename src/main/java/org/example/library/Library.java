@@ -6,7 +6,6 @@ import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.collection.ArrayList;
 import org.example.library.collection.LibraryCollection;
-import org.example.library.constants.LibraryOperationType;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.*;
 import org.example.library.model.article.Article;
@@ -32,7 +31,7 @@ public class Library {
         switch (book.resourceType()) {
             case BOOK -> {
                 bookCollection.add((Book) book);
-                bookRepository.addOne((Book) book);
+                bookRepository.save((Book) book);
             }
             case ARTICLE -> articles.add((Article) book);
             case MAGAZINE -> magazines.add((Magazine) book);
@@ -119,6 +118,8 @@ public class Library {
 
     private <T extends BaseModel> Predicate<T> getPredicate(SearchDTO dto) {
         switch (dto.field()) {
+            case ID:
+                return (T book) -> book.getId().toString().equals(dto.value());
             case TITLE:
                 return dto.operation() == SearchOperation.EQ ? (T book) -> book.getTitle().equals(dto.value()) : (T book) -> book.getTitle().contains(dto.value());
             case AUTHOR:
@@ -148,10 +149,10 @@ public class Library {
         return item;
     }
 
-    public BaseModel returnItem(String title) throws ItemNotFoundException {
+    public BaseModel returnItem(Long id) throws ItemNotFoundException, SQLException {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.ID, id.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.BORROWED.toString(), SearchOperation.EQ));
         var result = search(searchDTOS);
         if (result.length == 0) {
@@ -159,6 +160,7 @@ public class Library {
         }
         var item = result[0];
         ((Book) item).setStatus(Book.Status.EXIST);
+        bookRepository.save((Book) item);
         return item;
     }
 
