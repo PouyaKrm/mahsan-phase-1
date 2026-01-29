@@ -10,8 +10,11 @@ import org.example.library.dto.SearchDTO;
 import org.example.library.model.*;
 import org.example.library.model.article.Article;
 import org.example.library.model.book.Book;
+import org.example.library.model.book.BookRepository;
+import org.example.library.model.book.BookRepositoryImpl;
 import org.example.library.model.magazine.Magazine;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
@@ -22,19 +25,26 @@ public class Library {
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
 
+    private final BookRepository bookRepository = new BookRepositoryImpl();
 
-    public <T extends BaseModel> void addItem(T book) {
+    public <T extends BaseModel> void addItem(T book) throws SQLException {
         switch (book.resourceType()) {
-            case BOOK -> bookCollection.add((Book) book);
+            case BOOK -> {
+                bookCollection.add((Book) book);
+                bookRepository.addOne((Book) book);
+            }
             case ARTICLE -> articles.add((Article) book);
             case MAGAZINE -> magazines.add((Magazine) book);
         }
     }
 
 
-    public <T extends BaseModel> void removeItem(T book) {
+    public <T extends BaseModel> void removeItem(T book) throws SQLException {
         switch (book.resourceType()) {
-            case BOOK -> bookCollection.remove((Book) book);
+            case BOOK -> {
+                bookCollection.remove((Book) book);
+                bookRepository.removeOne((Book) book);
+            }
             case ARTICLE -> articles.remove((Article) book);
             case MAGAZINE -> magazines.remove((Magazine) book);
         }
@@ -75,7 +85,7 @@ public class Library {
         return magazines.getItems(Magazine.class);
     }
 
-    public <T extends BaseModel> void addAll(T[] books) {
+    public <T extends BaseModel> void addAll(T[] books) throws SQLException {
         for (var book : books) {
             addItem(book);
         }
@@ -140,6 +150,15 @@ public class Library {
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.BORROWED.toString(), SearchOperation.EQ));
         return search(searchDTOS);
+    }
+
+    public void initialize() {
+        try {
+            var books = bookRepository.getAll();
+            bookCollection.addAll(books);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

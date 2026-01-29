@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 
 public class JsonBookImporterTest {
 
@@ -40,7 +41,7 @@ public class JsonBookImporterTest {
 
 
     @Test
-    public void write_to_file_works_successfully() throws IOException {
+    public void write_to_file_works_successfully() throws IOException, SQLException {
         var library = new Library();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         library.addItem(books[0]);

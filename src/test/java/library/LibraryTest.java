@@ -11,12 +11,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class LibraryTest {
 
     @Test
-    public void add_book_works_correctly() throws IllegalAccessException {
+    public void add_book_works_correctly() throws IllegalAccessException, SQLException {
         var library = new Library();
         library.addItem(TestUtils.createBook());
         library.addItem(TestUtils.createArticle());
@@ -26,7 +27,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void search_by_title_resource_type_works_correctly() {
+    public void search_by_title_resource_type_works_correctly() throws SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -46,7 +47,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void search_by_status_works_correctly() {
+    public void search_by_status_works_correctly() throws SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -67,7 +68,7 @@ public class LibraryTest {
 
 
     @Test
-    public void remove_book_works_correctly() {
+    public void remove_book_works_correctly() throws SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -84,7 +85,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void borrow_book_works_correctly() throws ItemNotFoundException {
+    public void borrow_book_works_correctly() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -104,7 +105,7 @@ public class LibraryTest {
     }
 
     @Test(expected = ItemNotFoundException.class)
-    public void borrow_book_throws_ItemNotFoundException() throws ItemNotFoundException {
+    public void borrow_book_throws_ItemNotFoundException() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
@@ -118,7 +119,7 @@ public class LibraryTest {
 
 
     @Test
-    public void get_borrowed_book_works_correctly() {
+    public void get_borrowed_book_works_correctly() throws SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);
@@ -136,7 +137,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void return_book_works_correctly() throws ItemNotFoundException {
+    public void return_book_works_correctly() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);
@@ -154,7 +155,7 @@ public class LibraryTest {
     }
 
     @Test(expected = ItemNotFoundException.class)
-    public void return_book_throws_item_not_found_exception() throws ItemNotFoundException {
+    public void return_book_throws_item_not_found_exception() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);

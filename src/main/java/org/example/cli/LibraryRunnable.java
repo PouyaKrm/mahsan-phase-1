@@ -13,6 +13,7 @@ import org.example.library.model.book.Book;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
@@ -28,6 +29,7 @@ public class LibraryRunnable implements Runnable {
 
     @Override
     public void run() {
+        library.initialize();
         try {
             ConcurrentMessage message;
             while (!(message = messages.take()).getOperationType().equals(LibraryOperationType.END)) {
@@ -56,6 +58,8 @@ public class LibraryRunnable implements Runnable {
             library.addAll(bs);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -11,6 +11,7 @@ import utils.TestUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 
 public class BookFileImporterTest {
 
@@ -41,7 +42,7 @@ public class BookFileImporterTest {
     }
 
     @Test
-    public void write_to_file_works_successfully() throws IOException {
+    public void write_to_file_works_successfully() throws IOException, SQLException {
         var library = new Library();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         library.addItem(books[0]);
