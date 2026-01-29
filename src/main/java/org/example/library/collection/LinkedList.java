@@ -39,6 +39,22 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
     }
 
     @Override
+    public T remove(Predicate<T> predicate) {
+        var nx = head;
+        var pre = nx;
+        while (nx != null) {
+            if (predicate.test(nx.getData())) {
+                pre.setNext(nx.getNext());
+                size--;
+                return nx.getData();
+            }
+            pre = nx;
+            nx = nx.getNext();
+        }
+        return null;
+    }
+
+    @Override
     public T[] search(Predicate<T> predicate, Class<T> clazz) {
         var nx = head;
         int count = 0;

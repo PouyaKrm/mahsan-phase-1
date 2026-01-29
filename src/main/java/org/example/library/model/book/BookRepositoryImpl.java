@@ -62,6 +62,14 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public boolean removeOne(Long id) throws SQLException {
+        var s = MessageFormat.format("DELETE FROM {0} WHERE id = ?", TABLE_NAME);
+        var pst = connection.prepareStatement(s);
+        pst.setLong(1, id);
+        return pst.executeUpdate() > 0;
+    }
+
+    @Override
     public Book getOne(Long id) throws SQLException, ItemNotFoundException {
         var s = MessageFormat.format("SELECT * FROM {0} WHERE id = ?", TABLE_NAME);
         var pst = connection.prepareStatement(s);

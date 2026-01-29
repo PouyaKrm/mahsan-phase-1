@@ -19,6 +19,12 @@ public class Book extends BaseModel {
         this.status = status;
     }
 
+    public Book(Long id, LocalDate pubDate, String title, String author, String content, Status status) {
+        super(id, title, author, content, pubDate);
+        this.status = status;
+    }
+
+
     @Override
     public void display() {
         System.out.println(this);

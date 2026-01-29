@@ -9,5 +9,6 @@ public interface ModelRepository<T extends BaseModel> {
     T[] getAll() throws SQLException;
     T addOne(T model) throws SQLException;
     boolean removeOne(T model) throws SQLException;
+    boolean removeOne(Long id) throws SQLException;
     Book getOne(Long id) throws SQLException, ItemNotFoundException;
 }

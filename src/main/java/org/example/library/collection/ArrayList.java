@@ -80,6 +80,23 @@ public class ArrayList<T> implements LibraryCollection<T> {
     }
 
     @Override
+    public T remove(Predicate<T> predicate) {
+        for (int i = 0; i < items.length; i++) {
+            if(Objects.isNull(items[i])) {
+                continue;
+            }
+            if (predicate.test((T) items[i])) {
+                var t = items[i];
+                items[i] = null;
+                size--;
+                return (T) t;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public T[] search(Predicate<T> predicate, Class<T> clazz) {
         int count = 0;
         Object[] arr = new Object[items.length];

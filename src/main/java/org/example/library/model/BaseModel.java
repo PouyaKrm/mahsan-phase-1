@@ -29,6 +29,14 @@ public abstract class BaseModel {
     public BaseModel() {
     }
 
+    public BaseModel(Long id, String title, String author, String content, LocalDate pubDate) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.content = content;
+        this.pubDate = pubDate;
+    }
+
     public abstract void display();
     public abstract ResourceType resourceType();
 
