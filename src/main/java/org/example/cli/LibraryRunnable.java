@@ -7,7 +7,7 @@ import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.JsonBookImporterImpl;
 import org.example.library.Library;
-import org.example.library.constants.LibraryOperationType;
+import org.example.constansts.LibraryOperationType;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.book.Book;
 
