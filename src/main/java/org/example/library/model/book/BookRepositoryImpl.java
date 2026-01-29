@@ -31,7 +31,7 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book model) throws SQLException {
-       return Objects.isNull(model.getId()) ? save(model) : update(model);
+       return Objects.isNull(model.getId()) ? insertInto(model) : update(model);
     }
 
     private Book insertInto(Book model) throws SQLException {

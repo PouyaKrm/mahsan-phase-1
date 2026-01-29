@@ -13,6 +13,7 @@ import utils.TestUtils;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Random;
 
 public class LibraryTest {
 
@@ -88,6 +89,8 @@ public class LibraryTest {
     public void borrow_book_works_correctly() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
+        var random = new Random();
+        book.setId(random.nextLong());
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
         library.addItem(book);
@@ -95,7 +98,7 @@ public class LibraryTest {
         library.addItem(article);
         library.addItem(TestUtils.createBook("book new"));
 
-        library.borrowItem(book.getTitle());
+        library.borrowItem(book.getId());
 
         var items = library.getBorrowedItems();
         Assert.assertEquals(1, items.length);
@@ -114,7 +117,7 @@ public class LibraryTest {
         library.addItem(magazine);
         library.addItem(article);
 
-        library.borrowItem("fake");
+        library.borrowItem(-1L);
     }
 
 
@@ -140,6 +143,8 @@ public class LibraryTest {
     public void return_book_works_correctly() throws ItemNotFoundException, SQLException {
         var library = new Library();
         var book = TestUtils.createBook();
+        var random = new Random();
+        book.setId(random.nextLong());
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
@@ -148,7 +153,7 @@ public class LibraryTest {
         library.addItem(article);
         library.addItem(TestUtils.createBook("book new"));
 
-        var item = library.returnItem(book.getTitle());
+        var item = library.returnItem(book.getId());
 
         Assert.assertEquals(book, item);
         Assert.assertEquals(book.getStatus(), Book.Status.EXIST);
@@ -165,7 +170,7 @@ public class LibraryTest {
         library.addItem(magazine);
         library.addItem(article);
 
-        library.returnItem("fake");
+        library.returnItem(-1L);
     }
 //
 //    @Test
