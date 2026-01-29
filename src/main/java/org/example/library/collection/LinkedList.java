@@ -45,11 +45,15 @@ public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
     @Override
     public T remove(Predicate<T> predicate) {
         var nx = head;
-        var pre = nx;
+        var dummy = new Node<T>(null);
+        dummy.setNext(head);
+        var pre = dummy;
         while (nx != null) {
             if (predicate.test(nx.getData())) {
                 pre.setNext(nx.getNext());
                 size--;
+                head = dummy.getNext();
+                dummy.setNext(null);
                 return nx.getData();
             }
             pre = nx;
