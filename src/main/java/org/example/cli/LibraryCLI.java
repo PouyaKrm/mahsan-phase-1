@@ -23,13 +23,15 @@ public class LibraryCLI {
     private final BlockingQueue<ConcurrentMessage> messages = new LinkedBlockingQueue<>();
 
     public void start() throws IOException, ItemNotFoundException {
+
         executorService.execute(new LibraryRunnable(messages));
         System.out.println("Welcome to the Library CLI");
-        while (true) {
+        LibraryOperationType libraryOperationType = null;
+        while (Objects.isNull(libraryOperationType) || libraryOperationType != LibraryOperationType.END) {
             showMainMenu();
-            var op = getMainOptions();
+            libraryOperationType = getMainOptions();
             try {
-                handleOption(op);
+                handleOption(libraryOperationType);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -61,7 +63,8 @@ public class LibraryCLI {
             case SEARCH -> searchBook();
             case RETURN -> returnBook();
             case REMOVE -> removeItem();
-            default -> writeToFile();
+            case EXPORT -> writeToFile();
+            case END -> exit();
         }
     }
 
@@ -155,4 +158,8 @@ public class LibraryCLI {
         messages.put(new RemoveMessage(id, ResourceType.BOOK));
     }
 
+    private void exit() throws InterruptedException {
+        messages.put(new ExitMessage());
+        executorService.shutdown();
+    }
 }
