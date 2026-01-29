@@ -1,7 +1,6 @@
 package org.example.library.model.article;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.model.magazine.Magazine;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
@@ -54,7 +53,7 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
     public Article createFromResultSet(ResultSet rs) throws SQLException {
         var date = rs.getInt("date");
         var pubDate = LocalDate.ofEpochDay(date);
-        var id = rs.getInt("id");
+        Long id = rs.getLong("id");
         var book = new Article(
                 pubDate,
                 rs.getString("title"),

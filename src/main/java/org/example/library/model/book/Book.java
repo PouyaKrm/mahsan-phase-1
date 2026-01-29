@@ -47,6 +47,7 @@ public class Book extends BaseModel {
     public String toString() {
         return "Book{" +
                 "status=" + status +
+                ", id=" + id +
                 ", title='" + title + '\'' +
                 ", author='" + author + '\'' +
                 ", content='" + content + '\'' +

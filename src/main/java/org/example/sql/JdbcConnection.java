@@ -1,35 +1,34 @@
 package org.example.sql;
 
+import org.example.configs.DatabaseConfigs;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class JdbcConnection {
 
-    private Connection connection;
-    private static final JdbcConnection instance = new JdbcConnection();
+    private static Connection connection;
+
 
     private JdbcConnection() {
 
     }
 
-    private Connection createConnection() throws SQLException {
-        if (connection != null) {
+
+    public static synchronized Connection getConnection() {
+        if (Objects.nonNull(connection)) {
             return connection;
         }
-        String url = "jdbc:mysql://localhost:5432/phase";
-        String username = "admin";
-        String password = "admin";
+        var configs = DatabaseConfigs.getInstance();
 
-        connection = DriverManager.getConnection(url, username, password);
-        return connection;
-    }
+        try {
+            connection = DriverManager.getConnection(configs.getUrl(), configs.getUsername(), configs.getPassword());
+            return connection;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public static JdbcConnection getInstance() {
-        return instance;
     }
 }

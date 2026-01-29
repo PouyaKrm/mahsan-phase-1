@@ -41,7 +41,7 @@ public class BookFactory extends AbstractModelFactory<Book> {
 
     @Override
     public Book createFromResultSet(ResultSet rs) throws SQLException {
-        var date = rs.getInt("date");
+        var date = rs.getLong("pub_date");
         var pubDate = LocalDate.ofEpochDay(date);
         var status = rs.getString("status");
         Book book = new Book(
@@ -52,10 +52,10 @@ public class BookFactory extends AbstractModelFactory<Book> {
                 Book.Status.valueOf(status)
         );
 
-        var id = rs.getInt("id");
+        Long id = rs.getLong("id");
         book.setId(id);
-        var bd = rs.getInt("borrow_date");
-        if(Objects.nonNull(bd)) {
+        var bd = rs.getLong("borrow_date");
+        if(bd != 0) {
             var borrowDate = LocalDate.ofEpochDay(bd);
             book.setBorrowDate(borrowDate);
         }
