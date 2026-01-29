@@ -11,7 +11,8 @@ public enum LibraryOperationType {
     SHOW_BORROWED(6, "Show borrowed"),
     RETURN(7, "Return book"),
     REMOVE(8, "Remove book"),
-    END(9, "Exit");
+    SHOW_ALL(9, "Show all books"),
+    END(10, "Exit");
 
 
     private final int value;

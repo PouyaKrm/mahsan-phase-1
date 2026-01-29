@@ -64,6 +64,7 @@ public class LibraryCLI {
             case RETURN -> returnBook();
             case REMOVE -> removeItem();
             case EXPORT -> writeToFile();
+            case SHOW_ALL -> messages.put(new ShowAllMessage());
             case END -> exit();
         }
     }
