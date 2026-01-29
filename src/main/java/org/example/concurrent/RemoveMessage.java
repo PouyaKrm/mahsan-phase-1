@@ -1,7 +1,7 @@
 package org.example.concurrent;
 
+import org.example.constansts.LibraryOperationType;
 import org.example.constansts.ResourceType;
-import org.example.library.constants.LibraryOperationType;
 
 public class RemoveMessage extends ConcurrentMessage{
 
