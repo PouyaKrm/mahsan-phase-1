@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class BookRepositoryImpl implements ModelRepository<Book> {
+public class BookRepositoryImpl implements BookRepository {
 
     private final Connection connection = JdbcConnection.getConnection();
 
