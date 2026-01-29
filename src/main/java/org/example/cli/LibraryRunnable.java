@@ -48,6 +48,7 @@ public class LibraryRunnable implements Runnable {
             case LibraryOperationType.RETURN -> returnBook((ReturnMessage) message);
             case LibraryOperationType.EXPORT -> exportBook((ExportMessage) message);
             case LibraryOperationType.SHOW_BORROWED -> showBorrowed();
+            case LibraryOperationType.REMOVE -> removeItem((RemoveMessage) message);
         }
     }
 
@@ -107,5 +108,13 @@ public class LibraryRunnable implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    private void removeItem(RemoveMessage message) {
+        try {
+            library.removeItem(message.getId(), message.getResourceType());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

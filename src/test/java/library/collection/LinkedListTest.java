@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Comparator;
+import java.util.Random;
 
 public class LinkedListTest {
 
@@ -30,6 +31,23 @@ public class LinkedListTest {
         list.add(b2);
 
         list.remove(b2);
+
+        Assert.assertEquals(1, list.getSize());
+        Assert.assertEquals(b, list.getItems(Book.class)[0]);
+    }
+
+    @Test
+    public void remove_by_id() {
+        LinkedList<Book> list = new LinkedList<Book>();
+        var random = new Random();
+        var b = TestUtils.createBook();
+        var b2 = TestUtils.createBook();
+        b.setId(random.nextLong());
+        b2.setId(random.nextLong());
+        list.add(b);
+        list.add(b2);
+
+        list.remove((book) -> book.getId().equals(b2.getId()));
 
         Assert.assertEquals(1, list.getSize());
         Assert.assertEquals(b, list.getItems(Book.class)[0]);

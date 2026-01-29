@@ -1,6 +1,7 @@
 package org.example.cli;
 
 import org.example.concurrent.*;
+import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.constants.LibraryOperationType;
 import org.example.library.model.BaseModel;
@@ -52,6 +53,7 @@ public class LibraryCLI {
             case SHOW_BORROWED -> messages.put(new ShowBorrowedMessage());
             case SEARCH -> searchBook();
             case RETURN -> returnBook();
+            case REMOVE -> removeItem();
             default -> writeToFile();
         }
     }
@@ -130,6 +132,20 @@ public class LibraryCLI {
             }
 
         }
+    }
+
+    private void removeItem() throws InterruptedException {
+        Long id = null;
+        while (Objects.isNull(id)) {
+            System.out.println("Enter item id: ");
+            try {
+                 id = Long.parseLong(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                continue;
+            }
+        }
+
+        messages.put(new RemoveMessage(id, ResourceType.BOOK));
     }
 
 }

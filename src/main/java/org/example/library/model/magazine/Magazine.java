@@ -10,8 +10,10 @@ public class Magazine extends BaseModel {
 
     public Magazine(LocalDate pubDate, String title, String author, String content) {
         super(title, author, content, pubDate);
-        this.author = author;
-        this.content = content;
+    }
+
+    public Magazine(Long id, LocalDate pubDate, String title, String author, String content) {
+        super(id, title, author, content, pubDate);
     }
 
     @Override

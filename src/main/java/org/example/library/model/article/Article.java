@@ -13,6 +13,10 @@ public class Article extends BaseModel {
         super(title, author, content, pubDate);
     }
 
+    public Article(Long id, LocalDate pubDate, String title, String author, String content) {
+        super(id, title, author, content, pubDate);
+    }
+
     @Override
     public void display() {
         System.out.println(toString());

@@ -6,6 +6,7 @@ import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.collection.ArrayList;
 import org.example.library.collection.LibraryCollection;
+import org.example.library.constants.LibraryOperationType;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.*;
 import org.example.library.model.article.Article;
@@ -48,6 +49,22 @@ public class Library {
             case ARTICLE -> articles.remove((Article) book);
             case MAGAZINE -> magazines.remove((Magazine) book);
         }
+    }
+
+
+    public <T extends BaseModel> T removeItem(Long id, ResourceType resourceType) throws SQLException {
+        Predicate<BaseModel> pr = model -> model.getId().equals(id);
+        switch (resourceType) {
+            case BOOK -> {
+                bookRepository.removeOne(id);
+                return (T) bookCollection.remove(model -> model.getId().equals(id));
+            }
+            case ARTICLE -> articles.remove(article -> article.getId().equals(id));
+            case MAGAZINE -> magazines.remove(magazine -> magazine.getId().equals(id));
+
+        }
+
+        return null;
     }
 
     public BaseModel[] search(List<SearchDTO> searchDTOS) {

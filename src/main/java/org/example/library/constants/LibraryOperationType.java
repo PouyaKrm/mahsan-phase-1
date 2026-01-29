@@ -10,7 +10,8 @@ public enum LibraryOperationType {
     BORROW(5),
     SHOW_BORROWED(6),
     RETURN(7),
-    END(8);
+    REMOVE(8),
+    END(9);
 
 
     private final int value;

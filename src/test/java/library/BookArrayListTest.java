@@ -8,6 +8,7 @@ import utils.TestUtils;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Random;
 
 public class BookArrayListTest {
     @Test
@@ -47,6 +48,25 @@ public class BookArrayListTest {
         list.add(books[1]);
 
         list.remove(books[1]);
+
+        Assert.assertArrayEquals(new Book[]{books[0], null}, list.getOriginalBooks(Book.class));
+        Assert.assertArrayEquals(list.getItems(Book.class), new Book[]{books[0]});
+    }
+
+    @Test
+    public void remove_by_id() {
+        ArrayList<Book> list = new ArrayList(2);
+        Book[] books = new Book[]{
+                TestUtils.createBook(),
+                TestUtils.createBook(),
+        };
+        var random = new Random();
+        books[0].setId(random.nextLong());
+        books[1].setId(random.nextLong());
+        list.add(books[0]);
+        list.add(books[1]);
+
+        list.remove(book -> book.getId().equals(books[1].getId()));
 
         Assert.assertArrayEquals(new Book[]{books[0], null}, list.getOriginalBooks(Book.class));
         Assert.assertArrayEquals(list.getItems(Book.class), new Book[]{books[0]});

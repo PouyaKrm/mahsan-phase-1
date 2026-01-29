@@ -98,4 +98,22 @@ public class BookRepositoryImplTest {
         assertThat(found[0].getContent()).isEqualTo(book.getContent());
     }
 
+    @Test
+    public void remove_one_by_id_works_correctly() throws SQLException, ItemNotFoundException {
+        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        var book = TestUtils.createBook();
+        var book2 = TestUtils.createBook();
+        bookRepository.addOne(book);
+        bookRepository.addOne(book2);
+
+        var result = bookRepository.removeOne(book.getId());
+
+        assertThat(result).isTrue();
+        var found = bookRepository.getAll();
+        assertThat(found.length).isEqualTo(1);
+        assertThat(found[0].getTitle()).isEqualTo(book.getTitle());
+        assertThat(found[0].getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(found[0].getContent()).isEqualTo(book.getContent());
+    }
+
 }
