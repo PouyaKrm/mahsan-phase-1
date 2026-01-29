@@ -1,4 +1,4 @@
-package org.example.library.constants;
+package org.example.constansts;
 
 import java.util.Arrays;
 

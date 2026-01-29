@@ -1,6 +1,6 @@
 package org.example.concurrent;
 
-import org.example.library.constants.LibraryOperationType;
+import org.example.constansts.LibraryOperationType;
 
 import java.nio.file.Path;
 

@@ -2,7 +2,7 @@ package org.example.cli;
 
 import org.example.concurrent.*;
 import org.example.exception.ItemNotFoundException;
-import org.example.library.constants.LibraryOperationType;
+import org.example.constansts.LibraryOperationType;
 import org.example.library.model.BaseModel;
 
 import java.io.FileNotFoundException;
