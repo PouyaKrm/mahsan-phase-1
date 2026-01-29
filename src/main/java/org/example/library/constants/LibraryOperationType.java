@@ -3,21 +3,23 @@ package org.example.library.constants;
 import java.util.Arrays;
 
 public enum LibraryOperationType {
-    FILE(1),
-    STDIN(2),
-    SEARCH(3),
-    EXPORT(4),
-    BORROW(5),
-    SHOW_BORROWED(6),
-    RETURN(7),
-    REMOVE(8),
-    END(9);
+    FILE(1, "Import by file"),
+    STDIN(2, "Insert directly"),
+    SEARCH(3, "Search"),
+    EXPORT(4, "Export"),
+    BORROW(5, "Borrow"),
+    SHOW_BORROWED(6, "Show borrowed"),
+    RETURN(7, "Return book"),
+    REMOVE(8, "Remove book"),
+    END(9, "Exit");
 
 
     private final int value;
+    private final String title;
 
-    LibraryOperationType(int i) {
+    LibraryOperationType(int i, String title) {
         this.value = i;
+        this.title = title;
     }
 
     public static LibraryOperationType fromValue(int i) {
@@ -26,5 +28,9 @@ public enum LibraryOperationType {
 
     public int getValue() {
         return value;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

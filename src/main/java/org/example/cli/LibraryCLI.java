@@ -26,7 +26,7 @@ public class LibraryCLI {
         executorService.execute(new LibraryRunnable(messages));
         System.out.println("Welcome to the Library CLI");
         while (true) {
-            System.out.println("1.File import,  2.Direct Input from terminal, 3.Search, 4.Export, 5.borrow book, 6.Show borrow 7.return item");
+            showMainMenu();
             var op = getMainOptions();
             try {
                 handleOption(op);
@@ -34,6 +34,13 @@ public class LibraryCLI {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void showMainMenu() {
+        var str = Arrays.stream(LibraryOperationType.values()).sorted(Comparator.comparingInt(LibraryOperationType::getValue)).filter(item -> item.getValue() != 0)
+                .map(item -> item.getValue() + "." + item.getTitle() + " ").reduce((start, item) -> start + " " + item).get();
+        System.out.println(str);
+
     }
 
     private LibraryOperationType getMainOptions() {
