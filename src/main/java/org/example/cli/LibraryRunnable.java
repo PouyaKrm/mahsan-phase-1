@@ -65,10 +65,12 @@ public class LibraryRunnable implements Runnable {
 
     private void borrowBook(BorrowMessage message) {
         try {
-            var item = library.borrowItem(message.getTitle());
+            var item = library.borrowItem(message.getId());
             item.display();
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

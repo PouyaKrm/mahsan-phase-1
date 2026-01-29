@@ -121,9 +121,8 @@ public class LibraryCLI {
     }
 
     private void borrowBook() throws InterruptedException {
-        System.out.print("Enter book title: ");
-        var title = scanner.nextLine();
-        messages.put(new BorrowMessage(title));
+        var id = getLongFromInput("Enter item id: ");
+        messages.put(new BorrowMessage(id));
     }
 
     private <T extends BaseModel> void writeToFile() throws IOException, InterruptedException {

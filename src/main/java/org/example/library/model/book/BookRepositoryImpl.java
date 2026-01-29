@@ -31,7 +31,12 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book model) throws SQLException {
-        var pst = connection.prepareStatement(getStatementForSave(model), Statement.RETURN_GENERATED_KEYS);
+       return Objects.isNull(model.getId()) ? save(model) : update(model);
+    }
+
+    private Book insertInto(Book model) throws SQLException {
+        var st = MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", TABLE_NAME);
+        var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
         pst.setString(2, model.getAuthor());
         pst.setString(3, model.getContent());
@@ -52,11 +57,28 @@ public class BookRepositoryImpl implements BookRepository {
         return model;
     }
 
-    private String getStatementForSave(Book model) throws SQLException {
-        if(Objects.isNull(model.getId())) {
-            return MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", TABLE_NAME);
+    private Book update(Book model) throws SQLException {
+        var st = MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, status=?, borrow_date=? WHERE id=?", TABLE_NAME);
+        var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
+        pst.setString(1, model.getTitle());
+        pst.setString(2, model.getAuthor());
+        pst.setString(3, model.getContent());
+        pst.setLong(4, model.getPubDate().toEpochDay());
+        pst.setString(5, model.getStatus().toString());
+        if(Objects.nonNull(model.getBorrowDate())) {
+            pst.setLong(6, model.getBorrowDate().toEpochDay());
+        } else {
+            pst.setNull(6, java.sql.Types.BIGINT);
         }
-        return MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, status=?, borrow_date=?", TABLE_NAME);
+        pst.setLong(7, model.getId());
+        pst.executeUpdate();
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+            long generatedId = rs.getLong(1);
+            model.setId(generatedId);
+        }
+
+        return model;
     }
 
     @Override

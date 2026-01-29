@@ -3,9 +3,9 @@ package org.example.concurrent;
 import org.example.library.constants.LibraryOperationType;
 
 public class BorrowMessage extends ConcurrentMessage {
-    private final String title;
-    public BorrowMessage(String title) {
-        this.title = title;
+    private final Long id;
+    public BorrowMessage(Long id) {
+        this.id = id;
     }
 
     @Override
@@ -13,7 +13,7 @@ public class BorrowMessage extends ConcurrentMessage {
         return LibraryOperationType.BORROW;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getId() {
+        return id;
     }
 }

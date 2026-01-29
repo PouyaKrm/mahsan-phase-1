@@ -134,10 +134,10 @@ public class Library {
 
     }
 
-    public BaseModel borrowItem(String title) throws ItemNotFoundException {
+    public BaseModel borrowItem(Long id) throws ItemNotFoundException, SQLException {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
-        searchDTOS.add(new SearchDTO(SearchField.TITLE, title, SearchOperation.EQ));
+        searchDTOS.add(new SearchDTO(SearchField.ID, id.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.EXIST.toString(), SearchOperation.EQ));
         var result = search(searchDTOS);
         if (result.length == 0) {
@@ -146,6 +146,7 @@ public class Library {
         var item = result[0];
         item.setBorrowDate(LocalDate.now());
         ((Book) item).setStatus(Book.Status.BORROWED);
+        bookRepository.save((Book) item);
         return item;
     }
 
