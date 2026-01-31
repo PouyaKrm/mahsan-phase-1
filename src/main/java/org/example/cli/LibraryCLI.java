@@ -82,7 +82,7 @@ public class LibraryCLI {
 
     private String[][] getSearchTerms() {
         while (true) {
-            System.out.println("Enter search term comma seperated(<field name>  <value>)");
+            System.out.println("Enter search term comma seperated(<field name>  <value> <operation type>):");
             var searchTermsStr = scanner.nextLine();
             var searchTermsStream = Arrays.stream(searchTermsStr.split(",")).map(item -> item.split(" "));
             var allMatch = searchTermsStream.allMatch(term -> term.length == 3);
