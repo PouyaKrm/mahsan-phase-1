@@ -1,9 +1,12 @@
 package org.example.cli;
 
 import org.example.concurrent.*;
+import org.example.constansts.LibraryOperationType;
 import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
-import org.example.constansts.LibraryOperationType;
+import org.example.importer.BookImporter;
+import org.example.importer.JsonBookImporterImpl;
+import org.example.library.Library;
 import org.example.library.model.BaseModel;
 
 import java.io.FileNotFoundException;
@@ -20,11 +23,13 @@ public class LibraryCLI {
 
     private final Scanner scanner = new Scanner(System.in);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final BlockingQueue<ConcurrentMessage> messages = new LinkedBlockingQueue<>();
+    private final BlockingQueue<LibraryCommand> commands = new LinkedBlockingQueue<>();
+    private final Library library = new Library();
+    private final BookImporter bookImporter = new JsonBookImporterImpl();
 
-    public void start() throws IOException, ItemNotFoundException {
-
-        executorService.execute(new LibraryRunnable(messages));
+    public void start() throws IOException, ItemNotFoundException, InterruptedException {
+        executorService.execute(new LibraryRunnable(commands));
+        commands.put(new InitializeCommand(library));
         System.out.println("Welcome to the Library CLI");
         LibraryOperationType libraryOperationType = null;
         while (Objects.isNull(libraryOperationType) || libraryOperationType != LibraryOperationType.END) {
@@ -39,7 +44,7 @@ public class LibraryCLI {
     }
 
     private void showMainMenu() {
-        var str = Arrays.stream(LibraryOperationType.values()).sorted(Comparator.comparingInt(LibraryOperationType::getValue)).filter(item -> item.getValue() != 0)
+        var str = LibraryOperationType.getSelectableOptions().stream().sorted(Comparator.comparingInt(LibraryOperationType::getValue)).filter(item -> item.getValue() != 0)
                 .map(item -> item.getValue() + "." + item.getTitle() + " ").reduce((start, item) -> start + " " + item).get();
         System.out.println(str);
 
@@ -59,12 +64,12 @@ public class LibraryCLI {
             case FILE -> importBooks(options);
             case STDIN -> importBooks(options);
             case BORROW -> borrowBook();
-            case SHOW_BORROWED -> messages.put(new ShowBorrowedMessage());
+            case SHOW_BORROWED -> commands.put(new ShowBorrowedCommand(library));
             case SEARCH -> searchBook();
             case RETURN -> returnBook();
             case REMOVE -> removeItem();
             case EXPORT -> writeToFile();
-            case SHOW_ALL -> messages.put(new ShowAllMessage());
+            case SHOW_ALL -> commands.put(new ShowAllCommand(library));
             case END -> exit();
         }
     }
@@ -72,7 +77,7 @@ public class LibraryCLI {
 
     private void searchBook() throws InterruptedException {
         var terms = getSearchTerms();
-        messages.put(new SearchMessage(terms));
+        commands.put(new SearchCommand(library, terms));
     }
 
     private String[][] getSearchTerms() {
@@ -90,7 +95,7 @@ public class LibraryCLI {
 
     private void returnBook() throws ItemNotFoundException, InterruptedException {
         var id = getLongFromInput("Enter item id: ");
-        messages.put(new ReturnMessage(id));
+        commands.put(new ReturnCommand(library, id));
     }
 
     private Optional<Integer> getNumberOption() {
@@ -111,7 +116,7 @@ public class LibraryCLI {
     private void fileImport() throws FileNotFoundException, InterruptedException {
         System.out.println("Enter file path: ");
         var filePath = scanner.nextLine();
-        messages.put(new FileImportMessage(Path.of(filePath)));
+        commands.put(new FileImportCommand(library, Path.of(filePath), bookImporter));
     }
 
     private void importBooks(LibraryOperationType option) throws IOException, InterruptedException {
@@ -122,12 +127,12 @@ public class LibraryCLI {
 
     private void borrowBook() throws InterruptedException {
         var id = getLongFromInput("Enter item id: ");
-        messages.put(new BorrowMessage(id));
+        commands.put(new BorrowCommand(library, id));
     }
 
     private <T extends BaseModel> void writeToFile() throws IOException, InterruptedException {
         var folderPath = getFilePath();
-        messages.put(new ExportMessage(folderPath));
+        commands.put(new ExportCommand(library, folderPath, bookImporter));
     }
 
     private Path getFilePath() {
@@ -145,11 +150,11 @@ public class LibraryCLI {
 
     private void removeItem() throws InterruptedException {
         var id = getLongFromInput("Enter item id: ");
-        messages.put(new RemoveMessage(id, ResourceType.BOOK));
+        commands.put(new RemoveCommand(library, id, ResourceType.BOOK));
     }
 
     private void exit() throws InterruptedException {
-        messages.put(new ExitMessage());
+        commands.put(new ExitCommand(library));
         executorService.shutdown();
     }
 

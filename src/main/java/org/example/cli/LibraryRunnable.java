@@ -1,127 +1,29 @@
 package org.example.cli;
 
-import org.example.concurrent.*;
-import org.example.constansts.SearchField;
-import org.example.constansts.SearchOperation;
-import org.example.exception.ItemNotFoundException;
-import org.example.importer.BookImporter;
-import org.example.importer.JsonBookImporterImpl;
-import org.example.library.Library;
+import org.example.concurrent.LibraryCommand;
 import org.example.constansts.LibraryOperationType;
-import org.example.library.dto.SearchDTO;
-import org.example.library.model.book.Book;
+import org.example.library.Library;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 public class LibraryRunnable implements Runnable {
 
     private final Library library = new Library();
-    private final BlockingQueue<ConcurrentMessage> messages;
-    private final BookImporter bookImporter = new JsonBookImporterImpl();
+    private final BlockingQueue<LibraryCommand> commands;
 
-    public LibraryRunnable(BlockingQueue<ConcurrentMessage> messages) {
-        this.messages = messages;
+    public LibraryRunnable(BlockingQueue<LibraryCommand> commands) {
+        this.commands = commands;
     }
 
     @Override
     public void run() {
-        library.initialize();
         try {
-            ConcurrentMessage message;
-            while (!(message = messages.take()).getOperationType().equals(LibraryOperationType.END)) {
-                handleMessage(message);
+            LibraryCommand command;
+            while (!(command = commands.take()).getOperationType().equals(LibraryOperationType.END)) {
+                command.execute();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private void handleMessage(ConcurrentMessage message) {
-        switch (message.getOperationType()) {
-            case LibraryOperationType.FILE -> fileImport((FileImportMessage) message);
-            case LibraryOperationType.BORROW -> borrowBook((BorrowMessage) message);
-            case LibraryOperationType.SEARCH -> searchBook((SearchMessage) message);
-            case LibraryOperationType.RETURN -> returnBook((ReturnMessage) message);
-            case LibraryOperationType.EXPORT -> exportBook((ExportMessage) message);
-            case LibraryOperationType.SHOW_BORROWED -> showBorrowed();
-            case LibraryOperationType.REMOVE -> removeItem((RemoveMessage) message);
-            case LibraryOperationType.SHOW_ALL -> showAll();
-        }
-    }
-
-    private void fileImport(FileImportMessage fileImport) {
-        var filePath = fileImport.getFilePath();
-        try (var file = new FileInputStream(filePath.toString())) {
-            var bs = bookImporter.getModels(file, Book.class);
-            library.addAll(bs);
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void borrowBook(BorrowMessage message) {
-        try {
-            var item = library.borrowItem(message.getId());
-            item.display();
-        } catch (ItemNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void searchBook(SearchMessage message) {
-        var terms = message.getSearchTerms();
-        var searchDtos = Arrays.stream(terms).map(termValue -> {
-            var field = SearchField.valueOf(termValue[0]);
-            var op = SearchOperation.valueOf(termValue[2]);
-            return new SearchDTO(field, termValue[1], op);
-        }).toList();
-        var result = library.search(searchDtos);
-        for (var dto : result) {
-            dto.display();
-        }
-    }
-
-    private void showBorrowed() {
-        Arrays.stream(library.getBorrowedItems()).toList().forEach(item -> item.display());
-    }
-
-    private void returnBook(ReturnMessage message) {
-        try {
-            library.returnItem(message.getId());
-        } catch (ItemNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void exportBook(ExportMessage message) {
-        var folderPath = message.getFolderPath();
-        try {
-            bookImporter.writeToFile(library.getAllBooks(), folderPath, "books.txt");
-            bookImporter.writeToFile(library.getAllArticles(), folderPath, "articles.txt");
-            bookImporter.writeToFile(library.getAllMagazines(), folderPath, "magazines.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void removeItem(RemoveMessage message) {
-        try {
-            library.removeItem(message.getId(), message.getResourceType());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void showAll() {
-        Arrays.stream(library.getAll()).toList().forEach(item -> item.display());
     }
 }
