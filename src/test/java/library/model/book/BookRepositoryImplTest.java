@@ -3,6 +3,7 @@ package library.model.book;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.book.BookRepositoryImpl;
 import org.example.sql.JdbcConnection;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
@@ -17,29 +18,15 @@ public class BookRepositoryImplTest {
 
     private Connection connection = JdbcConnection.getConnection();
 
-    @Before
+    @After
     public void resetDb() throws Exception {
-        try (Statement st = connection.createStatement()) {
-            st.execute("DROP TABLE IF EXISTS book");
-
-            st.execute("""
-                            
-                    CREATE TABLE book (
-                                     id SERIAL PRIMARY KEY,          -- auto-incrementing ID
-                                     title VARCHAR(255) NOT NULL,    -- book title
-                                     author VARCHAR(255) NOT NULL,   -- author name
-                                     content TEXT,                   -- book content
-                                     status VARCHAR(50),             -- e.g., "available", "borrowed"
-                                     pub_date BIGINT,                -- publication timestamp (epoch millis)
-                                     borrow_date BIGINT              -- borrow timestamp (epoch millis)
-                                 );
-                            """);
-        }
+        var bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.removeAll();
     }
 
     @Test
     public void create_book_works_correctly() throws SQLException, ItemNotFoundException {
-        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var book = TestUtils.createBook();
 
         bookRepository.save(book);
@@ -54,7 +41,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void get_one_works_correctly() throws SQLException, ItemNotFoundException {
-        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var book = TestUtils.createBook();
         bookRepository.save(book);
 
@@ -67,7 +54,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void get_all_works_correctly() throws SQLException, ItemNotFoundException {
-        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
         bookRepository.save(book);
@@ -81,7 +68,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void remove_one_works_correctly() throws SQLException, ItemNotFoundException {
-        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
         bookRepository.save(book);
@@ -99,7 +86,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void remove_one_by_id_works_correctly() throws SQLException, ItemNotFoundException {
-        BookRepositoryImpl bookRepository = new BookRepositoryImpl();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var book = TestUtils.createBook();
         var book2 = TestUtils.createBook();
         bookRepository.save(book);
