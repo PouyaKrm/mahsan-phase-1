@@ -25,7 +25,7 @@ public class Library {
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
 
-    private final BookRepository bookRepository = new BookRepositoryImpl();
+    private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
 
     public <T extends BaseModel> void addItem(T book) throws SQLException {
         switch (book.resourceType()) {
