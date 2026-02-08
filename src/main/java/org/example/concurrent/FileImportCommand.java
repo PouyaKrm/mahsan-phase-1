@@ -30,7 +30,7 @@ public class FileImportCommand extends LibraryCommand {
         try (var file = new FileInputStream(filePath.toString())) {
             var bs = bookImporter.getModels(file, Book.class);
             library.addAll(bs);
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

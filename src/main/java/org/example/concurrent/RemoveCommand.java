@@ -24,10 +24,8 @@ public class RemoveCommand extends LibraryCommand {
 
     @Override
     public void execute() {
-        try {
-            library.removeItem(id, resourceType);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+        library.removeItem(id, resourceType);
+
     }
 }

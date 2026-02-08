@@ -25,8 +25,6 @@ public class BorrowCommand extends LibraryCommand {
             item.display();
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

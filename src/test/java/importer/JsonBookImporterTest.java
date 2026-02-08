@@ -1,7 +1,7 @@
 package importer;
 
 import org.example.importer.JsonBookImporterImpl;
-import org.example.library.Library;
+import org.example.library.InMemoryLibraryImpl;
 import org.example.library.model.book.Book;
 import org.junit.After;
 import org.junit.Assert;
@@ -42,7 +42,7 @@ public class JsonBookImporterTest {
 
     @Test
     public void write_to_file_works_successfully() throws IOException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         library.addItem(books[0]);
         library.addItem(books[1]);

@@ -4,7 +4,7 @@ import org.example.constansts.ResourceType;
 import org.example.constansts.SearchOperation;
 import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
-import org.example.library.Library;
+import org.example.library.InMemoryLibraryImpl;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.book.Book;
 import org.junit.Assert;
@@ -15,11 +15,11 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 
-public class LibraryTest {
+public class InMemoryLibraryImplTest {
 
     @Test
     public void add_book_works_correctly() throws IllegalAccessException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         library.addItem(TestUtils.createBook());
         library.addItem(TestUtils.createArticle());
         library.addItem(TestUtils.createMagazine());
@@ -29,7 +29,7 @@ public class LibraryTest {
 
     @Test
     public void search_by_title_resource_type_works_correctly() throws SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
@@ -49,7 +49,7 @@ public class LibraryTest {
 
     @Test
     public void search_by_status_works_correctly() throws SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
@@ -70,7 +70,7 @@ public class LibraryTest {
 
     @Test
     public void remove_book_works_correctly() throws SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
@@ -87,7 +87,7 @@ public class LibraryTest {
 
     @Test
     public void borrow_book_works_correctly() throws ItemNotFoundException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var random = new Random();
         book.setId(random.nextLong());
@@ -109,7 +109,7 @@ public class LibraryTest {
 
     @Test(expected = ItemNotFoundException.class)
     public void borrow_book_throws_ItemNotFoundException() throws ItemNotFoundException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
@@ -123,7 +123,7 @@ public class LibraryTest {
 
     @Test
     public void get_borrowed_book_works_correctly() throws SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();
@@ -141,7 +141,7 @@ public class LibraryTest {
 
     @Test
     public void return_book_works_correctly() throws ItemNotFoundException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         var random = new Random();
         book.setId(random.nextLong());
@@ -161,7 +161,7 @@ public class LibraryTest {
 
     @Test(expected = ItemNotFoundException.class)
     public void return_book_throws_item_not_found_exception() throws ItemNotFoundException, SQLException {
-        var library = new Library();
+        var library = new InMemoryLibraryImpl();
         var book = TestUtils.createBook();
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();

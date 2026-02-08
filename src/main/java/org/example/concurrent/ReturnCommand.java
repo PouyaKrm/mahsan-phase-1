@@ -24,8 +24,6 @@ public class ReturnCommand extends LibraryCommand {
             library.returnItem(id);
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 

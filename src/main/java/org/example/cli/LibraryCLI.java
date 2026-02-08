@@ -6,6 +6,7 @@ import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.JsonBookImporterImpl;
+import org.example.library.InMemoryLibraryImpl;
 import org.example.library.Library;
 import org.example.library.model.BaseModel;
 
@@ -24,12 +25,11 @@ public class LibraryCLI {
     private final Scanner scanner = new Scanner(System.in);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final BlockingQueue<LibraryCommand> commands = new LinkedBlockingQueue<>();
-    private final Library library = new Library();
+    private final Library library = new InMemoryLibraryImpl();
     private final BookImporter bookImporter = new JsonBookImporterImpl();
 
     public void start() throws IOException, ItemNotFoundException, InterruptedException {
         executorService.execute(new LibraryRunnable(commands));
-        commands.put(new InitializeCommand(library));
         System.out.println("Welcome to the Library CLI");
         LibraryOperationType libraryOperationType = null;
         while (Objects.isNull(libraryOperationType) || libraryOperationType != LibraryOperationType.END) {
