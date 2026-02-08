@@ -16,9 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookRepositoryImplTest {
 
-    private Connection connection = JdbcConnection.getConnection();
 
-    @After
+    @Before
     public void resetDb() throws Exception {
         var bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.removeAll();
