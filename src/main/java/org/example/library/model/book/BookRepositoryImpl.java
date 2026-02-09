@@ -2,55 +2,38 @@ package org.example.library.model.book;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
+import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelRepository;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
 import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class BookRepositoryImpl extends AbstractModelRepository<Book> implements BookRepository {
 
-    private final Connection connection = JdbcConnection.getConnection();
+
     private final BookFactory factory = BookFactory.getFactory();
     private static BookRepositoryImpl instance;
-    private final static String TABLE_NAME = "Books";
-    private final static String ID_COLUMN = "id";
-    private final static String TITLE_COLUMN = "title";
-    private final static String AUTHOR_COLUMN = "author";
-    private final static String PUB_DATE = "pub_date";
-    private final static String BORROW_DATE_COLUMN = "borrow_date";
-    private final static String CONTENT_COLUMN = "content";
-    private final static String STATUS_COLUMN = "status";
 
-    private BookRepositoryImpl() {
 
+    protected BookRepositoryImpl() {
+        super("books", createFieldMappings());
     }
 
-    protected void createTable() throws SQLException {
-        var createTableStatement = """
-                CREATE TABLE IF NOT EXISTS {0} (
-                    {1} INT NOT NULL AUTO_INCREMENT,
-                    {2} VARCHAR(100) NOT NULL,
-                    {3} VARCHAR(100) NOT NULL,
-                    {4} TEXT NOT NULL,
-                    {5} INT UNSIGNED NOT NULL,
-                    {6} INT UNSIGNED,
-                    {7} VARCHAR(20) NOT NULL,
-                    CONSTRAINT PK_Book PRIMARY KEY (ID)
-                );
-                """;
-        var statement = MessageFormat.format(
-                createTableStatement,
-                TABLE_NAME, ID_COLUMN, TITLE_COLUMN, AUTHOR_COLUMN, CONTENT_COLUMN, PUB_DATE, BORROW_DATE_COLUMN,
-                STATUS_COLUMN
-        );
-        var st = connection.createStatement();
-        st.execute(statement);
+    private static Map<String, DBFieldMapping> createFieldMappings() {
+        Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
+        fieldMappings.put("id", new DBFieldMapping("id", "id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY"));
+        fieldMappings.put("title", new DBFieldMapping("title", "title", "VARCHAR(100) NOT NULL"));
+        fieldMappings.put("author", new DBFieldMapping("author", "author", "VARCHAR(100) NOT NULL"));
+        fieldMappings.put("content", new DBFieldMapping("content", "content", "TEXT NOT NULL"));
+        fieldMappings.put("pubDate", new DBFieldMapping("pubDate", "pub_date", "INT UNSIGNED NOT NULL"));
+        fieldMappings.put("borrowDate", new DBFieldMapping("borrowDate", "borrow_date", "INT UNSIGNED"));
+        fieldMappings.put("status", new DBFieldMapping("status", "status", "VARCHAR(20) NOT NULL"));
+        return fieldMappings;
     }
+
 
     public static BookRepositoryImpl getInstance() {
         if (Objects.nonNull(instance)) {
@@ -67,23 +50,15 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
         }
     }
 
+
     @Override
     public Book[] getAll() throws SQLException {
-        List<Book> bookList = new ArrayList<>();
-        PreparedStatement ps = connection.prepareStatement("select * from " + TABLE_NAME);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            bookList.add(factory.createFromResultSet(rs));
-        }
-        return Utils.listToArray(bookList, Book.class);
+        return super.getAll(Book.class);
     }
 
     @Override
     public Book[] removeAll() throws SQLException {
-        var ts = getAll();
-        PreparedStatement ps = connection.prepareStatement("DELETE FROM " + TABLE_NAME);
-        ps.executeUpdate();
-        return ts;
+        return super.removeAll(Book.class);
     }
 
     @Override
@@ -92,7 +67,7 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
     }
 
     private Book insertInto(Book model) throws SQLException {
-        var st = MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", TABLE_NAME);
+        var st = MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, status, borrow_date) VALUES (?,?,?,?,?,?)", tableName);
         var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
         pst.setString(2, model.getAuthor());
@@ -115,7 +90,7 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
     }
 
     private Book update(Book model) throws SQLException {
-        var st = MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, status=?, borrow_date=? WHERE id=?", TABLE_NAME);
+        var st = MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, status=?, borrow_date=? WHERE id=?", tableName);
         var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
         pst.setString(2, model.getAuthor());
@@ -138,32 +113,10 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
         return model;
     }
 
-    @Override
-    public boolean removeOne(Book model) throws SQLException {
-        var s = MessageFormat.format("DELETE FROM {0} WHERE id = ?", TABLE_NAME);
-        var pst = connection.prepareStatement(s);
-        pst.setLong(1, model.getId());
-        return pst.executeUpdate() > 0;
-    }
 
-    @Override
-    public boolean removeOne(Long id) throws SQLException {
-        var s = MessageFormat.format("DELETE FROM {0} WHERE id = ?", TABLE_NAME);
-        var pst = connection.prepareStatement(s);
-        pst.setLong(1, id);
-        return pst.executeUpdate() > 0;
-    }
 
     @Override
     public Book getOne(Long id) throws SQLException, ItemNotFoundException {
-        var s = MessageFormat.format("SELECT * FROM {0} WHERE id = ?", TABLE_NAME);
-        var pst = connection.prepareStatement(s);
-        pst.setLong(1, id);
-        var rs = pst.executeQuery();
-        if (rs.next()) {
-            return factory.createFromResultSet(rs);
-        } else {
-            throw new ItemNotFoundException(MessageFormat.format("No item found with id {0}", id));
-        }
+        return super.getOne(id, Book.class);
     }
 }
