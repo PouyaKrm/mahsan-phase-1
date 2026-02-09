@@ -5,18 +5,19 @@ import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.ModelRepository;
+import org.example.library.model.article.Article;
+import org.example.library.model.book.Book;
 import org.example.sql.JdbcConnection;
 import org.example.utils.DateUtils;
 import org.example.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public abstract class AbstractModelRepository<T extends BaseModel> implements ModelRepository<T> {
 
@@ -24,6 +25,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final String tableName;
     private final ModelFactory modelFactory = ModelFactory.getInstance();
     private final Map<String, DBFieldMapping> fieldMappings = initializeMappings();
+    private final String ID_COLUMN = "id";
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
@@ -36,12 +38,12 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     private static Map<String, DBFieldMapping> initializeMappings() {
         Map<String, DBFieldMapping> mappings = new HashMap<>();
-        mappings.put("id", new DBFieldMapping("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id))));
-        mappings.put("title", new DBFieldMapping("title", "VARCHAR(100) NOT NULL", BaseModel::setTitle));
-        mappings.put("author", new DBFieldMapping("author", "VARCHAR(100) NOT NULL", BaseModel::setAuthor));
-        mappings.put("content", new DBFieldMapping("content", "TEXT NOT NULL", BaseModel::setContent));
-        mappings.put("pubDate", new DBFieldMapping("pub_date", "INT UNSIGNED NOT NULL", (BaseModel model, String value) -> model.setPubDate(parseDate(value))));
-        mappings.put("borrowDate", new DBFieldMapping("borrow_date", "INT UNSIGNED", (BaseModel model, String value) -> model.setBorrowDate(parseDate(value))));
+        mappings.put("id", new DBFieldMapping("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), model -> model.getId(), Types.BIGINT));
+        mappings.put("title", new DBFieldMapping("title", "VARCHAR(100) NOT NULL", BaseModel::setTitle, BaseModel::getTitle, Types.VARCHAR));
+        mappings.put("author", new DBFieldMapping("author", "VARCHAR(100) NOT NULL", BaseModel::setAuthor, BaseModel::getAuthor, Types.VARCHAR));
+        mappings.put("content", new DBFieldMapping("content", "TEXT NOT NULL", BaseModel::setContent, BaseModel::getContent, Types.VARCHAR));
+        mappings.put("pubDate", new DBFieldMapping("pub_date", "INT UNSIGNED NOT NULL", (BaseModel model, String value) -> model.setPubDate(parseDate(value)), BaseModel::getPubDateEpochDay, Types.BIGINT));
+        mappings.put("borrowDate", new DBFieldMapping("borrow_date", "INT UNSIGNED", (BaseModel model, String value) -> model.setBorrowDate(parseDate(value)), BaseModel::getBorrowDateEpochDay, Types.BIGINT));
         return mappings;
     }
 
@@ -138,5 +140,68 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         }
     }
 
+    @Override
+    public T save(T model) throws SQLException {
+        return Objects.isNull(model.getId()) ? insertInto(model) : updateModel(model);
+    }
+
+
+    private T updateModel(T model) throws SQLException {
+        var builder = new StringBuilder("UPDATE" + tableName + " SET ");
+        var fields = fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN)).toList();
+        fields.forEach(field -> builder.append(field.dbFieldName()).append(" = ? \n"));
+        builder.append("WHERE ").append(ID_COLUMN).append(" = ?;");
+        var pst = connection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+        AtomicInteger index = new AtomicInteger(1);
+        fields.forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model));
+        pst.setLong(fields.size(), model.getId());
+        pst.executeUpdate();
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+            long generatedId = rs.getLong(1);
+            model.setId(generatedId);
+        }
+
+        return model;
+    }
+
+    private void setPrepareStatement(int index, DBFieldMapping fieldMapping, PreparedStatement pst, T model) {
+        try {
+            if (Objects.isNull(fieldMapping.toDB())) {
+                pst.setNull(index, fieldMapping.dbType());
+            } else {
+                pst.setObject(index, fieldMapping.toDB().apply(model), fieldMapping.dbType());
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private T insertInto(T model) throws SQLException {
+        var builder = new StringBuilder("INSERT INTO " + tableName + " ( ");
+        var fields = fieldMappings.values().stream().toList();
+        var columns = fields.stream().map(DBFieldMapping::dbFieldName).filter(s -> !s.equals(ID_COLUMN)).collect(Collectors.joining(", "));
+        builder.append(columns);
+        builder.append(" ) VALUES ( ");
+        var values = fields.stream().filter(s -> !s.dbFieldName().equals(ID_COLUMN)).map(field -> "?").collect(Collectors.joining(", "));
+
+        builder.append(values);
+        builder.append(" );");
+        var pst = connection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
+        AtomicInteger index = new AtomicInteger(1);
+        fields.stream()
+                .filter(field -> !field.dbFieldName().equals(ID_COLUMN))
+                .forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model));
+
+        pst.executeUpdate();
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+            long generatedId = rs.getLong(1);
+            model.setId(generatedId);
+        }
+
+        return model;
+    }
 
 }

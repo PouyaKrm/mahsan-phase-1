@@ -1,11 +1,13 @@
 package org.example.library.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.example.constansts.AppConfigs;
 import org.example.constansts.ResourceType;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 public abstract class BaseModel {
@@ -39,6 +41,7 @@ public abstract class BaseModel {
     }
 
     public abstract void display();
+
     public abstract ResourceType resourceType();
 
     public String getTitle() {
@@ -51,6 +54,11 @@ public abstract class BaseModel {
 
     public LocalDate getPubDate() {
         return pubDate;
+    }
+
+    @JsonIgnore
+    public Long getPubDateEpochDay() {
+        return Objects.nonNull(pubDate) ? pubDate.toEpochDay() : null;
     }
 
     public void setPubDate(LocalDate pubDate) {
@@ -75,6 +83,11 @@ public abstract class BaseModel {
 
     public LocalDate getBorrowDate() {
         return borrowDate;
+    }
+
+    @JsonIgnore
+    public Long getBorrowDateEpochDay() {
+        return Objects.nonNull(borrowDate) ? borrowDate.toEpochDay() : null;
     }
 
     public void setBorrowDate(LocalDate borrowDate) {
