@@ -51,17 +51,21 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
 
     @Override
     public Article createFromResultSet(ResultSet rs) throws SQLException {
-        var date = rs.getInt("date");
-        var pubDate = LocalDate.ofEpochDay(date);
+
         Long id = rs.getLong("id");
         var book = new Article(
-                pubDate,
+                getDate(rs, "pub_date"),
                 rs.getString("title"),
                 rs.getString("author"),
                 rs.getString("content")
         );
-
+        book.setBorrowDate(getDate(rs, "borrow_date"));
         book.setId(id);
         return book;
+    }
+
+    private LocalDate getDate(ResultSet resultSet, String key) throws SQLException {
+        var d = resultSet.getInt(key);
+        return LocalDate.ofEpochDay(d);
     }
 }
