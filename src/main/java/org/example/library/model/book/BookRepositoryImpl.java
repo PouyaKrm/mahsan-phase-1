@@ -34,19 +34,19 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
     }
 
 
-    public static BookRepositoryImpl getInstance() {
+    public synchronized static BookRepositoryImpl getInstance() {
         if (Objects.nonNull(instance)) {
             return instance;
         }
-        synchronized (BookRepositoryImpl.class) {
-            try {
-                instance = new BookRepositoryImpl();
-                instance.createTable();
-                return instance;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+
+        try {
+            instance = new BookRepositoryImpl();
+            instance.createTable();
+            return instance;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
 
