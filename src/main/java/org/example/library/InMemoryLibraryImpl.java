@@ -15,6 +15,8 @@ import org.example.library.model.magazine.Magazine;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Predicate;
 
 public class InMemoryLibraryImpl implements Library {
@@ -25,6 +27,10 @@ public class InMemoryLibraryImpl implements Library {
 
     @Override
     public <T extends BaseModel> void addItem(T book) {
+        var random = new Random();
+        if(Objects.isNull(book.getId())) {
+            book.setId(random.nextLong());
+        }
         switch (book.resourceType()) {
             case BOOK -> bookCollection.add((Book) book);
             case ARTICLE -> articles.add((Article) book);
