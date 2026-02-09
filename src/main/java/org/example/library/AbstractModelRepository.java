@@ -5,13 +5,17 @@ import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.ModelRepository;
-import org.example.library.model.article.Article;
-import org.example.library.model.book.Book;
 import org.example.sql.JdbcConnection;
+import org.example.utils.DateUtils;
 import org.example.utils.Utils;
 
-import java.sql.*;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 public abstract class AbstractModelRepository<T extends BaseModel> implements ModelRepository<T> {
@@ -19,7 +23,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final Connection connection = JdbcConnection.getConnection();
     protected final String tableName;
     private final ModelFactory modelFactory = ModelFactory.getInstance();
-    private static Map<String, DBFieldMapping> fieldMappings = initializeMappings();
+    private final Map<String, DBFieldMapping> fieldMappings = initializeMappings();
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
@@ -32,13 +36,20 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     private static Map<String, DBFieldMapping> initializeMappings() {
         Map<String, DBFieldMapping> mappings = new HashMap<>();
-        mappings.put("id", new DBFieldMapping("id", "id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY"));
-        mappings.put("title", new DBFieldMapping("title", "title", "VARCHAR(100) NOT NULL"));
-        mappings.put("author", new DBFieldMapping("author", "author", "VARCHAR(100) NOT NULL"));
-        mappings.put("content", new DBFieldMapping("content", "content", "TEXT NOT NULL"));
-        mappings.put("pubDate", new DBFieldMapping("pubDate", "pub_date", "INT UNSIGNED NOT NULL"));
-        mappings.put("borrowDate", new DBFieldMapping("borrowDate", "borrow_date", "INT UNSIGNED"));
+        mappings.put("id", new DBFieldMapping("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id))));
+        mappings.put("title", new DBFieldMapping("title", "VARCHAR(100) NOT NULL", BaseModel::setTitle));
+        mappings.put("author", new DBFieldMapping("author", "VARCHAR(100) NOT NULL", BaseModel::setAuthor));
+        mappings.put("content", new DBFieldMapping("content", "TEXT NOT NULL", BaseModel::setContent));
+        mappings.put("pubDate", new DBFieldMapping("pub_date", "INT UNSIGNED NOT NULL", (BaseModel model, String value) -> model.setPubDate(parseDate(value))));
+        mappings.put("borrowDate", new DBFieldMapping("borrow_date", "INT UNSIGNED", (BaseModel model, String value) -> model.setBorrowDate(parseDate(value))));
         return mappings;
+    }
+
+    private static LocalDate parseDate(String date) {
+        if (Objects.isNull(date)) {
+            return null;
+        }
+        return DateUtils.createDateEpochDay(Integer.parseInt(date));
     }
 
     private void addMapping(Map<String, DBFieldMapping> newMappings) {
@@ -57,7 +68,6 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
                 """;
         var bs = new StringBuffer(createTableStatement);
         bs.append(" " + tableName + "( ");
-        fieldMappings.replace("id", new DBFieldMapping("id", "id", "INT NOT NULL AUTO_INCREMENT"));
         for (var entry : fieldMappings.entrySet()) {
             bs.append(entry.getValue().getDBField() + ", ");
         }
@@ -67,8 +77,6 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         st.execute(bs.toString());
     }
 
-    ;
-
 
     protected T[] getAll(Class<T> tClass) throws SQLException {
         List<T> articleList = new ArrayList<>();
@@ -76,7 +84,14 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         PreparedStatement ps = connection.prepareStatement("select * from " + tableName);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            articleList.add(factory.createFromResultSet(rs));
+            try {
+                var model = tClass.getConstructor().newInstance();
+                factory.populateFromDB(model, rs, fieldMappings.values());
+                articleList.add(model);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
         }
         return Utils.listToArray(articleList, tClass);
     }
@@ -110,14 +125,18 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         var factory = modelFactory.getFactory(tClass);
         pst.setLong(1, id);
         var rs = pst.executeQuery();
-        if (rs.next()) {
-            return factory.createFromResultSet(rs);
-        } else {
+        if (!rs.next()) {
             throw new ItemNotFoundException(MessageFormat.format("No item found with id {0}", id));
+
+        }
+        try {
+            var model = tClass.getConstructor().newInstance();
+            return factory.populateFromDB(model, rs, fieldMappings.values());
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    protected final Map<String, DBFieldMapping> getFieldMappings() {
-        return fieldMappings;
-    }
+
 }

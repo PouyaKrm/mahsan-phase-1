@@ -2,6 +2,7 @@ package org.example.library.model.book;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
+import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelRepository;
 import org.example.sql.JdbcConnection;
@@ -24,13 +25,10 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
 
     private static Map<String, DBFieldMapping> createFieldMappings() {
         Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
-        fieldMappings.put("id", new DBFieldMapping("id", "id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY"));
-        fieldMappings.put("title", new DBFieldMapping("title", "title", "VARCHAR(100) NOT NULL"));
-        fieldMappings.put("author", new DBFieldMapping("author", "author", "VARCHAR(100) NOT NULL"));
-        fieldMappings.put("content", new DBFieldMapping("content", "content", "TEXT NOT NULL"));
-        fieldMappings.put("pubDate", new DBFieldMapping("pubDate", "pub_date", "INT UNSIGNED NOT NULL"));
-        fieldMappings.put("borrowDate", new DBFieldMapping("borrowDate", "borrow_date", "INT UNSIGNED"));
-        fieldMappings.put("status", new DBFieldMapping("status", "status", "VARCHAR(20) NOT NULL"));
+        fieldMappings.put("status", new DBFieldMapping(
+                "status",
+                "VARCHAR(20) NOT NULL",
+                (BaseModel model, String value) -> ((Book) model).setStatus(Book.Status.valueOf(value))));
         return fieldMappings;
     }
 
@@ -112,7 +110,6 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
 
         return model;
     }
-
 
 
     @Override

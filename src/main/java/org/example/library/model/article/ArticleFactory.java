@@ -1,6 +1,7 @@
 package org.example.library.model.article;
 
 import org.example.exception.InvalidInputData;
+import org.example.library.model.DBFieldMapping;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class ArticleFactory extends AbstractModelFactory<Article> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
@@ -63,6 +65,8 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
         book.setId(id);
         return book;
     }
+
+
 
     private LocalDate getDate(ResultSet resultSet, String key) throws SQLException {
         var d = resultSet.getInt(key);

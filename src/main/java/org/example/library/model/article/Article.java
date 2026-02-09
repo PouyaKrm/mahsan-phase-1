@@ -17,6 +17,9 @@ public class Article extends BaseModel {
         super(id, title, author, content, pubDate);
     }
 
+    public Article() {
+    }
+
     @Override
     public void display() {
         System.out.println(toString());

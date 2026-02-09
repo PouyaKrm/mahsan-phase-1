@@ -16,6 +16,9 @@ public class Magazine extends BaseModel {
         super(id, title, author, content, pubDate);
     }
 
+    public Magazine() {
+    }
+
     @Override
     public void display() {
         System.out.println(toString());
