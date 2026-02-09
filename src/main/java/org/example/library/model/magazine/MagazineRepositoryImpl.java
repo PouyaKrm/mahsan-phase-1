@@ -1,48 +1,46 @@
-package org.example.library.model.article;
+package org.example.library.model.magazine;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
-import org.example.library.model.DBFieldMapping;
-import org.example.sql.JdbcConnection;
+import org.example.library.model.article.Article;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
-public class ArticleRepositoryImpl extends AbstractModelRepository<Article> implements ArticleRepository {
+public class MagazineRepositoryImpl extends AbstractModelRepository<Magazine> implements MagazineRepository {
 
-    private static final Connection connection = JdbcConnection.getConnection();
-    private final static String TABLE_NAME = "articles";
-    private final static String ID_COLUMN = "id";
-    private static ArticleRepositoryImpl instance;
-    private final ArticleFactory factory = ArticleFactory.getFactory();
+    private static MagazineRepositoryImpl instance;
+    private static final String TABLE_NAME = "magazines";
 
-    private ArticleRepositoryImpl() {
+    protected MagazineRepositoryImpl() {
         super(TABLE_NAME);
     }
 
+
     @Override
-    public Article[] getAll() throws SQLException {
-        return super.getAll(Article.class);
+    public Magazine[] getAll() throws SQLException {
+        return getAll(Magazine.class);
     }
 
     @Override
-    public Article[] removeAll() throws SQLException {
-        return removeAll(Article.class);
+    public Magazine[] removeAll() throws SQLException {
+        return removeAll(Magazine.class);
     }
 
     @Override
-    public Article save(Article model) throws SQLException {
+    public Magazine save(Magazine model) throws SQLException {
         return Objects.isNull(model.getId()) ? insertInto(model) : update(model);
     }
 
+    @Override
+    public Magazine getOne(Long id) throws SQLException, ItemNotFoundException {
+        return getOne(id, Magazine.class);
+    }
 
-    private Article insertInto(Article model) throws SQLException {
+    private Magazine insertInto(Magazine model) throws SQLException {
         var st = MessageFormat.format("INSERT INTO {0} (title, author, content, pub_date, borrow_date) VALUES (?,?,?,?,?)", tableName);
         var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
@@ -64,7 +62,7 @@ public class ArticleRepositoryImpl extends AbstractModelRepository<Article> impl
         return model;
     }
 
-    private Article update(Article model) throws SQLException {
+    private Magazine update(Magazine model) throws SQLException {
         var st = MessageFormat.format("UPDATE {0} SET title=?, author=?, content=?, pub_date=?, borrow_date=? WHERE id=?", tableName);
         var pst = connection.prepareStatement(st, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, model.getTitle());
@@ -87,18 +85,12 @@ public class ArticleRepositoryImpl extends AbstractModelRepository<Article> impl
         return model;
     }
 
-
-    @Override
-    public Article getOne(Long id) throws SQLException, ItemNotFoundException {
-        return super.getOne(id, Article.class);
-    }
-
-    public static synchronized ArticleRepositoryImpl getInstance() {
-        if (Objects.nonNull(instance)) {
+    public static synchronized MagazineRepositoryImpl getInstance() {
+        if(Objects.nonNull(instance)) {
             return instance;
         }
         try {
-            instance = new ArticleRepositoryImpl();
+            instance = new MagazineRepositoryImpl();
             instance.createTable();
             return instance;
         } catch (SQLException e) {

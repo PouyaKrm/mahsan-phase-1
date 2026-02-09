@@ -19,11 +19,36 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final Connection connection = JdbcConnection.getConnection();
     protected final String tableName;
     private final ModelFactory modelFactory = ModelFactory.getInstance();
-    private final Map<String, DBFieldMapping> fieldMappings;
+    private static Map<String, DBFieldMapping> fieldMappings = initializeMappings();
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
-        this.fieldMappings = fieldMappings;
+        addMapping(fieldMappings);
+    }
+
+    protected AbstractModelRepository(String tableName) {
+        this.tableName = tableName;
+    }
+
+    private static Map<String, DBFieldMapping> initializeMappings() {
+        Map<String, DBFieldMapping> mappings = new HashMap<>();
+        mappings.put("id", new DBFieldMapping("id", "id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY"));
+        mappings.put("title", new DBFieldMapping("title", "title", "VARCHAR(100) NOT NULL"));
+        mappings.put("author", new DBFieldMapping("author", "author", "VARCHAR(100) NOT NULL"));
+        mappings.put("content", new DBFieldMapping("content", "content", "TEXT NOT NULL"));
+        mappings.put("pubDate", new DBFieldMapping("pubDate", "pub_date", "INT UNSIGNED NOT NULL"));
+        mappings.put("borrowDate", new DBFieldMapping("borrowDate", "borrow_date", "INT UNSIGNED"));
+        return mappings;
+    }
+
+    private void addMapping(Map<String, DBFieldMapping> newMappings) {
+        for (var mapping : newMappings.entrySet()) {
+            if (fieldMappings.containsKey(mapping.getKey())) {
+                fieldMappings.replace(mapping.getKey(), mapping.getValue());
+            } else {
+                fieldMappings.put(mapping.getKey(), mapping.getValue());
+            }
+        }
     }
 
     protected void createTable() throws SQLException {

@@ -50,7 +50,7 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
 
     @Override
     public Magazine createFromResultSet(ResultSet rs) throws SQLException {
-        var date = rs.getInt("date");
+        var date = rs.getInt("pub_date");
         var pubDate = LocalDate.ofEpochDay(date);
         Long id = rs.getLong("id");
         var book = new Magazine(
