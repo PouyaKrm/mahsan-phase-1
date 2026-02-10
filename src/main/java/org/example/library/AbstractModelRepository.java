@@ -5,8 +5,6 @@ import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelFactory;
 import org.example.library.model.ModelRepository;
-import org.example.library.model.article.Article;
-import org.example.library.model.book.Book;
 import org.example.sql.JdbcConnection;
 import org.example.utils.DateUtils;
 import org.example.utils.Utils;
@@ -189,19 +187,17 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         var columns = fields.stream().map(DBFieldMapping::dbFieldName).filter(s -> !s.equals(ID_COLUMN)).collect(Collectors.joining(", "));
         builder.append(columns).append(" ) ");
         builder.append("VALUES ");
-        var values = models.stream().map(model -> createValuesSql()).collect(Collectors.joining(", "));
+        var values = createValuesSql();
         builder.append(values).append(";");
         var pst = connection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
-        AtomicInteger index = new AtomicInteger(1);
-        models.forEach(
-                model -> fields.forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model))
-        );
-        pst.executeUpdate();
+        models.forEach(model -> addBatche(pst, model, fields));
+        pst.executeBatch();
+        pst.clearParameters();
         ResultSet rs = pst.getGeneratedKeys();
         var i = 0;
         while (rs.next()) {
             long generatedId = rs.getLong(1);
-            models.get(i).setId(generatedId);
+            models.get(i++).setId(generatedId);
         }
         return models;
     }
@@ -213,6 +209,16 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         builder.append(values);
         builder.append(" ) ");
         return builder.toString();
+    }
+
+    private void addBatche(PreparedStatement pst, T model, List<DBFieldMapping> nonIdFields) {
+        AtomicInteger index = new AtomicInteger(1);
+        nonIdFields.forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model));
+        try {
+            pst.addBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
