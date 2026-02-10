@@ -67,9 +67,9 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
                 CREATE TABLE IF NOT EXISTS
                 """;
         var bs = new StringBuffer(createTableStatement);
-        bs.append(" " + tableName + "( ");
+        bs.append(" ").append(tableName).append("( ");
         for (var entry : fieldMappings.entrySet()) {
-            bs.append(entry.getValue().getDBField() + ", ");
+            bs.append(entry.getValue().getDBField()).append(", ");
         }
         bs.append("PRIMARY KEY (id)");
         bs.append(" );");
