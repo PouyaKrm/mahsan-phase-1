@@ -9,6 +9,7 @@ import org.example.library.model.book.BookRepositoryImpl;
 import org.example.library.model.magazine.Magazine;
 import org.example.library.model.magazine.MagazineRepositoryImpl;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
 
@@ -18,13 +19,13 @@ import java.util.Arrays;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class DBLibraryImplTest {
-    private final DbLibraryImpl dbLibrary = new DbLibraryImpl();
+    DbLibraryImpl dbLibrary = new DbLibraryImpl();
     private final MagazineRepositoryImpl magazineRepository = MagazineRepositoryImpl.getInstance();
     private final BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
     private final ArticleRepositoryImpl articleRepository = ArticleRepositoryImpl.getInstance();
 
 
-    @After
+    @Before
     public void cleanUp() throws SQLException {
         magazineRepository.removeAll();
         bookRepository.removeAll();

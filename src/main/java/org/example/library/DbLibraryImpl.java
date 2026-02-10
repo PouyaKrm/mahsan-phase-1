@@ -9,6 +9,7 @@ import org.example.library.model.ModelRepository;
 import org.example.library.model.article.Article;
 import org.example.library.model.article.ArticleRepositoryImpl;
 import org.example.library.model.book.Book;
+import org.example.library.model.book.BookRepository;
 import org.example.library.model.book.BookRepositoryImpl;
 import org.example.library.model.magazine.Magazine;
 import org.example.library.model.magazine.MagazineRepositoryImpl;
@@ -19,13 +20,12 @@ import java.util.Map;
 
 public class DbLibraryImpl implements Library {
 
-    private final ModelRepository<Book> bookRepository = BookRepositoryImpl.getInstance();
-    private final ModelRepository<Article> articleRepository = ArticleRepositoryImpl.getInstance();
-    private final ModelRepository<Magazine> magazineRepository = MagazineRepositoryImpl.getInstance();
+    private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
+
     private final Map<Class<? extends BaseModel>, ModelRepository<?>> repositoryMap = Map.ofEntries(
-            Map.entry(Book.class, bookRepository),
-            Map.entry(Article.class, articleRepository),
-            Map.entry(Magazine.class, magazineRepository)
+            Map.entry(Book.class,  bookRepository),
+            Map.entry(Article.class, ArticleRepositoryImpl.getInstance()),
+            Map.entry(Magazine.class, MagazineRepositoryImpl.getInstance())
     );
 
 
