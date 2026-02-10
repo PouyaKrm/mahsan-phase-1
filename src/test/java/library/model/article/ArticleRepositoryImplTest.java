@@ -1,7 +1,10 @@
 package library.model.article;
 
 import org.example.exception.ItemNotFoundException;
+import org.example.library.model.article.Article;
 import org.example.library.model.article.ArticleRepositoryImpl;
+import org.example.library.model.book.Book;
+import org.example.library.model.book.BookRepositoryImpl;
 import org.junit.After;
 import org.junit.Test;
 import utils.TestUtils;
@@ -20,7 +23,6 @@ public class ArticleRepositoryImplTest {
 
     @Test
     public void create_article_works_correctly() throws SQLException, ItemNotFoundException {
-        var articleRepository = ArticleRepositoryImpl.getInstance();
         var article = TestUtils.createArticle();
 
         articleRepository.save(article);
@@ -31,6 +33,19 @@ public class ArticleRepositoryImplTest {
         assertThat(article.getAuthor()).isEqualTo(found.getAuthor());
         assertThat(article.getContent()).isEqualTo(found.getContent());
 
+    }
+
+    @Test
+    public void saveAll_works_correctly() throws SQLException {
+        var article1 = TestUtils.createArticle("title1");
+        var article2 = TestUtils.createArticle("title2");
+
+        var result = articleRepository.saveAll(new Article[]{article1, article2}, Article.class);
+
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(article1, article2);
+        assertThat(result[0].getTitle()).isEqualTo(article1.getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(article2.getTitle());
     }
 
     @Test

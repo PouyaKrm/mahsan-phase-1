@@ -12,5 +12,5 @@ public interface ModelRepository<T extends BaseModel> {
     boolean removeOne(T model) throws SQLException;
     boolean removeOne(Long id) throws SQLException;
     T getOne(Long id) throws SQLException, ItemNotFoundException;
-
+    T[] saveAll(T[] models, Class<T> tClass) throws SQLException;
 }

@@ -142,9 +142,14 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     @Override
     public T save(T model) throws SQLException {
-        return Objects.isNull(model.getId()) ? insertInto(model) : updateModel(model);
+        return Objects.isNull(model.getId()) ? insertAll(List.of(model)).getFirst() : updateModel(model);
     }
 
+    @Override
+    public T[] saveAll(T[] models, Class<T> tClass) throws SQLException {
+        var r = insertAll(Arrays.stream(models).toList());
+        return Utils.listToArray(r, tClass);
+    }
 
     private T updateModel(T model) throws SQLException {
         var builder = new StringBuilder("UPDATE" + tableName + " SET ");
@@ -167,7 +172,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     private void setPrepareStatement(int index, DBFieldMapping fieldMapping, PreparedStatement pst, T model) {
         try {
-            if (Objects.isNull(fieldMapping.toDB())) {
+            if (Objects.isNull(fieldMapping.toDB().apply(model))) {
                 pst.setNull(index, fieldMapping.dbType());
             } else {
                 pst.setObject(index, fieldMapping.toDB().apply(model), fieldMapping.dbType());
@@ -178,30 +183,39 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     }
 
-    private T insertInto(T model) throws SQLException {
+    private List<T> insertAll(List<T> models) throws SQLException {
         var builder = new StringBuilder("INSERT INTO " + tableName + " ( ");
-        var fields = fieldMappings.values().stream().toList();
+        var fields = fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN)).toList();
         var columns = fields.stream().map(DBFieldMapping::dbFieldName).filter(s -> !s.equals(ID_COLUMN)).collect(Collectors.joining(", "));
-        builder.append(columns);
-        builder.append(" ) VALUES ( ");
-        var values = fields.stream().filter(s -> !s.dbFieldName().equals(ID_COLUMN)).map(field -> "?").collect(Collectors.joining(", "));
-
-        builder.append(values);
-        builder.append(" );");
+        builder.append(columns).append(" ) ");
+        builder.append("VALUES ");
+        var values = models.stream().map(model -> createValuesSql()).collect(Collectors.joining(", "));
+        builder.append(values).append(";");
         var pst = connection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
         AtomicInteger index = new AtomicInteger(1);
-        fields.stream()
-                .filter(field -> !field.dbFieldName().equals(ID_COLUMN))
-                .forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model));
-
+        models.forEach(
+                model -> fields.forEach(field -> setPrepareStatement(index.getAndIncrement(), field, pst, model))
+        );
         pst.executeUpdate();
         ResultSet rs = pst.getGeneratedKeys();
-        if (rs.next()) {
+        var i = 0;
+        while (rs.next()) {
             long generatedId = rs.getLong(1);
-            model.setId(generatedId);
+            models.get(i).setId(generatedId);
         }
-
-        return model;
+        return models;
     }
 
+    private String createValuesSql() {
+        var builder = new StringBuilder();
+        builder.append(" ( ");
+        var values = fieldMappings.values().stream().filter(s -> !s.dbFieldName().equals(ID_COLUMN)).map(field -> "?").collect(Collectors.joining(", "));
+        builder.append(values);
+        builder.append(" ) ");
+        return builder.toString();
+    }
 }
+
+
+
+

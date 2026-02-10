@@ -1,6 +1,8 @@
 package library.model.magazine;
 
 import org.example.exception.ItemNotFoundException;
+import org.example.library.model.article.Article;
+import org.example.library.model.magazine.Magazine;
 import org.example.library.model.magazine.MagazineRepositoryImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -30,6 +32,19 @@ public class MagazineRepositoryImplTest {
         assertThat(magazine.getAuthor()).isEqualTo(found.getAuthor());
         assertThat(magazine.getContent()).isEqualTo(found.getContent());
 
+    }
+
+    @Test
+    public void saveAll_works_correctly() throws SQLException {
+        var magazine1 = TestUtils.createMagazine("title1");
+        var magazine2 = TestUtils.createMagazine("title2");
+
+        var result = magazineRepository.saveAll(new Magazine[]{magazine1, magazine2}, Magazine.class);
+
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(magazine1, magazine2);
+        assertThat(result[0].getTitle()).isEqualTo(magazine1.getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(magazine2.getTitle());
     }
 
     @Test

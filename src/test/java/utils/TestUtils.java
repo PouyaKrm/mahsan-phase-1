@@ -27,8 +27,17 @@ public class TestUtils {
         return new Article(LocalDate.now(), "article title", "author", "conten");
     }
 
+    public static Article createArticle(String title) {
+        return new Article(LocalDate.now(), title, "author", "conten");
+    }
+
     public static Magazine createMagazine() {
         return new Magazine(LocalDate.now(), "magazine title", "author", "conten");
     }
+
+    public static Magazine createMagazine(String title) {
+        return new Magazine(LocalDate.now(), title, "author", "conten");
+    }
+
 
 }
