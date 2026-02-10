@@ -1,6 +1,7 @@
 package org.example.library.model.book;
 
 import org.example.constansts.ResourceType;
+import org.example.exception.InvalidOperationException;
 import org.example.library.model.BaseModel;
 
 import java.text.MessageFormat;
@@ -47,6 +48,16 @@ public class Book extends BaseModel {
         BANNED,
         BORROWED,
         EXIST
+    }
+
+
+    public static Book borrowItem(Book model) throws InvalidOperationException {
+        if(!model.getStatus().equals(Status.EXIST)) {
+            throw new InvalidOperationException("can not borrow this book");
+        }
+        model.setStatus(Status.BORROWED);
+        model.setBorrowDate(LocalDate.now());
+        return model;
     }
 
     @Override
