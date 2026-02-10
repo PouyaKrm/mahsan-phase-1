@@ -23,7 +23,7 @@ public class DbLibraryImpl implements Library {
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
 
     private final Map<Class<? extends BaseModel>, ModelRepository<?>> repositoryMap = Map.ofEntries(
-            Map.entry(Book.class,  bookRepository),
+            Map.entry(Book.class, bookRepository),
             Map.entry(Article.class, ArticleRepositoryImpl.getInstance()),
             Map.entry(Magazine.class, MagazineRepositoryImpl.getInstance())
     );
@@ -124,31 +124,41 @@ public class DbLibraryImpl implements Library {
     }
 
 
-    public <T extends BaseModel> T borrowItem(Long id, Class<T> tClass) throws ItemNotFoundException, InvalidOperationException {
+    @Override
+    public <T extends BaseModel> void addAll(T[] books) {
+
+    }
+
+
+    public <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         try {
-            Book model = (Book) getRepository(tClass).getOne(id);
-            Book.borrowItem(model);
-            bookRepository.save(model);
-            return tClass.cast(model);
+            return getRepository(tClass).getOne(id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public BaseModel returnItem(Long id) throws ItemNotFoundException {
-        return null;
+    public Book returnItem(Long id) throws ItemNotFoundException {
+        var item = getItem(id, Book.class);
+        if (!item.getStatus().equals(Book.Status.BORROWED)) {
+            throw new ItemNotFoundException("item not found");
+        }
+        item.setStatus(Book.Status.EXIST);
+        try {
+            getRepository(Book.class).save(item);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return item;
     }
+
 
     @Override
     public BaseModel[] getBorrowedItems() {
         return new BaseModel[0];
     }
 
-    @Override
-    public <T extends BaseModel> void addAll(T[] books) {
-
-    }
 
 
     public <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass) {

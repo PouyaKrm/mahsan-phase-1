@@ -141,6 +141,24 @@ public class DBLibraryImplTest {
         assertThat(result[1].getTitle()).isEqualTo(items[1].getTitle());
     }
 
+    @Test
+    public void get_item_works_correctly() throws SQLException, ItemNotFoundException {
+        var items = new Book[]{TestUtils.createBook("title"), TestUtils.createBook("title2")};
+        dbLibrary.addAll(items, Book.class);
+
+        var result = dbLibrary.getItem(items[0].getId(), Book.class);
+
+        assertThat(result.getId()).isEqualTo(items[0].getId());
+    }
+
+    @Test(expected = ItemNotFoundException.class)
+    public void get_item_throws_ItemNotFoundException() throws ItemNotFoundException {
+        var items = new Book[]{TestUtils.createBook("title"), TestUtils.createBook("title2")};
+        dbLibrary.addAll(items, Book.class);
+
+        dbLibrary.getItem(20L, Book.class);
+    }
+
 
     @Test
     public void remove_one_book_works_correctly() {

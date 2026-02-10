@@ -11,11 +11,13 @@ import org.example.library.model.magazine.Magazine;
 import java.util.List;
 
 public interface Library {
+
     <T extends BaseModel> void addItem(T book);
 
     <T extends BaseModel> void removeItem(T book);
 
     <T extends BaseModel> T removeItem(Long id, ResourceType resourceType);
+
 
     BaseModel[] search(List<SearchDTO> searchDTOS);
 
