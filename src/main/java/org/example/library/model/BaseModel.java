@@ -62,7 +62,17 @@ public abstract class BaseModel {
     }
 
     public void setPubDate(LocalDate pubDate) {
+        if(Objects.isNull(pubDate)) {
+            return;
+        }
         this.pubDate = pubDate;
+    }
+
+    public void setPubDateFromEpochDay(Long epochDay) {
+        if(Objects.isNull(pubDate)) {
+            return;
+        }
+        this.pubDate = LocalDate.ofEpochDay(epochDay);;
     }
 
     public String getAuthor() {
@@ -91,7 +101,17 @@ public abstract class BaseModel {
     }
 
     public void setBorrowDate(LocalDate borrowDate) {
+        if(Objects.isNull(borrowDate)) {
+            return;
+        }
         this.borrowDate = borrowDate;
+    }
+
+    public void setBorrowDateFromEpochDay(Long epochDay) {
+        if(Objects.isNull(pubDate)) {
+            return;
+        }
+        this.borrowDate = LocalDate.ofEpochDay(epochDay);;
     }
 
     public Long getId() {

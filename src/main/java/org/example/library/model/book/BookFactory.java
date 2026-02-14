@@ -1,10 +1,15 @@
 package org.example.library.model.book;
 
 import org.example.exception.InvalidInputData;
+import org.example.library.v1.ArticleList;
+import org.example.library.v1.BookList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
+import org.example.utils.Utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -20,6 +25,48 @@ public class BookFactory extends AbstractModelFactory<Book> {
 
     private BookFactory() {
 
+    }
+
+    @Override
+    public Object createProtoBuffObject(Book book) {
+        var builder = org.example.library.v1.Book.newBuilder()
+                .setTitle(book.getTitle())
+                .setAuthor(book.getAuthor())
+                .setContent(book.getContent())
+                .setId(book.getId())
+                .setStatus(org.example.library.v1.Book.Status.valueOf(book.getStatus().name()))
+                .setPubDateEpochDay(book.getPubDateEpochDay());
+        if (Objects.nonNull(book.getBorrowDate())) {
+            builder.setBorrowDateEpochDay(book.getBorrowDateEpochDay());
+        }
+        return builder.build();
+    }
+
+    @Override
+    public Object createProtoBuffList(Book[] items) {
+        var builder = org.example.library.v1.BookList.newBuilder();
+        for (var book : items) {
+            var obj = createProtoBuffObject(book);
+            builder.addBook((org.example.library.v1.Book) obj);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public Book[] parseProtoBuffObject(InputStream protoBuffObject) throws IOException {
+        var protoList = BookList.parseFrom(protoBuffObject);
+        var list = protoList.getBookList().stream().map(item -> {
+            var b = new Book();
+            b.setId(item.getId());
+            b.setTitle(item.getTitle());
+            b.setAuthor(item.getAuthor());
+            b.setContent(item.getContent());
+            b.setStatus(Book.Status.valueOf(item.getStatus().name()));
+            b.setBorrowDateFromEpochDay(item.getPubDateEpochDay());
+            b.setBorrowDateFromEpochDay(item.getBorrowDateEpochDay());
+            return b;
+        }).toList();
+        return Utils.listToArray(list, Book.class);
     }
 
     public static BookFactory getFactory() {
@@ -55,7 +102,7 @@ public class BookFactory extends AbstractModelFactory<Book> {
         Long id = rs.getLong("id");
         book.setId(id);
         var bd = rs.getLong("borrow_date");
-        if(bd != 0) {
+        if (bd != 0) {
             var borrowDate = LocalDate.ofEpochDay(bd);
             book.setBorrowDate(borrowDate);
         }

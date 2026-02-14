@@ -16,12 +16,19 @@ public class TestUtils {
         return new Book(LocalDate.now().minusYears(1), "book title", "author2", "content", Book.Status.EXIST);
     }
 
+    public static Book createBookWithId() {
+        var b = new Book(LocalDate.now().minusYears(1), "book title", "author2", "content", Book.Status.EXIST);
+        var random = new Random();
+        b.setId(random.nextLong(1, 1000000000));
+        return b;
+    }
+
     public static Book createBook(String title) {
         return new Book(LocalDate.now().minusYears(1), title, "author2", "content", Book.Status.EXIST);
     }
 
     public static Book createBookByAuthro(String author) {
-        return new Book(LocalDate.now().minusYears(1),"title", author, "content", Book.Status.EXIST);
+        return new Book(LocalDate.now().minusYears(1), "title", author, "content", Book.Status.EXIST);
     }
 
     public static Book createBookByPubDate(LocalDate localDate) {
@@ -32,6 +39,14 @@ public class TestUtils {
         return new Article(LocalDate.now(), "article title", "author", "conten");
     }
 
+    public static Article createArticleWithId() {
+        var a = new Article(LocalDate.now(), "article title", "author", "conten");
+        var random = new Random();
+        a.setId(random.nextLong(1, 1000000000));
+        return a;
+    }
+
+
     public static Article createArticle(String title) {
         return new Article(LocalDate.now(), title, "author", "conten");
     }
@@ -39,6 +54,16 @@ public class TestUtils {
     public static Magazine createMagazine() {
         return new Magazine(LocalDate.now(), "magazine title", "author", "conten");
     }
+
+
+    public static Magazine createMagazineWithId() {
+        var m = new Magazine(LocalDate.now(), "magazine title", "author", "conten");
+        var random = new Random();
+        m.setId(random.nextLong(1, 1000000000));
+        return m;
+    }
+
+
 
     public static Magazine createMagazine(String title) {
         return new Magazine(LocalDate.now(), title, "author", "conten");

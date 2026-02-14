@@ -1,15 +1,22 @@
 package org.example.library.model.magazine;
 
 import org.example.exception.InvalidInputData;
+import org.example.library.model.article.Article;
+import org.example.library.v1.ArticleList;
+import org.example.library.v1.MagazineList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
 import org.example.library.model.AbstractModelFactory;
+import org.example.utils.Utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class MagazineFactory extends AbstractModelFactory<Magazine> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
@@ -19,6 +26,46 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
 
     private MagazineFactory() {
 
+    }
+
+    @Override
+    public Object createProtoBuffObject(Magazine magazine) {
+        var builder = org.example.library.v1.Magazine.newBuilder()
+                .setTitle(magazine.getTitle())
+                .setAuthor(magazine.getAuthor())
+                .setContent(magazine.getContent())
+                .setId(magazine.getId())
+                .setPubDateEpochDay(magazine.getPubDateEpochDay());
+        if(Objects.nonNull(magazine.getBorrowDateEpochDay())) {
+            builder.setBorrowDateEpochDay(magazine.getBorrowDateEpochDay());
+        }
+        return builder.build();
+    }
+
+    @Override
+    public Object createProtoBuffList(Magazine[] items) {
+        var builder = org.example.library.v1.MagazineList.newBuilder();
+        for (var book : items) {
+            var obj = createProtoBuffObject(book);
+            builder.addMagazine((org.example.library.v1.Magazine) obj);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public Magazine[] parseProtoBuffObject(InputStream protoBuffObject) throws IOException {
+        var protoList = MagazineList.parseFrom(protoBuffObject);
+        var list = protoList.getMagazineList().stream().map(item -> {
+            var b = new Magazine();
+            b.setId(item.getId());
+            b.setTitle(item.getTitle());
+            b.setAuthor(item.getAuthor());
+            b.setContent(item.getContent());
+            b.setBorrowDateFromEpochDay(item.getPubDateEpochDay());
+            b.setBorrowDateFromEpochDay(item.getBorrowDateEpochDay());
+            return b;
+        }).toList();
+        return Utils.listToArray(list, Magazine.class);
     }
 
     public static MagazineFactory getFactory() {

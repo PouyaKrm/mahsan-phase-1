@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package library.v1;
+
+option java_package = "org.example.library.v1";
+option java_multiple_files = true;
+
+message Magazine {
+  int64 id = 1;
+  string title = 2;
+  string author = 3;
+  string content = 4;
+
+  int64 borrow_date_epoch_day = 5;
+  optional int64 pub_date_epoch_day = 6;
+}
+
+message MagazineList {
+  repeated Magazine magazine = 1;
+}

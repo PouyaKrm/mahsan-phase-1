@@ -2,6 +2,8 @@ package org.example.library.model;
 
 import org.example.exception.InvalidInputData;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -26,4 +28,10 @@ public abstract class AbstractModelFactory<T extends BaseModel> {
     protected AbstractModelFactory() {
 
     }
+
+    public abstract Object createProtoBuffObject(T t);
+
+    public abstract Object createProtoBuffList(T[] items);
+
+    public abstract T[] parseProtoBuffObject(InputStream protoBuffObject) throws IOException;
 }

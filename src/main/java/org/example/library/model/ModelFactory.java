@@ -43,6 +43,14 @@ public final class ModelFactory {
         return (AbstractModelFactory<T>) factories.get(tClass);
     }
 
+    public <T extends BaseModel> AbstractModelFactory<T> getFactory(ResourceType resourceType) {
+        return switch (resourceType) {
+            case BOOK -> (AbstractModelFactory<T>) getFactory(Book.class);
+            case ARTICLE -> (AbstractModelFactory<T>) getFactory(Article.class);
+            case MAGAZINE -> (AbstractModelFactory<T>) getFactory(Magazine.class);
+        };
+    }
+
 
 }
 

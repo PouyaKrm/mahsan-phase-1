@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package library.v1;
+
+option java_package = "org.example.library.v1";
+option java_multiple_files = true;
+
+import "google/protobuf/wrappers.proto";
+
+message Book {
+
+  int64 id = 1;
+  string title = 2;
+  string author = 3;
+  string content = 4;
+  Status status = 7;
+
+  int64 borrow_date_epoch_day = 5;
+  optional int64 pub_date_epoch_day = 6;
+
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0; // best practice for proto3
+    BANNED = 1;
+    BORROWED = 2;
+    EXIST = 3;
+  }
+}
+
+message BookList {
+  repeated Book book = 1;
+}
