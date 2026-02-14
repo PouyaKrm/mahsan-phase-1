@@ -2,7 +2,7 @@ package importer;
 
 import org.example.importer.BookImporterImpl;
 import org.example.library.InMemoryLibraryImpl;
-import org.example.library.model.book.Book;
+import org.example.library.model.library.book.Book;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

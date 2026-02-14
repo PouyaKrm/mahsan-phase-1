@@ -1,8 +1,8 @@
 package org.example.importer;
 
 import org.example.constansts.ResourceType;
-import org.example.library.model.BaseModel;
-import org.example.library.model.ModelFactory;
+import org.example.library.model.BaseLibraryModel;
+import org.example.library.model.library.ModelFactory;
 import org.example.library.v1.ArticleList;
 import org.example.library.v1.BookList;
 import org.example.library.v1.MagazineList;
@@ -19,12 +19,12 @@ public class ProtoBufferImporterImpl implements BookImporter {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) throws IOException {
+    public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) throws IOException {
         throw new UnsupportedOperationException("Not supported.");
     }
 
     @Override
-    public <T extends BaseModel> void writeToFile(T[] data, Path folderPath, String fileName) throws IOException {
+    public <T extends BaseLibraryModel> void writeToFile(T[] data, Path folderPath, String fileName) throws IOException {
         if (data.length == 0) {
             return;
         }
@@ -36,7 +36,7 @@ public class ProtoBufferImporterImpl implements BookImporter {
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz) throws IOException {
+    public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> clazz) throws IOException {
         return factory.getFactory(clazz).parseProtoBuffObject(inputStream);
     }
 
@@ -45,7 +45,7 @@ public class ProtoBufferImporterImpl implements BookImporter {
         return false;
     }
 
-    private <T extends BaseModel> void write(T[] array, ResourceType resourceType, OutputStream outputStream) throws IOException {
+    private <T extends BaseLibraryModel> void write(T[] array, ResourceType resourceType, OutputStream outputStream) throws IOException {
         var f = factory.getFactory(resourceType);
         var bufferList = f.createProtoBuffList(array);
         switch (resourceType) {

@@ -1,7 +1,7 @@
 package library.model.article;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.model.article.ArticleFactory;
+import org.example.library.model.library.article.ArticleFactory;
 import org.junit.Test;
 
 public class ArticleFactoryTest {

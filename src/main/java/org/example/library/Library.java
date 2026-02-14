@@ -1,24 +1,23 @@
 package org.example.library;
 
-import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
-import org.example.library.model.BaseModel;
-import org.example.library.model.article.Article;
-import org.example.library.model.book.Book;
-import org.example.library.model.magazine.Magazine;
+import org.example.library.model.BaseLibraryModel;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.magazine.Magazine;
 
 import java.util.List;
 
 public interface Library {
 
-    <T extends BaseModel> void addItem(T book, Class<T> tClass);
+    <T extends BaseLibraryModel> void addItem(T book, Class<T> tClass);
 
-    <T extends BaseModel> void removeItem(T book, Class<T> tClass);
+    <T extends BaseLibraryModel> void removeItem(T book, Class<T> tClass);
 
-    <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException;
+    <T extends BaseLibraryModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException;
 
-    BaseModel[] search(List<SearchDTO> searchDTOS);
+    BaseLibraryModel[] search(List<SearchDTO> searchDTOS);
 
     Book[] getAllBooks();
 
@@ -26,13 +25,13 @@ public interface Library {
 
     Magazine[] getAllMagazines();
 
-    <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass);
+    <T extends BaseLibraryModel> T[] addAll(T[] books, Class<T> tClass);
 
-    BaseModel borrowItem(Long id) throws ItemNotFoundException;
+    BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException;
 
-    <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException;
+    <T extends BaseLibraryModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException;
 
-    BaseModel returnItem(Long id) throws ItemNotFoundException;
+    BaseLibraryModel returnItem(Long id) throws ItemNotFoundException;
 
-    BaseModel[] getBorrowedItems();
+    BaseLibraryModel[] getBorrowedItems();
 }

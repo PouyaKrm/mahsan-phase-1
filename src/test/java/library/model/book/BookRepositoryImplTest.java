@@ -1,8 +1,8 @@
 package library.model.book;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.book.Book;
-import org.example.library.model.book.BookRepositoryImpl;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.book.BookRepositoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;

@@ -1,9 +1,9 @@
 package importer;
 
 import org.example.importer.ProtoBufferImporterImpl;
-import org.example.library.model.article.Article;
-import org.example.library.model.book.Book;
-import org.example.library.model.magazine.Magazine;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.magazine.Magazine;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;

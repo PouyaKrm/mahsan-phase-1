@@ -1,12 +1,12 @@
-package org.example.library.model.article;
+package org.example.library.model.library.article;
 
 import org.example.constansts.ResourceType;
-import org.example.library.model.BaseModel;
+import org.example.library.model.BaseLibraryModel;
 
 import java.time.LocalDate;
 
 
-public class Article extends BaseModel {
+public class Article extends BaseLibraryModel {
 
 
     public Article(LocalDate pubDate, String title, String author, String content) {

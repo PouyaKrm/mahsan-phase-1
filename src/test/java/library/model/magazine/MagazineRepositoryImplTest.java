@@ -1,9 +1,8 @@
 package library.model.magazine;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.article.Article;
-import org.example.library.model.magazine.Magazine;
-import org.example.library.model.magazine.MagazineRepositoryImpl;
+import org.example.library.model.library.magazine.Magazine;
+import org.example.library.model.library.magazine.MagazineRepositoryImpl;
 import org.junit.After;
 import org.junit.Test;
 import utils.TestUtils;

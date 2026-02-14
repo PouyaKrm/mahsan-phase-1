@@ -3,12 +3,11 @@ package org.example.concurrent;
 import org.example.constansts.LibraryOperationType;
 import org.example.importer.BookImporter;
 import org.example.library.Library;
-import org.example.library.model.book.Book;
+import org.example.library.model.library.book.Book;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.SQLException;
 
 public class FileImportCommand extends LibraryCommand {
     private final Path filePath;

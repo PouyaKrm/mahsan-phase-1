@@ -1,8 +1,6 @@
-package org.example.library.model.magazine;
+package org.example.library.model.library.magazine;
 
 import org.example.exception.InvalidInputData;
-import org.example.library.model.article.Article;
-import org.example.library.v1.ArticleList;
 import org.example.library.v1.MagazineList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;

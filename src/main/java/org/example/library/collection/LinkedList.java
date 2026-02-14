@@ -1,11 +1,11 @@
 package org.example.library.collection;
 
-import org.example.library.model.BaseModel;
+import org.example.library.model.BaseLibraryModel;
 
 import java.util.*;
 import java.util.function.Predicate;
 
-public class LinkedList<T extends BaseModel> implements LibraryCollection<T> {
+public class LinkedList<T extends BaseLibraryModel> implements LibraryCollection<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size = 0;

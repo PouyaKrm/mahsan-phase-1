@@ -1,73 +1,48 @@
-package org.example.library;
+package org.example.library.model;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.BaseModel;
-import org.example.library.model.DBFieldMapping;
-import org.example.library.model.ModelFactory;
-import org.example.library.model.LibraryModelRepository;
+import org.example.library.model.library.ModelFactory;
 import org.example.sql.JdbcConnection;
-import org.example.utils.DateUtils;
 import org.example.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.text.MessageFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractLibraryModelRepository<T extends BaseModel> implements LibraryModelRepository<T> {
+public abstract class AbstractModelRepository<T extends BaseModel> implements ModelRepository<T> {
 
     protected final Connection connection;
     protected final String tableName;
     private final ModelFactory modelFactory = ModelFactory.getInstance();
-    private final Map<String, DBFieldMapping> fieldMappings = initializeMappings();
-    private final DBFieldMapping idDBField = new DBFieldMapping("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), BaseModel::getId, Types.BIGINT);
+    private final DBFieldMapping idDBField = new DBFieldMapping<BaseModel>("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), BaseModel::getId, Types.BIGINT);
     private final String ID_COLUMN = "id";
+    private final Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
 
-
-    protected AbstractLibraryModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
+    protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = JdbcConnection.getConnection();
         addMapping(fieldMappings);
     }
 
-    protected AbstractLibraryModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
+    protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
         this.tableName = tableName;
         this.connection = connection;
         addMapping(fieldMappings);
     }
 
-    protected AbstractLibraryModelRepository(String tableName) {
-        this.tableName = tableName;
-        this.connection = JdbcConnection.getConnection();
-    }
 
-    protected AbstractLibraryModelRepository(String tableName, Connection connection) {
+    protected AbstractModelRepository(String tableName, Connection connection, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = connection;
+        addMapping(fieldMappings);
     }
 
-    private static Map<String, DBFieldMapping> initializeMappings() {
-        Map<String, DBFieldMapping> mappings = new HashMap<>();
-        mappings.put("id", new DBFieldMapping("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), BaseModel::getId, Types.BIGINT));
-        mappings.put("title", new DBFieldMapping("title", "VARCHAR(100) NOT NULL", BaseModel::setTitle, BaseModel::getTitle, Types.VARCHAR));
-        mappings.put("author", new DBFieldMapping("author", "VARCHAR(100) NOT NULL", BaseModel::setAuthor, BaseModel::getAuthor, Types.VARCHAR));
-        mappings.put("content", new DBFieldMapping("content", "TEXT NOT NULL", BaseModel::setContent, BaseModel::getContent, Types.VARCHAR));
-        mappings.put("pubDate", new DBFieldMapping("pub_date", "INT UNSIGNED NOT NULL", (BaseModel model, String value) -> model.setPubDate(parseDate(value)), BaseModel::getPubDateEpochDay, Types.BIGINT));
-        mappings.put("borrowDate", new DBFieldMapping("borrow_date", "INT UNSIGNED", (BaseModel model, String value) -> model.setBorrowDate(parseDate(value)), BaseModel::getBorrowDateEpochDay, Types.BIGINT));
-        return mappings;
-    }
-
-    private static LocalDate parseDate(String date) {
-        if (Objects.isNull(date)) {
-            return null;
-        }
-        return DateUtils.createDateEpochDay(Integer.parseInt(date));
-    }
 
     private void addMapping(Map<String, DBFieldMapping> newMappings) {
+        fieldMappings.put(ID_COLUMN, idDBField);
         for (var mapping : newMappings.entrySet()) {
             if (fieldMappings.containsKey(mapping.getKey())) {
                 fieldMappings.replace(mapping.getKey(), mapping.getValue());

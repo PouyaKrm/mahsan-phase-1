@@ -1,8 +1,8 @@
 package utils;
 
-import org.example.library.model.book.Book;
-import org.example.library.model.article.Article;
-import org.example.library.model.magazine.Magazine;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.magazine.Magazine;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -7,10 +7,10 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.collection.ArrayList;
 import org.example.library.collection.LibraryCollection;
 import org.example.library.dto.SearchDTO;
-import org.example.library.model.BaseModel;
-import org.example.library.model.article.Article;
-import org.example.library.model.book.Book;
-import org.example.library.model.magazine.Magazine;
+import org.example.library.model.BaseLibraryModel;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.magazine.Magazine;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -21,19 +21,19 @@ public class InMemoryLibraryImpl implements Library {
     private final LibraryCollection<Book> bookCollection = new ArrayList<>();
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
-    Map<Class<? extends BaseModel>, LibraryCollection<? extends BaseModel>> collectionMap = Map.ofEntries(
+    Map<Class<? extends BaseLibraryModel>, LibraryCollection<? extends BaseLibraryModel>> collectionMap = Map.ofEntries(
             Map.entry(Book.class, bookCollection),
             Map.entry(Article.class, new ArrayList<>()),
             Map.entry(Magazine.class, new ArrayList<>())
     );
 
     @SuppressWarnings("unchecked")
-    private <T extends BaseModel> LibraryCollection<T> getCollection(Class<T> tClass) {
+    private <T extends BaseLibraryModel> LibraryCollection<T> getCollection(Class<T> tClass) {
         return (LibraryCollection<T>) collectionMap.get(tClass);
     }
 
 
-    public <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
+    public <T extends BaseLibraryModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         var r = getCollection(tClass).search(item -> item.getId().equals(id), tClass);
         if (r.length == 0) {
             throw new ItemNotFoundException("item not found");
@@ -43,7 +43,7 @@ public class InMemoryLibraryImpl implements Library {
 
 
     @Override
-    public <T extends BaseModel> void addItem(T book, Class<T> tClass) {
+    public <T extends BaseLibraryModel> void addItem(T book, Class<T> tClass) {
         var random = new Random();
         if (Objects.isNull(book.getId())) {
             book.setId(random.nextLong());
@@ -52,22 +52,22 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public <T extends BaseModel> void removeItem(T book, Class<T> tClass) {
+    public <T extends BaseLibraryModel> void removeItem(T book, Class<T> tClass) {
         getCollection(tClass).remove(book);
     }
 
     @Override
-    public <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException {
+    public <T extends BaseLibraryModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         Predicate<T> pr = model -> model.getId().equals(id);
         return getCollection(tClass).remove(pr);
     }
 
     @Override
-    public BaseModel[] search(List<SearchDTO> searchDTOS) {
+    public BaseLibraryModel[] search(List<SearchDTO> searchDTOS) {
         var bookSearch = bookCollection.search(getPredicates(searchDTOS), Book.class);
         var magazineSearch = magazines.search(getPredicates(searchDTOS), Magazine.class);
         var articleSearch = articles.search(getPredicates(searchDTOS), Article.class);
-        var result = new BaseModel[bookSearch.length + magazineSearch.length + articleSearch.length];
+        var result = new BaseLibraryModel[bookSearch.length + magazineSearch.length + articleSearch.length];
         System.arraycopy(bookSearch, 0, result, 0, bookSearch.length);
         System.arraycopy(magazineSearch, 0, result, bookSearch.length, magazineSearch.length);
         System.arraycopy(articleSearch, 0, result, bookSearch.length + magazineSearch.length, articleSearch.length);
@@ -75,8 +75,8 @@ public class InMemoryLibraryImpl implements Library {
     }
 
 
-    public <T extends BaseModel> void sortByPublicationDate() {
-        bookCollection.sort(Comparator.comparingLong(book -> ((BaseModel) book).getPubDate().toEpochDay()));
+    public <T extends BaseLibraryModel> void sortByPublicationDate() {
+        bookCollection.sort(Comparator.comparingLong(book -> ((BaseLibraryModel) book).getPubDate().toEpochDay()));
     }
 
     @Override
@@ -95,21 +95,21 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass) {
+    public <T extends BaseLibraryModel> T[] addAll(T[] books, Class<T> tClass) {
         getCollection(tClass).addAll(books);
         return books;
     }
 
-    private <T extends BaseModel> Predicate<T> getPredicates(List<SearchDTO> searchDTOS) {
+    private <T extends BaseLibraryModel> Predicate<T> getPredicates(List<SearchDTO> searchDTOS) {
         Predicate<T> predicate = (b) -> true;
         for (var field : searchDTOS) {
-            Predicate<BaseModel> pr = getPredicate(field);
+            Predicate<BaseLibraryModel> pr = getPredicate(field);
             predicate = predicate.and(pr);
         }
         return predicate;
     }
 
-    private <T extends BaseModel> Predicate<T> getPredicate(SearchDTO dto) {
+    private <T extends BaseLibraryModel> Predicate<T> getPredicate(SearchDTO dto) {
         switch (dto.field()) {
             case ID:
                 return (T book) -> book.getId().toString().equals(dto.value());
@@ -128,7 +128,7 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public BaseModel borrowItem(Long id) throws ItemNotFoundException {
+    public BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.ID, id.toString(), SearchOperation.EQ));
@@ -144,7 +144,7 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public BaseModel returnItem(Long id) throws ItemNotFoundException {
+    public BaseLibraryModel returnItem(Long id) throws ItemNotFoundException {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.ID, id.toString(), SearchOperation.EQ));
@@ -159,7 +159,7 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public BaseModel[] getBorrowedItems() {
+    public BaseLibraryModel[] getBorrowedItems() {
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.STATUS, Book.Status.BORROWED.toString(), SearchOperation.EQ));

@@ -1,14 +1,15 @@
-package org.example.library.model;
+package org.example.library.model.library;
 
-import org.apache.commons.collections4.Factory;
 import org.example.constansts.ResourceType;
 import org.example.exception.InvalidInputData;
-import org.example.library.model.article.Article;
-import org.example.library.model.article.ArticleFactory;
-import org.example.library.model.book.Book;
-import org.example.library.model.book.BookFactory;
-import org.example.library.model.magazine.Magazine;
-import org.example.library.model.magazine.MagazineFactory;
+import org.example.library.model.BaseModel;
+import org.example.library.model.AbstractModelFactory;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.article.ArticleFactory;
+import org.example.library.model.library.book.Book;
+import org.example.library.model.library.book.BookFactory;
+import org.example.library.model.library.magazine.Magazine;
+import org.example.library.model.library.magazine.MagazineFactory;
 
 import java.util.HashMap;
 import java.util.Map;

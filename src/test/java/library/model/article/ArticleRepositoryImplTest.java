@@ -1,12 +1,8 @@
 package library.model.article;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.article.Article;
-import org.example.library.model.article.ArticleRepositoryImpl;
-import org.example.library.model.book.Book;
-import org.example.library.model.book.BookRepositoryImpl;
-import org.example.sql.JdbcConnection;
-import org.junit.After;
+import org.example.library.model.library.article.Article;
+import org.example.library.model.library.article.ArticleRepositoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;

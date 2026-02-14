@@ -1,7 +1,7 @@
-package org.example.library.model.book;
+package org.example.library.model.library.book;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.AbstractLibraryModelRepository;
+import org.example.library.model.library.AbstractLibraryRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.sql.JdbcConnection;
@@ -13,23 +13,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class BookRepositoryImpl extends AbstractLibraryModelRepository<Book> implements BookRepository {
+public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implements BookRepository {
 
 
     private static BookRepositoryImpl instance;
 
 
     protected BookRepositoryImpl(Connection connection) {
-        super("books", createFieldMappings(), connection);
+        super("books", connection, createFieldMappings());
     }
 
-    private static Map<String, DBFieldMapping> createFieldMappings() {
-        Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
+    private static Map<String, DBFieldMapping<BaseModel>> createFieldMappings() {
+        Map<String, DBFieldMapping<BaseModel>> fieldMappings = new HashMap<>();
         fieldMappings.put("status",
-                new DBFieldMapping(
+                new DBFieldMapping<>(
                         "status",
                         "VARCHAR(20) NOT NULL",
-                        (BaseModel model, String value) -> ((Book) model).setStatus(Book.Status.valueOf(value)),
+                        (BaseModel model, String val) -> ((Book) model).setStatus(Book.Status.valueOf(val)),
                         model -> ((Book) model).getStatus().toString(), Types.VARCHAR)
         );
         return fieldMappings;

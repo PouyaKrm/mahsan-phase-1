@@ -3,7 +3,7 @@ package org.example.importer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.example.library.model.BaseModel;
+import org.example.library.model.BaseLibraryModel;
 import org.example.utils.Utils;
 
 import java.io.*;
@@ -25,7 +25,7 @@ public class JsonBookImporterImpl implements BookImporter {
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> tClass) throws IOException {
+    public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> tClass) throws IOException {
         List<T> items = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String line;
@@ -38,12 +38,12 @@ public class JsonBookImporterImpl implements BookImporter {
     }
 
     @Override
-    public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) {
+    public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) {
         throw new UnsupportedOperationException("method is not implemented yet");
     }
 
     @Override
-    public <T extends BaseModel> void writeToFile(T[] data, Path folderPath, String fileName) throws IOException {
+    public <T extends BaseLibraryModel> void writeToFile(T[] data, Path folderPath, String fileName) throws IOException {
         var extIn = fileName.lastIndexOf(".");
         var filePath = folderPath.resolve(Utils.formatFileExtension(fileName, ".json"));
         Files.createDirectories(filePath.getParent());

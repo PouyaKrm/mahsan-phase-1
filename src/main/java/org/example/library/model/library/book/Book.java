@@ -1,15 +1,13 @@
-package org.example.library.model.book;
+package org.example.library.model.library.book;
 
 import org.example.constansts.ResourceType;
 import org.example.exception.InvalidOperationException;
-import org.example.library.model.BaseModel;
+import org.example.library.model.BaseLibraryModel;
 
-import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 
-public class Book extends BaseModel {
+public class Book extends BaseLibraryModel {
     private Status status;
 
     public Book() {

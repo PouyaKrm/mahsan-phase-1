@@ -4,7 +4,7 @@ import org.example.exception.ItemNotFoundException;
 
 import java.sql.SQLException;
 
-public interface LibraryModelRepository<T extends BaseModel> {
+public interface ModelRepository<T extends BaseModel> {
     T[] getAll() throws SQLException;
     T[] removeAll() throws SQLException;
     T save(T model) throws SQLException;

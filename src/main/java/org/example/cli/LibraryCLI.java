@@ -2,15 +2,13 @@ package org.example.cli;
 
 import org.example.concurrent.*;
 import org.example.constansts.LibraryOperationType;
-import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
-import org.example.importer.JsonBookImporterImpl;
 import org.example.importer.ProtoBufferImporterImpl;
 import org.example.library.InMemoryLibraryImpl;
 import org.example.library.Library;
-import org.example.library.model.BaseModel;
-import org.example.library.model.book.Book;
+import org.example.library.model.BaseLibraryModel;
+import org.example.library.model.library.book.Book;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -132,7 +130,7 @@ public class LibraryCLI {
         commands.put(new BorrowCommand(library, id));
     }
 
-    private <T extends BaseModel> void writeToFile() throws IOException, InterruptedException {
+    private <T extends BaseLibraryModel> void writeToFile() throws IOException, InterruptedException {
         var folderPath = getFilePath();
         commands.put(new ExportCommand(library, folderPath, bookImporter));
     }

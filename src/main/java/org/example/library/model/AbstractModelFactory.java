@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 public abstract class AbstractModelFactory<T extends BaseModel> {
 
