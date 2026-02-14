@@ -3,19 +3,13 @@ package library.model.book;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.book.Book;
 import org.example.library.model.book.BookRepositoryImpl;
-import org.example.sql.JdbcConnection;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 
 public class BookRepositoryImplTest {
 
@@ -53,6 +47,42 @@ public class BookRepositoryImplTest {
        assertThat(result).containsExactly(book1, book2);
        assertThat(result[0].getTitle()).isEqualTo(book1.getTitle());
        assertThat(result[1].getTitle()).isEqualTo(book2.getTitle());
+    }
+
+    @Test
+    public void saveAll_updates() throws SQLException {
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var book1 = TestUtils.createBook("title1");
+        var book2 = TestUtils.createBook("title2");
+        bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
+        book1.setTitle("updated title 1");
+        book2.setTitle("updated title 2");
+
+        bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
+
+        var result = bookRepository.getAll();
+        assertThat(result).hasSize(2);
+        assertThat(result[0].getTitle()).isEqualTo(book1.getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(book2.getTitle());
+    }
+
+    @Test
+    public void saveAll_saves_new_and_updates_existing() throws SQLException {
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var book1 = TestUtils.createBook("title1");
+        var book2 = TestUtils.createBook("title2");
+        bookRepository.save(book2);
+        book2.setTitle("updated title 2");
+
+        bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
+
+        var result = bookRepository.getAll();
+        assertThat(result).hasSize(2);
+        assertThat(result).anySatisfy(item -> {
+            assertThat(item.getTitle()).isEqualTo(book2.getTitle());
+            assertThat(item.getId()).isEqualTo(book2.getId());
+        });
+        assertThat(result).anySatisfy(item -> assertThat(item.getTitle()).isEqualTo(book1.getTitle()));
     }
 
     @Test

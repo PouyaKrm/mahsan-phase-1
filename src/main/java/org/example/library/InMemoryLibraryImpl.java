@@ -13,22 +13,40 @@ import org.example.library.model.book.Book;
 import org.example.library.model.magazine.Magazine;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class InMemoryLibraryImpl implements Library {
 
-    private final LibraryCollection<Book> bookCollection = new ArrayList();
+    private final LibraryCollection<Book> bookCollection = new ArrayList<>();
     private final LibraryCollection<Article> articles = new ArrayList<>();
     private final LibraryCollection<Magazine> magazines = new ArrayList<>();
+    Map<Class<? extends BaseModel>, LibraryCollection<? extends BaseModel>> collectionMap = Map.ofEntries(
+            Map.entry(Book.class, bookCollection),
+            Map.entry(Article.class, new ArrayList<>()),
+            Map.entry(Magazine.class, new ArrayList<>())
+    );
+
+    @SuppressWarnings("unchecked")
+    private <T extends BaseModel> LibraryCollection<T> getCollection(Class<T> tClass) {
+        return (LibraryCollection<T>) collectionMap.get(tClass);
+    }
+
+
+    public <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
+        var r = getCollection(tClass).search(item -> item.getId().equals(id), tClass);
+        if (r.length == 0) {
+            throw new ItemNotFoundException("item not found");
+        }
+        return r[0];
+    }
+
+
 
     @Override
     public <T extends BaseModel> void addItem(T book) {
         var random = new Random();
-        if(Objects.isNull(book.getId())) {
+        if (Objects.isNull(book.getId())) {
             book.setId(random.nextLong());
         }
         switch (book.resourceType()) {

@@ -4,7 +4,12 @@ import org.example.library.model.book.Book;
 import org.example.library.model.article.Article;
 import org.example.library.model.magazine.Magazine;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.Random;
 
 public class TestUtils {
     public static Book createBook() {
@@ -37,6 +42,13 @@ public class TestUtils {
 
     public static Magazine createMagazine(String title) {
         return new Magazine(LocalDate.now(), title, "author", "conten");
+    }
+
+    public static Connection getTestDBConnection() throws SQLException {
+        var random = new Random();
+        var url = MessageFormat.format("jdbc:h2:mem:testdb_{0};MODE=MYSQL", random.nextInt(100, 1000));
+        var username = "sa";
+        return DriverManager.getConnection(url, username, "");
     }
 
 

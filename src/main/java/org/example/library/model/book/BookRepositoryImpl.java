@@ -4,7 +4,9 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
+import org.example.sql.JdbcConnection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
@@ -17,8 +19,8 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
     private static BookRepositoryImpl instance;
 
 
-    protected BookRepositoryImpl() {
-        super("books", createFieldMappings());
+    protected BookRepositoryImpl(Connection connection) {
+        super("books", createFieldMappings(), connection);
     }
 
     private static Map<String, DBFieldMapping> createFieldMappings() {
@@ -34,13 +36,14 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
     }
 
 
-    public synchronized static BookRepositoryImpl getInstance() {
+
+    public synchronized static BookRepositoryImpl getInstance(Connection connection) {
         if (Objects.nonNull(instance)) {
             return instance;
         }
 
         try {
-            instance = new BookRepositoryImpl();
+            instance = new BookRepositoryImpl(connection);
             instance.createTable();
             return instance;
         } catch (SQLException e) {
@@ -48,6 +51,11 @@ public class BookRepositoryImpl extends AbstractModelRepository<Book> implements
         }
 
     }
+
+    public static BookRepositoryImpl getInstance() {
+        return getInstance(JdbcConnection.getConnection());
+    }
+
 
 
     @Override

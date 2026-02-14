@@ -2,7 +2,9 @@ package org.example.library.model.magazine;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
+import org.example.sql.JdbcConnection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -11,8 +13,8 @@ public class MagazineRepositoryImpl extends AbstractModelRepository<Magazine> im
     private static MagazineRepositoryImpl instance;
     private static final String TABLE_NAME = "magazines";
 
-    protected MagazineRepositoryImpl() {
-        super(TABLE_NAME);
+    protected MagazineRepositoryImpl(Connection connection) {
+        super(TABLE_NAME, connection);
     }
 
 
@@ -31,16 +33,21 @@ public class MagazineRepositoryImpl extends AbstractModelRepository<Magazine> im
         return getOne(id, Magazine.class);
     }
 
-    public static synchronized MagazineRepositoryImpl getInstance() {
+    public static synchronized MagazineRepositoryImpl getInstance(Connection connection) {
         if(Objects.nonNull(instance)) {
             return instance;
         }
         try {
-            instance = new MagazineRepositoryImpl();
+            instance = new MagazineRepositoryImpl(connection);
             instance.createTable();
             return instance;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
+    public static MagazineRepositoryImpl getInstance() {
+        return getInstance(JdbcConnection.getConnection());
+    }
+
 }

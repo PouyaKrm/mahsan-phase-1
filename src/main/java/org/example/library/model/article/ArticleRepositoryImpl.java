@@ -2,7 +2,9 @@ package org.example.library.model.article;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.AbstractModelRepository;
+import org.example.sql.JdbcConnection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -11,8 +13,8 @@ public class ArticleRepositoryImpl extends AbstractModelRepository<Article> impl
     private final static String TABLE_NAME = "articles";
     private static ArticleRepositoryImpl instance;
 
-    private ArticleRepositoryImpl() {
-        super(TABLE_NAME);
+    private ArticleRepositoryImpl(Connection connection) {
+        super(TABLE_NAME, connection);
     }
 
     @Override
@@ -31,16 +33,20 @@ public class ArticleRepositoryImpl extends AbstractModelRepository<Article> impl
         return super.getOne(id, Article.class);
     }
 
-    public static synchronized ArticleRepositoryImpl getInstance() {
+    public static synchronized ArticleRepositoryImpl getInstance(Connection connection) {
         if (Objects.nonNull(instance)) {
             return instance;
         }
         try {
-            instance = new ArticleRepositoryImpl();
+            instance = new ArticleRepositoryImpl(connection);
             instance.createTable();
             return instance;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static ArticleRepositoryImpl getInstance() {
+        return getInstance(JdbcConnection.getConnection());
     }
 }
