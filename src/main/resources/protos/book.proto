@@ -15,8 +15,8 @@ message Book {
   string content = 4;
   Status status = 7;
 
-  int64 borrow_date_epoch_day = 5;
-  optional int64 pub_date_epoch_day = 6;
+  optional int64 borrow_date_epoch_day = 5;
+  int64 pub_date_epoch_day = 6;
 
 
   enum Status {

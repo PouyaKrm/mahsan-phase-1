@@ -14,6 +14,11 @@ public class Utils {
 
     public static String formatFileExtension(String fileName, String extension) {
         var index = fileName.lastIndexOf(".");
+        if (index == -1 && extension.isEmpty()) {
+            return fileName;
+        } else if (index == -1) {
+            throw new IllegalArgumentException("invalid file extension");
+        }
         return fileName.substring(0, index) + extension;
     }
 }
