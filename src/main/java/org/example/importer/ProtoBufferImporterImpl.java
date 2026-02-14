@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
-public class ProtoBuggerImporterImpl implements BookImporter {
+public class ProtoBufferImporterImpl implements BookImporter {
 
     private final ModelFactory factory = ModelFactory.getInstance();
 

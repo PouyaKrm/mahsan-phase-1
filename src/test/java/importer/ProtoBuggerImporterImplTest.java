@@ -1,6 +1,6 @@
 package importer;
 
-import org.example.importer.ProtoBuggerImporterImpl;
+import org.example.importer.ProtoBufferImporterImpl;
 import org.example.library.model.article.Article;
 import org.example.library.model.book.Book;
 import org.example.library.model.magazine.Magazine;
@@ -22,7 +22,7 @@ public class ProtoBuggerImporterImplTest {
     @Test
     public void writes_books_correctly() throws IOException {
         Book[] books  = new Book[] {TestUtils.createBookWithId(), TestUtils.createBookWithId()};
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var path = ".";
 
         importer.writeToFile(books, Path.of(path), "book_proto");
@@ -33,7 +33,7 @@ public class ProtoBuggerImporterImplTest {
 
     @Test
     public void read_books_correctly() throws IOException {
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var file = new FileInputStream(Path.of("src/test/resources/book_proto").toFile());
 
         var books = importer.getModels(file, Book.class);
@@ -53,7 +53,7 @@ public class ProtoBuggerImporterImplTest {
     @Test
     public void writes_articles_correctly() throws IOException {
         Article[] books  = new Article[] {TestUtils.createArticleWithId(), TestUtils.createArticleWithId()};
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var path = ".";
         var fileName = "article_proto";
 
@@ -65,7 +65,7 @@ public class ProtoBuggerImporterImplTest {
 
     @Test
     public void read_articles_correctly() throws IOException {
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var file = new FileInputStream(Path.of("src/test/resources/article_proto").toFile());
 
         var articles = importer.getModels(file, Article.class);
@@ -85,7 +85,7 @@ public class ProtoBuggerImporterImplTest {
   @Test
     public void writes_magazine_correctly() throws IOException {
         Magazine[] books  = new Magazine[] {TestUtils.createMagazineWithId(), TestUtils.createMagazineWithId()};
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var path = ".";
         var fileName = "magazine_proto";
 
@@ -98,7 +98,7 @@ public class ProtoBuggerImporterImplTest {
 
     @Test
     public void read_magazines_correctly() throws IOException {
-        var importer = new ProtoBuggerImporterImpl();
+        var importer = new ProtoBufferImporterImpl();
         var file = new FileInputStream(Path.of("src/test/resources/magazine_proto").toFile());
 
         var magazines = importer.getModels(file, Magazine.class);
