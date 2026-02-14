@@ -61,8 +61,7 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
             b.setTitle(item.getTitle());
             b.setAuthor(item.getAuthor());
             b.setContent(item.getContent());
-            b.setBorrowDateFromEpochDay(item.getPubDateEpochDay());
-            b.setBorrowDateFromEpochDay(item.getBorrowDateEpochDay());
+            b.setPubDateFromEpochDay(item.getPubDateEpochDay());
             return b;
         }).toList();
         return Utils.listToArray(list, Magazine.class);

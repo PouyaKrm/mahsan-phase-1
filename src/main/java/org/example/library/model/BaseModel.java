@@ -69,7 +69,7 @@ public abstract class BaseModel {
     }
 
     public void setPubDateFromEpochDay(Long epochDay) {
-        if(Objects.isNull(pubDate)) {
+        if(Objects.isNull(epochDay)) {
             return;
         }
         this.pubDate = LocalDate.ofEpochDay(epochDay);;
@@ -108,7 +108,7 @@ public abstract class BaseModel {
     }
 
     public void setBorrowDateFromEpochDay(Long epochDay) {
-        if(Objects.isNull(pubDate)) {
+        if(Objects.isNull(epochDay)) {
             return;
         }
         this.borrowDate = LocalDate.ofEpochDay(epochDay);;

@@ -62,7 +62,7 @@ public class BookFactory extends AbstractModelFactory<Book> {
             b.setAuthor(item.getAuthor());
             b.setContent(item.getContent());
             b.setStatus(Book.Status.valueOf(item.getStatus().name()));
-            b.setBorrowDateFromEpochDay(item.getPubDateEpochDay());
+            b.setPubDateFromEpochDay(item.getPubDateEpochDay());
             b.setBorrowDateFromEpochDay(item.getBorrowDateEpochDay());
             return b;
         }).toList();

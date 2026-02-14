@@ -19,8 +19,7 @@ public class ProtoBuggerImporterImpl implements BookImporter {
 
     @Override
     public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) throws IOException {
-        var f = factory.getFactory(clazz);
-        return f.parseProtoBuffObject(inputStream);
+        throw new UnsupportedOperationException("Not supported.");
     }
 
     @Override
@@ -33,7 +32,7 @@ public class ProtoBuggerImporterImpl implements BookImporter {
 
     @Override
     public <T extends BaseModel> T[] getModels(InputStream inputStream, Class<T> clazz) throws IOException {
-        return null;
+        return factory.getFactory(clazz).parseProtoBuffObject(inputStream);
     }
 
     @Override
