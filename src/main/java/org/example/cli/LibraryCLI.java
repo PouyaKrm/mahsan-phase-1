@@ -9,6 +9,7 @@ import org.example.importer.JsonBookImporterImpl;
 import org.example.library.InMemoryLibraryImpl;
 import org.example.library.Library;
 import org.example.library.model.BaseModel;
+import org.example.library.model.book.Book;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -150,7 +151,7 @@ public class LibraryCLI {
 
     private void removeItem() throws InterruptedException {
         var id = getLongFromInput("Enter item id: ");
-        commands.put(new RemoveCommand(library, id, ResourceType.BOOK));
+        commands.put(new RemoveCommand(library, id, Book.class));
     }
 
     private void exit() throws InterruptedException {

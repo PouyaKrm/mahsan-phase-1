@@ -2,18 +2,20 @@ package org.example.concurrent;
 
 import org.example.constansts.LibraryOperationType;
 import org.example.constansts.ResourceType;
+import org.example.exception.ItemNotFoundException;
 import org.example.library.Library;
+import org.example.library.model.BaseModel;
 
 import java.sql.SQLException;
 
 public class RemoveCommand extends LibraryCommand {
 
     private final Long id;
-    private final ResourceType resourceType;
+    private final Class<? extends BaseModel> tclass;
 
-    public RemoveCommand(Library library, Long id, ResourceType resourceType) {
+    public RemoveCommand(Library library, Long id, Class<? extends BaseModel> tclass) {
         super(library);
-        this.resourceType = resourceType;
+        this.tclass = tclass;
         this.id = id;
     }
 
@@ -25,7 +27,11 @@ public class RemoveCommand extends LibraryCommand {
     @Override
     public void execute() {
 
-        library.removeItem(id, resourceType);
+        try {
+            library.removeItem(id, tclass);
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 }
