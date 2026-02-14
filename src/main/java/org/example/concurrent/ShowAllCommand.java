@@ -18,6 +18,6 @@ public class ShowAllCommand extends LibraryCommand {
 
     @Override
     public void execute() {
-        Arrays.stream(library.getAll()).toList().forEach(item -> item.display());
+        Arrays.stream(library.getAllBooks()).toList().forEach(item -> item.display());
     }
 }

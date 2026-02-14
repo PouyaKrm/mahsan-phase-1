@@ -63,43 +63,6 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public <T extends BaseModel> void addItem(T book) {
-        var random = new Random();
-        if (Objects.isNull(book.getId())) {
-            book.setId(random.nextLong());
-        }
-        switch (book.resourceType()) {
-            case BOOK -> bookCollection.add((Book) book);
-            case ARTICLE -> articles.add((Article) book);
-            case MAGAZINE -> magazines.add((Magazine) book);
-        }
-    }
-
-
-    @Override
-    public <T extends BaseModel> void removeItem(T book) {
-        switch (book.resourceType()) {
-            case BOOK -> bookCollection.remove((Book) book);
-            case ARTICLE -> articles.remove((Article) book);
-            case MAGAZINE -> magazines.remove((Magazine) book);
-        }
-    }
-
-
-    @Override
-    public <T extends BaseModel> T removeItem(Long id, ResourceType resourceType) {
-        Predicate<BaseModel> pr = model -> model.getId().equals(id);
-        switch (resourceType) {
-            case BOOK -> bookCollection.remove(model -> model.getId().equals(id));
-            case ARTICLE -> articles.remove(article -> article.getId().equals(id));
-            case MAGAZINE -> magazines.remove(magazine -> magazine.getId().equals(id));
-
-        }
-
-        return null;
-    }
-
-    @Override
     public BaseModel[] search(List<SearchDTO> searchDTOS) {
         var bookSearch = bookCollection.search(getPredicates(searchDTOS), Book.class);
         var magazineSearch = magazines.search(getPredicates(searchDTOS), Magazine.class);
@@ -117,15 +80,6 @@ public class InMemoryLibraryImpl implements Library {
     }
 
     @Override
-    public BaseModel[] getAll() {
-        var result = new BaseModel[bookCollection.size() + magazines.size() + articles.size()];
-        System.arraycopy(bookCollection.getItems(Book.class), 0, result, 0, bookCollection.size());
-        System.arraycopy(magazines.getItems(Magazine.class), 0, result, bookCollection.size(), magazines.size());
-        System.arraycopy(articles.getItems(Article.class), 0, result, bookCollection.size() + magazines.size(), articles.size());
-        return result;
-    }
-
-    @Override
     public Book[] getAllBooks() {
         return getCollection(Book.class).getItems(Book.class);
     }
@@ -138,13 +92,6 @@ public class InMemoryLibraryImpl implements Library {
     @Override
     public Magazine[] getAllMagazines() {
         return getCollection(Magazine.class).getItems(Magazine.class);
-    }
-
-    @Override
-    public <T extends BaseModel> void addAll(T[] books) {
-        for (var book : books) {
-            addItem(book);
-        }
     }
 
     @Override

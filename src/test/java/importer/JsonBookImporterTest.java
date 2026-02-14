@@ -44,12 +44,12 @@ public class JsonBookImporterTest {
     public void write_to_file_works_successfully() throws IOException, SQLException {
         var library = new InMemoryLibraryImpl();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
-        library.addItem(books[0]);
-        library.addItem(books[1]);
-        library.addItem(books[2]);
+        library.addItem(books[0], Book.class);
+        library.addItem(books[1], Book.class);
+        library.addItem(books[2], Book.class);
         var importer = new JsonBookImporterImpl();
         var path = Path.of(testFolderPath);
-        importer.writeToFile(library.getAll(), path, bookFileName);
+        importer.writeToFile(library.getAllBooks(), path, bookFileName);
         var stream = new FileInputStream(path.resolve(bookFileName).toFile());
         var data = importer.getModels(stream, Book.class);
         Assert.assertEquals(3, data.length);

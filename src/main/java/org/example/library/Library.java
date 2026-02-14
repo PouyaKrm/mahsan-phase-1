@@ -18,22 +18,15 @@ public interface Library {
 
     <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException;
 
-    <T extends BaseModel> void addItem(T book);
-
-    <T extends BaseModel> void removeItem(T book);
-
-    <T extends BaseModel> T removeItem(Long id, ResourceType resourceType);
-
-
     BaseModel[] search(List<SearchDTO> searchDTOS);
-
-    BaseModel[] getAll();
 
     Book[] getAllBooks();
 
     Article[] getAllArticles();
 
     Magazine[] getAllMagazines();
+
+    <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass);
 
     BaseModel borrowItem(Long id) throws ItemNotFoundException;
 
@@ -42,8 +35,4 @@ public interface Library {
     BaseModel returnItem(Long id) throws ItemNotFoundException;
 
     BaseModel[] getBorrowedItems();
-
-    <T extends BaseModel> void addAll(T[] books);
-
-    <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass);
 }

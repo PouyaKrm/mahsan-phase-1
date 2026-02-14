@@ -60,27 +60,7 @@ public class DbLibraryImpl implements Library {
     }
 
     @Override
-    public <T extends BaseModel> void addItem(T book) {
-
-    }
-
-    @Override
-    public <T extends BaseModel> void removeItem(T book) {
-
-    }
-
-    @Override
-    public <T extends BaseModel> T removeItem(Long id, ResourceType resourceType) {
-        return null;
-    }
-
-    @Override
     public BaseModel[] search(List<SearchDTO> searchDTOS) {
-        return new BaseModel[0];
-    }
-
-    @Override
-    public BaseModel[] getAll() {
         return new BaseModel[0];
     }
 
@@ -123,14 +103,7 @@ public class DbLibraryImpl implements Library {
     public BaseModel borrowItem(Long id) throws ItemNotFoundException {
         return null;
     }
-
-
-    @Override
-    public <T extends BaseModel> void addAll(T[] books) {
-
-    }
-
-
+    
     @Override
     public <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         try {

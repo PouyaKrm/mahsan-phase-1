@@ -22,11 +22,13 @@ public class InMemoryLibraryImplTest {
     @Test
     public void add_book_works_correctly() throws IllegalAccessException, SQLException {
         var library = new InMemoryLibraryImpl();
-        library.addItem(TestUtils.createBook());
-        library.addItem(TestUtils.createArticle());
-        library.addItem(TestUtils.createMagazine());
+        library.addItem(TestUtils.createBook(), Book.class);
+        library.addItem(TestUtils.createArticle(), Article.class);
+        library.addItem(TestUtils.createMagazine(), Magazine.class);
 
-        Assert.assertEquals(3, library.getAll().length);
+        Assert.assertEquals(1, library.getAllBooks().length);
+        Assert.assertEquals(1, library.getAllMagazines().length);
+        Assert.assertEquals(1, library.getAllArticles().length);
     }
 
     @Test
@@ -48,9 +50,9 @@ public class InMemoryLibraryImplTest {
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
         article.setTitle(book.getTitle());
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();
         searchDTOS.add(new SearchDTO(SearchField.RESOURCE_TYPE, ResourceType.BOOK.toString(), SearchOperation.EQ));
         searchDTOS.add(new SearchDTO(SearchField.TITLE, book.getTitle(), SearchOperation.EQ));
@@ -67,9 +69,9 @@ public class InMemoryLibraryImplTest {
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
         List<SearchDTO> searchDTOS = new java.util.ArrayList<>();;
         searchDTOS.add(new SearchDTO(SearchField.STATUS, book.getStatus().toString(), SearchOperation.EQ));
 
@@ -88,15 +90,15 @@ public class InMemoryLibraryImplTest {
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
 
-        library.removeItem(book);
+        library.removeItem(book, Book.class);
 
-        Assert.assertEquals(library.getAll().length, 2);
-        Assert.assertEquals(library.getAll()[0], magazine);
-        Assert.assertEquals(library.getAll()[1], article);
+        Assert.assertEquals(library.getAllBooks().length, 0);
+        Assert.assertEquals(library.getAllMagazines()[0], magazine);
+        Assert.assertEquals(library.getAllArticles()[0], article);
     }
 
     @Test
@@ -124,10 +126,10 @@ public class InMemoryLibraryImplTest {
         book.setId(random.nextLong());
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
-        library.addItem(TestUtils.createBook("book new"));
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
+        library.addItem(TestUtils.createBook("book new"), Book.class);
 
         library.borrowItem(book.getId());
 
@@ -144,9 +146,9 @@ public class InMemoryLibraryImplTest {
         var book = TestUtils.createBook();
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
 
         library.borrowItem(-1L);
     }
@@ -159,10 +161,10 @@ public class InMemoryLibraryImplTest {
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
-        library.addItem(TestUtils.createBook("book new"));
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
+        library.addItem(TestUtils.createBook("book new"), Book.class);
 
         var items = library.getBorrowedItems();
 
@@ -179,10 +181,10 @@ public class InMemoryLibraryImplTest {
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
-        library.addItem(TestUtils.createBook("book new"));
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
+        library.addItem(TestUtils.createBook("book new"), Book.class);
 
         var item = library.returnItem(book.getId());
 
@@ -197,9 +199,9 @@ public class InMemoryLibraryImplTest {
         book.setStatus(Book.Status.BORROWED);
         var magazine = TestUtils.createMagazine();
         var article = TestUtils.createArticle();
-        library.addItem(book);
-        library.addItem(magazine);
-        library.addItem(article);
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
 
         library.returnItem(-1L);
     }

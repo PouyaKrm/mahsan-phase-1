@@ -29,7 +29,7 @@ public class FileImportCommand extends LibraryCommand {
     public void execute() {
         try (var file = new FileInputStream(filePath.toString())) {
             var bs = bookImporter.getModels(file, Book.class);
-            library.addAll(bs);
+            library.addAll(bs, Book.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
