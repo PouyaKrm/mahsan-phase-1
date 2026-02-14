@@ -1,7 +1,7 @@
 package org.example.library.model.book;
 
-import org.example.library.model.ModelRepository;
+import org.example.library.model.LibraryModelRepository;
 
-public interface BookRepository extends ModelRepository<Book> {
+public interface BookRepository extends LibraryModelRepository<Book> {
 
 }

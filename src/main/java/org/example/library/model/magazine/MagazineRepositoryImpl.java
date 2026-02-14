@@ -1,14 +1,14 @@
 package org.example.library.model.magazine;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.AbstractModelRepository;
+import org.example.library.AbstractLibraryModelRepository;
 import org.example.sql.JdbcConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class MagazineRepositoryImpl extends AbstractModelRepository<Magazine> implements MagazineRepository {
+public class MagazineRepositoryImpl extends AbstractLibraryModelRepository<Magazine> implements MagazineRepository {
 
     private static MagazineRepositoryImpl instance;
     private static final String TABLE_NAME = "magazines";

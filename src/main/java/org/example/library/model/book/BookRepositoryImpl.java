@@ -1,7 +1,7 @@
 package org.example.library.model.book;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.AbstractModelRepository;
+import org.example.library.AbstractLibraryModelRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.sql.JdbcConnection;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class BookRepositoryImpl extends AbstractModelRepository<Book> implements BookRepository {
+public class BookRepositoryImpl extends AbstractLibraryModelRepository<Book> implements BookRepository {
 
 
     private static BookRepositoryImpl instance;

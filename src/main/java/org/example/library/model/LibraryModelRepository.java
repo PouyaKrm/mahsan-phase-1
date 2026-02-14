@@ -1,11 +1,10 @@
 package org.example.library.model;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.book.Book;
 
 import java.sql.SQLException;
 
-public interface ModelRepository<T extends BaseModel> {
+public interface LibraryModelRepository<T extends BaseModel> {
     T[] getAll() throws SQLException;
     T[] removeAll() throws SQLException;
     T save(T model) throws SQLException;

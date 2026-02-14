@@ -1,10 +1,9 @@
 package org.example.library;
 
-import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseModel;
-import org.example.library.model.ModelRepository;
+import org.example.library.model.LibraryModelRepository;
 import org.example.library.model.article.Article;
 import org.example.library.model.article.ArticleRepositoryImpl;
 import org.example.library.model.book.Book;
@@ -21,7 +20,7 @@ public class DbLibraryImpl implements Library {
 
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
 
-    private final Map<Class<? extends BaseModel>, ModelRepository<?>> repositoryMap = Map.ofEntries(
+    private final Map<Class<? extends BaseModel>, LibraryModelRepository<?>> repositoryMap = Map.ofEntries(
             Map.entry(Book.class, bookRepository),
             Map.entry(Article.class, ArticleRepositoryImpl.getInstance()),
             Map.entry(Magazine.class, MagazineRepositoryImpl.getInstance())
@@ -145,7 +144,7 @@ public class DbLibraryImpl implements Library {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends BaseModel> ModelRepository<T> getRepository(Class<T> tClass) {
-        return (ModelRepository<T>) repositoryMap.get(tClass);
+    private <T extends BaseModel> LibraryModelRepository<T> getRepository(Class<T> tClass) {
+        return (LibraryModelRepository<T>) repositoryMap.get(tClass);
     }
 }

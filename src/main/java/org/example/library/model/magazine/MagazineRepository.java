@@ -1,6 +1,6 @@
 package org.example.library.model.magazine;
 
-import org.example.library.model.ModelRepository;
+import org.example.library.model.LibraryModelRepository;
 
-public interface MagazineRepository extends ModelRepository<Magazine> {
+public interface MagazineRepository extends LibraryModelRepository<Magazine> {
 }

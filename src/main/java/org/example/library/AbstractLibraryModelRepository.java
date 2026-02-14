@@ -4,12 +4,11 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.ModelFactory;
-import org.example.library.model.ModelRepository;
+import org.example.library.model.LibraryModelRepository;
 import org.example.sql.JdbcConnection;
 import org.example.utils.DateUtils;
 import org.example.utils.Utils;
 
-import javax.print.DocFlavor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.text.MessageFormat;
@@ -18,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractModelRepository<T extends BaseModel> implements ModelRepository<T> {
+public abstract class AbstractLibraryModelRepository<T extends BaseModel> implements LibraryModelRepository<T> {
 
     protected final Connection connection;
     protected final String tableName;
@@ -28,24 +27,24 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     private final String ID_COLUMN = "id";
 
 
-    protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
+    protected AbstractLibraryModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = JdbcConnection.getConnection();
         addMapping(fieldMappings);
     }
 
-    protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
+    protected AbstractLibraryModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
         this.tableName = tableName;
         this.connection = connection;
         addMapping(fieldMappings);
     }
 
-    protected AbstractModelRepository(String tableName) {
+    protected AbstractLibraryModelRepository(String tableName) {
         this.tableName = tableName;
         this.connection = JdbcConnection.getConnection();
     }
 
-    protected AbstractModelRepository(String tableName, Connection connection) {
+    protected AbstractLibraryModelRepository(String tableName, Connection connection) {
         this.tableName = tableName;
         this.connection = connection;
     }
