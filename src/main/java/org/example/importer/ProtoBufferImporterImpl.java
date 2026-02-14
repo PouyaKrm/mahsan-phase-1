@@ -24,6 +24,9 @@ public class ProtoBufferImporterImpl implements BookImporter {
 
     @Override
     public <T extends BaseModel> void writeToFile(T[] data, Path folderPath, String fileName) throws IOException {
+        if (data.length == 0) {
+            return;
+        }
         var resource = data[0].resourceType();
         try (OutputStream outputStream = new FileOutputStream(folderPath.resolve(fileName).toFile())) {
             write(data, resource, outputStream);

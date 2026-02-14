@@ -6,6 +6,7 @@ import org.example.constansts.ResourceType;
 import org.example.exception.ItemNotFoundException;
 import org.example.importer.BookImporter;
 import org.example.importer.JsonBookImporterImpl;
+import org.example.importer.ProtoBufferImporterImpl;
 import org.example.library.InMemoryLibraryImpl;
 import org.example.library.Library;
 import org.example.library.model.BaseModel;
@@ -27,7 +28,7 @@ public class LibraryCLI {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final BlockingQueue<LibraryCommand> commands = new LinkedBlockingQueue<>();
     private final Library library = new InMemoryLibraryImpl();
-    private final BookImporter bookImporter = new JsonBookImporterImpl();
+    private final BookImporter bookImporter = new ProtoBufferImporterImpl();
 
     public void start() throws IOException, ItemNotFoundException, InterruptedException {
         executorService.execute(new LibraryRunnable(commands));
