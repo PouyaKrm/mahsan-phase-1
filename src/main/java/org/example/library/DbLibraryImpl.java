@@ -1,7 +1,6 @@
 package org.example.library;
 
 import org.example.constansts.ResourceType;
-import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseModel;
@@ -29,6 +28,7 @@ public class DbLibraryImpl implements Library {
     );
 
 
+    @Override
     public <T extends BaseModel> void addItem(T book, Class<T> tClass) {
         try {
             getRepository(tClass).save(book);
@@ -38,6 +38,7 @@ public class DbLibraryImpl implements Library {
     }
 
 
+    @Override
     public <T extends BaseModel> void removeItem(T book, Class<T> tClass) {
         try {
             getRepository(tClass).removeOne(book);
@@ -47,7 +48,7 @@ public class DbLibraryImpl implements Library {
     }
 
 
-
+    @Override
     public <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         try {
             var item = getRepository(tClass).getOne(id);
@@ -130,6 +131,7 @@ public class DbLibraryImpl implements Library {
     }
 
 
+    @Override
     public <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException {
         try {
             return getRepository(tClass).getOne(id);
@@ -160,7 +162,7 @@ public class DbLibraryImpl implements Library {
     }
 
 
-
+    @Override
     public <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass) {
         try {
             return getRepository(tClass).saveAll(books, tClass);

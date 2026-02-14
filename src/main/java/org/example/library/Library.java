@@ -12,6 +12,12 @@ import java.util.List;
 
 public interface Library {
 
+    <T extends BaseModel> void addItem(T book, Class<T> tClass);
+
+    <T extends BaseModel> void removeItem(T book, Class<T> tClass);
+
+    <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException;
+
     <T extends BaseModel> void addItem(T book);
 
     <T extends BaseModel> void removeItem(T book);
@@ -31,9 +37,13 @@ public interface Library {
 
     BaseModel borrowItem(Long id) throws ItemNotFoundException;
 
+    <T extends BaseModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException;
+
     BaseModel returnItem(Long id) throws ItemNotFoundException;
 
     BaseModel[] getBorrowedItems();
 
     <T extends BaseModel> void addAll(T[] books);
+
+    <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass);
 }

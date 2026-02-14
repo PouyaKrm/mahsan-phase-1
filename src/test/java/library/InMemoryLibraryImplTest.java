@@ -6,7 +6,9 @@ import org.example.constansts.SearchField;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.InMemoryLibraryImpl;
 import org.example.library.dto.SearchDTO;
+import org.example.library.model.article.Article;
 import org.example.library.model.book.Book;
+import org.example.library.model.magazine.Magazine;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.TestUtils;
@@ -25,6 +27,18 @@ public class InMemoryLibraryImplTest {
         library.addItem(TestUtils.createMagazine());
 
         Assert.assertEquals(3, library.getAll().length);
+    }
+
+    @Test
+    public void add_works_correctly() {
+        var library = new InMemoryLibraryImpl();
+        library.addItem(TestUtils.createBook(), Book.class);
+        library.addItem(TestUtils.createArticle(), Article.class);
+        library.addItem(TestUtils.createMagazine(), Magazine.class);
+
+        Assert.assertEquals(1, library.getAllBooks().length);
+        Assert.assertEquals(1, library.getAllArticles().length);
+        Assert.assertEquals(1, library.getAllMagazines().length);
     }
 
     @Test
@@ -83,6 +97,23 @@ public class InMemoryLibraryImplTest {
         Assert.assertEquals(library.getAll().length, 2);
         Assert.assertEquals(library.getAll()[0], magazine);
         Assert.assertEquals(library.getAll()[1], article);
+    }
+
+    @Test
+    public void remove_works_correctly() throws SQLException {
+        var library = new InMemoryLibraryImpl();
+        var book = TestUtils.createBook();
+        var magazine = TestUtils.createMagazine();
+        var article = TestUtils.createArticle();
+        library.addItem(book, Book.class);
+        library.addItem(magazine, Magazine.class);
+        library.addItem(article, Article.class);
+
+        library.removeItem(book, Book.class);
+
+        Assert.assertEquals(library.getAllBooks().length, 0);
+        Assert.assertEquals(1, library.getAllMagazines().length);
+        Assert.assertEquals(1, library.getAllArticles().length);
     }
 
     @Test

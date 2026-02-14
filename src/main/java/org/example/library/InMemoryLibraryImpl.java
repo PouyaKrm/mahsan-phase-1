@@ -42,6 +42,25 @@ public class InMemoryLibraryImpl implements Library {
     }
 
 
+    @Override
+    public <T extends BaseModel> void addItem(T book, Class<T> tClass) {
+        var random = new Random();
+        if (Objects.isNull(book.getId())) {
+            book.setId(random.nextLong());
+        }
+        getCollection(tClass).add(book);
+    }
+
+    @Override
+    public <T extends BaseModel> void removeItem(T book, Class<T> tClass) {
+        getCollection(tClass).remove(book);
+    }
+
+    @Override
+    public <T extends BaseModel> T removeItem(Long id, Class<T> tClass) throws ItemNotFoundException {
+        Predicate<T> pr = model -> model.getId().equals(id);
+        return getCollection(tClass).remove(pr);
+    }
 
     @Override
     public <T extends BaseModel> void addItem(T book) {
@@ -108,17 +127,17 @@ public class InMemoryLibraryImpl implements Library {
 
     @Override
     public Book[] getAllBooks() {
-        return bookCollection.getItems(Book.class);
+        return getCollection(Book.class).getItems(Book.class);
     }
 
     @Override
     public Article[] getAllArticles() {
-        return articles.getItems(Article.class);
+        return getCollection(Article.class).getItems(Article.class);
     }
 
     @Override
     public Magazine[] getAllMagazines() {
-        return magazines.getItems(Magazine.class);
+        return getCollection(Magazine.class).getItems(Magazine.class);
     }
 
     @Override
@@ -126,6 +145,12 @@ public class InMemoryLibraryImpl implements Library {
         for (var book : books) {
             addItem(book);
         }
+    }
+
+    @Override
+    public <T extends BaseModel> T[] addAll(T[] books, Class<T> tClass) {
+        getCollection(tClass).addAll(books);
+        return books;
     }
 
     private <T extends BaseModel> Predicate<T> getPredicates(List<SearchDTO> searchDTOS) {
