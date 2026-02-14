@@ -6,6 +6,7 @@ import org.example.library.model.ModelFactory;
 import org.example.library.v1.ArticleList;
 import org.example.library.v1.BookList;
 import org.example.library.v1.MagazineList;
+import org.example.utils.Utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class ProtoBufferImporterImpl implements BookImporter {
             return;
         }
         var resource = data[0].resourceType();
-        try (OutputStream outputStream = new FileOutputStream(folderPath.resolve(fileName).toFile())) {
+        var formatted = Utils.formatFileExtension(fileName, "");
+        try (OutputStream outputStream = new FileOutputStream(folderPath.resolve(formatted).toFile())) {
             write(data, resource, outputStream);
         }
     }

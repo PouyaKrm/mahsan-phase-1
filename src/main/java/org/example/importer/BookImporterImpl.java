@@ -40,11 +40,7 @@ public class BookImporterImpl implements BookImporter {
 
     @Override
     public <T extends BaseModel> void writeToFile(T[] data,  Path folderPath, String fileName) throws IOException {
-        var extIn = fileName.lastIndexOf(".");
-        var bf = new StringBuffer();
-        bf.append(fileName.substring(0, extIn));
-        bf.append(".txt");
-        var filePath = folderPath.resolve(bf.toString());
+        var filePath = folderPath.resolve(Utils.formatFileExtension(fileName, ".txt"));
         Files.createDirectories(filePath.getParent());
         try (FileWriter fileWriter = new FileWriter(filePath.toFile(), true)) {
             for (T item : data) {
@@ -107,6 +103,9 @@ public class BookImporterImpl implements BookImporter {
         var f = factory.getFactory(item.getClass());
         return MessageFormat.format("{0}" + "," + "{1}", item.getClass().getName(), factory.parseToString(item));
     }
+
+
+
 
 }
 

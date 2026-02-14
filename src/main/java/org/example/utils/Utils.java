@@ -11,4 +11,9 @@ public class Utils {
                 (Class<? extends T[]>) java.lang.reflect.Array
                         .newInstance(clazz, 0).getClass());
     }
+
+    public static String formatFileExtension(String fileName, String extension) {
+        var index = fileName.lastIndexOf(".");
+        return fileName.substring(0, index) + extension;
+    }
 }
