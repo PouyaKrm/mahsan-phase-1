@@ -1,7 +1,7 @@
 package org.example.library.model;
 
 import org.example.exception.ItemNotFoundException;
-import org.example.library.model.library.ModelFactory;
+import org.example.library.model.library.ModelAbstractFactory;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
@@ -16,7 +16,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     protected final Connection connection;
     protected final String tableName;
-    private final ModelFactory modelFactory = ModelFactory.getInstance();
+    private final ModelAbstractFactory modelFactory = ModelAbstractFactory.getInstance();
     private final DBFieldMapping idDBField = new DBFieldMapping<BaseModel>("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), BaseModel::getId, Types.BIGINT);
     private final String ID_COLUMN = "id";
     private final Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
@@ -249,6 +249,10 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     private List<DBFieldMapping> getNoneIdFields() {
         return fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN)).toList();
+    }
+
+    protected Map<String, DBFieldMapping> getFieldMappings() {
+        return fieldMappings;
     }
 }
 

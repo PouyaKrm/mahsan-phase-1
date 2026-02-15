@@ -1,16 +1,10 @@
 package org.example.library.model.user;
 
-public class User {
-    private Integer id;
+import org.example.library.model.BaseModel;
+
+public class User extends BaseModel {
+
     private String name;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

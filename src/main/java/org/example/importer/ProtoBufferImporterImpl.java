@@ -2,7 +2,9 @@ package org.example.importer;
 
 import org.example.constansts.ResourceType;
 import org.example.library.model.BaseLibraryModel;
-import org.example.library.model.library.ModelFactory;
+import org.example.library.model.BaseModel;
+import org.example.library.model.library.AbstractLibraryModelFactory;
+import org.example.library.model.library.ModelAbstractFactory;
 import org.example.library.v1.ArticleList;
 import org.example.library.v1.BookList;
 import org.example.library.v1.MagazineList;
@@ -16,7 +18,7 @@ import java.nio.file.Path;
 
 public class ProtoBufferImporterImpl implements BookImporter {
 
-    private final ModelFactory factory = ModelFactory.getInstance();
+    private final ModelAbstractFactory factory = ModelAbstractFactory.getInstance();
 
     @Override
     public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> clazz, String terminationLine) throws IOException {
@@ -37,7 +39,7 @@ public class ProtoBufferImporterImpl implements BookImporter {
 
     @Override
     public <T extends BaseLibraryModel> T[] getModels(InputStream inputStream, Class<T> clazz) throws IOException {
-        return factory.getFactory(clazz).parseProtoBuffObject(inputStream);
+        return ((AbstractLibraryModelFactory<T>) factory.getFactory(clazz)).parseProtoBuffObject(inputStream);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ProtoBufferImporterImpl implements BookImporter {
     }
 
     private <T extends BaseLibraryModel> void write(T[] array, ResourceType resourceType, OutputStream outputStream) throws IOException {
-        var f = factory.getFactory(resourceType);
+        var f = (AbstractLibraryModelFactory<BaseModel>) factory.getFactory(resourceType);
         var bufferList = f.createProtoBuffList(array);
         switch (resourceType) {
             case BOOK -> ((BookList) bufferList).writeTo(outputStream);

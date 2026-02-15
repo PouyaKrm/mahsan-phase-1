@@ -1,29 +1,28 @@
 package org.example.library.model.library.book;
 
 import org.example.exception.InvalidInputData;
+import org.example.library.model.library.ModelAbstractFactory;
 import org.example.library.v1.BookList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
-import org.example.library.model.AbstractModelFactory;
+import org.example.library.model.library.AbstractLibraryModelFactory;
 import org.example.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class BookFactory extends AbstractModelFactory<Book> {
+public class BookFactoryLibrary extends AbstractLibraryModelFactory<Book> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
-    private static final BookFactory factory = new BookFactory();
+    private static final BookFactoryLibrary factory = new BookFactoryLibrary();
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
-    private BookFactory() {
-
+    private BookFactoryLibrary() {
+        super(Book.class);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class BookFactory extends AbstractModelFactory<Book> {
         return Utils.listToArray(list, Book.class);
     }
 
-    public static BookFactory getFactory() {
+    public static BookFactoryLibrary getFactory() {
         return factory;
     }
 
@@ -83,29 +82,6 @@ public class BookFactory extends AbstractModelFactory<Book> {
         validator.validateDate(dateField, DATE_FORMAT);
         var date = LocalDate.parse(dateField, DateTimeFormatter.ofPattern(DATE_FORMAT));
         return new Book(date, fields[0], fields[1], fields[3], Enum.valueOf(Book.Status.class, fields[4]));
-    }
-
-    @Override
-    public Book createFromResultSet(ResultSet rs) throws SQLException {
-        var date = rs.getLong("pub_date");
-        var pubDate = LocalDate.ofEpochDay(date);
-        var status = rs.getString("status");
-        Book book = new Book(
-                pubDate,
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("content"),
-                Book.Status.valueOf(status)
-        );
-
-        Long id = rs.getLong("id");
-        book.setId(id);
-        var bd = rs.getLong("borrow_date");
-        if (bd != 0) {
-            var borrowDate = LocalDate.ofEpochDay(bd);
-            book.setBorrowDate(borrowDate);
-        }
-        return book;
     }
 
     @Override

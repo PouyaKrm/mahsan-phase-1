@@ -2,7 +2,9 @@ package org.example.importer;
 
 import org.example.exception.InvalidInputData;
 import org.example.library.model.BaseLibraryModel;
-import org.example.library.model.library.ModelFactory;
+import org.example.library.model.library.AbstractLibraryModelFactory;
+import org.example.library.model.library.ModelAbstractFactory;
+import org.example.library.model.library.book.BookFactoryLibrary;
 import org.example.utils.Utils;
 
 import java.io.*;
@@ -13,7 +15,7 @@ import java.util.*;
 
 public class BookImporterImpl implements BookImporter {
 
-    private final ModelFactory factory = ModelFactory.getInstance();
+    private final ModelAbstractFactory factory = ModelAbstractFactory.getInstance();
 
 
     @Override
@@ -22,7 +24,7 @@ public class BookImporterImpl implements BookImporter {
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                var book = recreateData(line);
+                var book = recreateData(line, clazz);
                 books.add((T) book);
             }
 
@@ -67,7 +69,8 @@ public class BookImporterImpl implements BookImporter {
                 if (terminationLine.isPresent() && line.equals(terminationLine.get())) {
                     break;
                 }
-                var book = factory.create(line, clazz);
+                var f = (BookFactoryLibrary) factory.getFactory(clazz);
+                var book = f.createModelFromString(line);
                 books.add(book);
 
             }
@@ -83,28 +86,22 @@ public class BookImporterImpl implements BookImporter {
                         .newInstance(clazz, 0).getClass());
     }
 
-    private BaseLibraryModel recreateData(String line) throws InvalidInputData {
-        try {
-            var splited = line.split(",");
-            Class cs = Class.forName(splited[0]);
-            var f = factory.getFactory(cs);
-            line = line.substring(splited[0].length() + 1);
-            splited = line.split(f.getDelimeter());
-            var originalLine = String.join(f.getDelimeter(), splited);
-            return (BaseLibraryModel) factory.create(originalLine, cs);
-        } catch (ClassNotFoundException e) {
-            throw new InvalidInputData(MessageFormat.format("invalid class name in: {0}", line), e);
-        }
-    }
+    private <T extends BaseLibraryModel> T recreateData(String line, Class<T> tClass) throws InvalidInputData {
 
+        var splited = line.split(",");
+        var f = (AbstractLibraryModelFactory<T>) factory.getFactory(tClass);
+        line = line.substring(splited[0].length() + 1);
+        splited = line.split(f.getDelimeter());
+        var originalLine = String.join(f.getDelimeter(), splited);
+        return f.createModelFromString(originalLine);
+
+    }
 
 
     private <T extends BaseLibraryModel> String createStoreLine(T item) {
-        var f = factory.getFactory(item.getClass());
-        return MessageFormat.format("{0}" + "," + "{1}", item.getClass().getName(), factory.parseToString(item));
+        var f = (AbstractLibraryModelFactory<T>) factory.getFactory(item.getClass());
+        return MessageFormat.format("{0}" + "," + "{1}", item.getClass().getName(), f.parseModelToString(item));
     }
-
-
 
 
 }

@@ -17,7 +17,7 @@ import java.sql.SQLException;
 public class JsonBookImporterTest {
 
     private final String testFolderPath = "src/test/resources";
-    private final String bookFileName = "test_book_file.txt";
+    private final String bookFileName = "test_book_file.json";
 
     @After
     public void cleanUp() throws IOException {
@@ -49,7 +49,9 @@ public class JsonBookImporterTest {
         library.addItem(books[2], Book.class);
         var importer = new JsonBookImporterImpl();
         var path = Path.of(testFolderPath);
+
         importer.writeToFile(library.getAllBooks(), path, bookFileName);
+
         var stream = new FileInputStream(path.resolve(bookFileName).toFile());
         var data = importer.getModels(stream, Book.class);
         Assert.assertEquals(3, data.length);

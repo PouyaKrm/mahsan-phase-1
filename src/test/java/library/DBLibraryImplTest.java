@@ -14,6 +14,7 @@ import utils.TestUtils;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Random;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -155,7 +156,7 @@ public class DBLibraryImplTest {
         var items = new Book[]{TestUtils.createBook("title"), TestUtils.createBook("title2")};
         dbLibrary.addAll(items, Book.class);
 
-        dbLibrary.getItem(20L, Book.class);
+        dbLibrary.getItem((new Random()).nextLong(1000, 100000), Book.class);
     }
 
 

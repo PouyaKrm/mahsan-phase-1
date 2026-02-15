@@ -4,7 +4,7 @@ import org.example.exception.InvalidInputData;
 import org.example.library.v1.ArticleList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
-import org.example.library.model.AbstractModelFactory;
+import org.example.library.model.library.AbstractLibraryModelFactory;
 import org.example.utils.Utils;
 
 import java.io.IOException;
@@ -16,14 +16,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class ArticleFactory extends AbstractModelFactory<Article> {
+public class ArticleFactoryLibrary extends AbstractLibraryModelFactory<Article> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
-    private static final ArticleFactory factory = new ArticleFactory();
+    private static final ArticleFactoryLibrary factory = new ArticleFactoryLibrary();
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
-    private ArticleFactory() {
-
+    private ArticleFactoryLibrary() {
+        super(Article.class);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
                 .setContent(article.getContent())
                 .setId(article.getId())
                 .setPubDateEpochDay(article.getPubDateEpochDay());
-        if(Objects.nonNull(article.getBorrowDateEpochDay())) {
+        if (Objects.nonNull(article.getBorrowDateEpochDay())) {
             builder.setBorrowDateEpochDay(article.getBorrowDateEpochDay());
         }
         return builder.build();
@@ -65,7 +65,7 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
         return Utils.listToArray(list, Article.class);
     }
 
-    public static ArticleFactory getFactory() {
+    public static ArticleFactoryLibrary getFactory() {
         return factory;
     }
 
@@ -92,22 +92,6 @@ public class ArticleFactory extends AbstractModelFactory<Article> {
     public String getDelimeter() {
         return DELIMETER;
     }
-
-    @Override
-    public Article createFromResultSet(ResultSet rs) throws SQLException {
-
-        Long id = rs.getLong("id");
-        var book = new Article(
-                getDate(rs, "pub_date"),
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("content")
-        );
-        book.setBorrowDate(getDate(rs, "borrow_date"));
-        book.setId(id);
-        return book;
-    }
-
 
 
     private LocalDate getDate(ResultSet resultSet, String key) throws SQLException {

@@ -4,26 +4,24 @@ import org.example.exception.InvalidInputData;
 import org.example.library.v1.MagazineList;
 import org.example.library.validator.ModelDataValidator;
 import org.example.library.validator.ModelDataValidatorImpl;
-import org.example.library.model.AbstractModelFactory;
+import org.example.library.model.library.AbstractLibraryModelFactory;
 import org.example.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class MagazineFactory extends AbstractModelFactory<Magazine> {
+public class MagazineFactoryLibrary extends AbstractLibraryModelFactory<Magazine> {
     private final String DATE_FORMAT = "dd-MM-yyyy";
     private final String DELIMETER = ",";
-    private static final MagazineFactory factory = new MagazineFactory();
+    private static final MagazineFactoryLibrary factory = new MagazineFactoryLibrary();
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
-    private MagazineFactory() {
-
+    private MagazineFactoryLibrary() {
+        super(Magazine.class);
     }
 
     @Override
@@ -34,7 +32,7 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
                 .setContent(magazine.getContent())
                 .setId(magazine.getId())
                 .setPubDateEpochDay(magazine.getPubDateEpochDay());
-        if(Objects.nonNull(magazine.getBorrowDateEpochDay())) {
+        if (Objects.nonNull(magazine.getBorrowDateEpochDay())) {
             builder.setBorrowDateEpochDay(magazine.getBorrowDateEpochDay());
         }
         return builder.build();
@@ -65,7 +63,7 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
         return Utils.listToArray(list, Magazine.class);
     }
 
-    public static MagazineFactory getFactory() {
+    public static MagazineFactoryLibrary getFactory() {
         return factory;
     }
 
@@ -92,19 +90,4 @@ public class MagazineFactory extends AbstractModelFactory<Magazine> {
         return DELIMETER;
     }
 
-    @Override
-    public Magazine createFromResultSet(ResultSet rs) throws SQLException {
-        var date = rs.getInt("pub_date");
-        var pubDate = LocalDate.ofEpochDay(date);
-        Long id = rs.getLong("id");
-        var book = new Magazine(
-                pubDate,
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("content")
-        );
-
-        book.setId(id);
-        return book;
-    }
 }
