@@ -1,8 +1,12 @@
 package org.example.library;
 
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseLibraryModel;
+import org.example.library.model.borrow.BorrowModel;
+import org.example.library.model.borrow.BorrowRepository;
+import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.LibraryModelRepository;
 import org.example.library.model.library.article.Article;
 import org.example.library.model.library.article.ArticleRepositoryImpl;
@@ -11,6 +15,8 @@ import org.example.library.model.library.book.BookRepository;
 import org.example.library.model.library.book.BookRepositoryImpl;
 import org.example.library.model.library.magazine.Magazine;
 import org.example.library.model.library.magazine.MagazineRepositoryImpl;
+import org.example.library.model.user.UserRepository;
+import org.example.library.model.user.UserRepositoryImpl;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +25,8 @@ import java.util.Map;
 public class DbLibraryImpl implements Library {
 
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
+    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
+    private final UserRepository userRepository = UserRepositoryImpl.getInstance();
 
     private final Map<Class<? extends BaseLibraryModel>, LibraryModelRepository<?>> repositoryMap = Map.ofEntries(
             Map.entry(Book.class, bookRepository),
@@ -99,8 +107,24 @@ public class DbLibraryImpl implements Library {
     }
 
     @Override
-    public BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException {
-        return null;
+    public BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException, InvalidOperationException {
+        try {
+            var borrow = borrowRepository.findByBookId(id);
+            if(borrow.isPresent()) {
+                throw new InvalidOperationException("can not borrow borrowed book");
+            }
+            var user = userRepository.getDefaultUser();
+            var b = new BorrowModel();
+            var book = bookRepository.getOne(id);
+            book.setStatus(Book.Status.BORROWED);
+            b.setBookId(id);
+            b.setUserId(user.getId());
+            borrowRepository.save(b);
+            bookRepository.save(book);
+            return book;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     @Override

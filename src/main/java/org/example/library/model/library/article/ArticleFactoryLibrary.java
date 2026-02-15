@@ -23,7 +23,6 @@ public class ArticleFactoryLibrary extends AbstractLibraryModelFactory<Article> 
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
     private ArticleFactoryLibrary() {
-        super(Article.class);
     }
 
     @Override

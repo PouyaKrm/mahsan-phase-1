@@ -22,7 +22,7 @@ public class BookFactoryLibrary extends AbstractLibraryModelFactory<Book> {
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
     private BookFactoryLibrary() {
-        super(Book.class);
+
     }
 
     @Override

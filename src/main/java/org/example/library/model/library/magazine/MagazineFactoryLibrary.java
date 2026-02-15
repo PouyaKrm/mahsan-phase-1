@@ -21,7 +21,6 @@ public class MagazineFactoryLibrary extends AbstractLibraryModelFactory<Magazine
     private final ModelDataValidator validator = ModelDataValidatorImpl.getInstance();
 
     private MagazineFactoryLibrary() {
-        super(Magazine.class);
     }
 
     @Override

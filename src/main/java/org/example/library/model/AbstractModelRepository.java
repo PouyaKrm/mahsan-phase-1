@@ -73,7 +73,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     protected T[] getAll(Class<T> tClass) throws SQLException {
         List<T> articleList = new ArrayList<>();
-        var factory = modelFactory.getFactory(tClass);
+        var factory = modelFactory.getDefaultFactory(tClass);
         PreparedStatement ps = connection.prepareStatement("select * from " + tableName);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -115,7 +115,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected T getOne(Long id, Class<T> tClass) throws SQLException, ItemNotFoundException {
         var s = MessageFormat.format("SELECT * FROM {0} WHERE id = ?", tableName);
         var pst = connection.prepareStatement(s);
-        var factory = modelFactory.getFactory(tClass);
+        var factory = modelFactory.getDefaultFactory(tClass);
         pst.setLong(1, id);
         var rs = pst.executeQuery();
         if (!rs.next()) {
@@ -133,7 +133,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     @Override
     public T save(T model) throws SQLException {
-        return Objects.isNull(model.getId()) ? insertAll(List.of(model), tableName).getFirst() : updateModel(model);
+        return Objects.isNull(model.getId()) ? insertAll(List.of(model), tableName).getFirst() : updateAll(List.of(model)).getFirst();
     }
 
     @Override

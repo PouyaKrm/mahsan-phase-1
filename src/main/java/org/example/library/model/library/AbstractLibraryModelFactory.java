@@ -16,10 +16,6 @@ public abstract class AbstractLibraryModelFactory<T extends BaseModel> extends D
 
     public abstract String getDelimeter();
 
-    protected AbstractLibraryModelFactory(Class<T> tClass) {
-        ModelAbstractFactory.getInstance().registerFaccotry(this, tClass);
-    }
-
     public abstract Object createProtoBuffObject(T t);
 
     public abstract Object createProtoBuffList(T[] items);

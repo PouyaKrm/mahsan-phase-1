@@ -1,5 +1,6 @@
 package org.example.library;
 
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
 import org.example.library.model.BaseLibraryModel;
@@ -27,7 +28,7 @@ public interface Library {
 
     <T extends BaseLibraryModel> T[] addAll(T[] books, Class<T> tClass);
 
-    BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException;
+    BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException, InvalidOperationException;
 
     <T extends BaseLibraryModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException;
 

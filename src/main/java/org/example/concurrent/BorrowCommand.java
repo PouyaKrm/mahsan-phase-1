@@ -1,6 +1,7 @@
 package org.example.concurrent;
 
 import org.example.constansts.LibraryOperationType;
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.Library;
 
@@ -23,7 +24,7 @@ public class BorrowCommand extends LibraryCommand {
         try {
             var item = library.borrowItem(id);
             item.display();
-        } catch (ItemNotFoundException e) {
+        } catch (ItemNotFoundException | InvalidOperationException e) {
             System.out.println(e.getMessage());
         }
     }

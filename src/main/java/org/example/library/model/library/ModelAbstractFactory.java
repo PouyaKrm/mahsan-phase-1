@@ -20,9 +20,9 @@ public final class ModelAbstractFactory {
     private static final ModelAbstractFactory instance = new ModelAbstractFactory();
 
     private ModelAbstractFactory() {
-//        factories.put(Book.class, BookFactoryLibrary.getFactory());
-//        factories.put(Article.class, ArticleFactoryLibrary.getFactory());
-//        factories.put(Magazine.class, MagazineFactoryLibrary.getFactory());
+        factories.put(Book.class, BookFactoryLibrary.getFactory());
+        factories.put(Article.class, ArticleFactoryLibrary.getFactory());
+        factories.put(Magazine.class, MagazineFactoryLibrary.getFactory());
     }
 
     public static ModelAbstractFactory getInstance() {

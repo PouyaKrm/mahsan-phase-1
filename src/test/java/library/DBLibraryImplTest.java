@@ -1,13 +1,18 @@
 package library;
 
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.DbLibraryImpl;
+import org.example.library.model.borrow.BorrowModel;
+import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.article.Article;
 import org.example.library.model.library.article.ArticleRepositoryImpl;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.book.BookRepositoryImpl;
 import org.example.library.model.library.magazine.Magazine;
 import org.example.library.model.library.magazine.MagazineRepositoryImpl;
+import org.example.library.model.user.User;
+import org.example.library.model.user.UserRepositoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
@@ -206,6 +211,45 @@ public class DBLibraryImplTest {
         var result = dbLibrary.getAll(Book.class);
         assertThat(result).hasSize(1);
         assertThat(result[0].getTitle()).isEqualTo(saved[1].getTitle());
+    }
+
+    @Test
+    public void test_borrow_item() throws SQLException, InvalidOperationException, ItemNotFoundException {
+        var item = TestUtils.createBook();
+        bookRepository.save(item);
+        var user = new User();
+        user.setName("username");
+        var userRepo = UserRepositoryImpl.getInstance();
+        userRepo.save(user);
+
+        dbLibrary.borrowItem(item.getId());
+
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
+        var b = borrowRepository.getAll();
+        var savedBook = bookRepository.getOne(item.getId());
+        assertThat(b.length).isEqualTo(1);
+        assertThat(b[0].getBookId()).isEqualTo(item.getId());
+        assertThat(b[0].getUserId()).isEqualTo(user.getId());
+        assertThat(savedBook.getStatus()).isEqualTo(Book.Status.BORROWED);
+    }
+
+    @Test(expected = InvalidOperationException.class)
+    public void item_already_borrowed() throws InvalidOperationException, ItemNotFoundException, SQLException {
+        var item = TestUtils.createBook();
+        bookRepository.save(item);
+        var user = new User();
+        user.setName("username");
+        var userRepo = UserRepositoryImpl.getInstance();
+        userRepo.save(user);
+        var borrow = new BorrowModel();
+        borrow.setBookId(item.getId());
+        borrow.setUserId(user.getId());
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
+        borrowRepository.save(borrow);
+
+        dbLibrary.borrowItem(item.getId());
+
+
     }
 
 }

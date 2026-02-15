@@ -19,11 +19,13 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
     private static UserRepositoryImpl instance;
     private static final String TABLE_NAME = "users";
     private static final Map<String, DBFieldMapping> FIELD_MAPPING = Map.ofEntries(
-            Map.entry("name", new DBFieldMapping<>(
+            Map.entry("name",
+                    new DBFieldMapping<>(
                             "name",
                             "VARCHAR(40) NOT NULL",
-                            (user, value) -> user.setName(value),
-                            User::getName, Types.VARCHAR
+                            User::setName,
+                            User::getName,
+                            Types.VARCHAR
                     )
             )
     );
@@ -31,7 +33,6 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
     protected UserRepositoryImpl() {
         super(TABLE_NAME, FIELD_MAPPING);
     }
-
 
     @Override
     public User[] getAll() throws SQLException {
@@ -80,5 +81,16 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
             throw new RuntimeException(e);
         }
         return user;
+    }
+
+    @Override
+    public User getDefaultUser() throws SQLException {
+        var st = connection.prepareStatement(MessageFormat.format("select * from {0} limit 1", TABLE_NAME));
+        var result = st.executeQuery();
+        var f = ModelAbstractFactory.getInstance().getDefaultFactory(User.class);
+        if(!result.next()) {
+            throw new IllegalStateException("query returned no data");
+        }
+        return f.populateFromDB(new User(), result, getFieldMappings().values());
     }
 }
