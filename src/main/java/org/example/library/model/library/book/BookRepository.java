@@ -9,4 +9,6 @@ import java.util.List;
 public interface BookRepository extends LibraryModelRepository<Book> {
 
     Book[] getAllByStatus(Book.Status status) throws SQLException;
+
+    Book[] getNonBorrowedBooksAtAll() throws SQLException;
 }

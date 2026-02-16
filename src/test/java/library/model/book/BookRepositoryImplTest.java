@@ -1,8 +1,13 @@
 package library.model.book;
 
 import org.example.exception.ItemNotFoundException;
+import org.example.library.model.borrow.BorrowModel;
+import org.example.library.model.borrow.BorrowRepository;
+import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.book.BookRepositoryImpl;
+import org.example.library.model.user.UserRepository;
+import org.example.library.model.user.UserRepositoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
@@ -13,11 +18,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookRepositoryImplTest {
 
+    private final UserRepository userRepository = UserRepositoryImpl.getInstance();
+    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
 
     @Before
     public void resetDb() throws Exception {
         var bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.removeAll();
+        userRepository.removeAll();
     }
 
     @Test
@@ -146,6 +154,25 @@ public class BookRepositoryImplTest {
         assertThat(found[0].getTitle()).isEqualTo(book.getTitle());
         assertThat(found[0].getAuthor()).isEqualTo(book.getAuthor());
         assertThat(found[0].getContent()).isEqualTo(book.getContent());
+    }
+
+
+    @Test
+    public void getNonBorrowedBooksAtAll_works_correctly() throws SQLException {
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var books= new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{
+                TestUtils.createBorrow(user.getId(), books[0].getId()),
+                TestUtils.createBorrow(user.getId(), books[1].getId())
+        };
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+
+        var foundBooks = bookRepository.getNonBorrowedBooksAtAll();
+        assertThat(foundBooks.length).isEqualTo(1);
+        assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
     }
 
 }

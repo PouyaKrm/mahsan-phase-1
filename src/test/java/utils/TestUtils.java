@@ -4,6 +4,7 @@ import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.article.Article;
 import org.example.library.model.library.magazine.Magazine;
+import org.example.library.model.user.User;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -74,6 +75,7 @@ public class TestUtils {
         var b = new BorrowModel();
         b.setUserId(userId);
         b.setBookId(bookId);
+        b.setBorrowedAt(LocalDate.now());
         return b;
     }
 
@@ -85,4 +87,9 @@ public class TestUtils {
     }
 
 
+    public static User createUser() {
+        var u = new User();
+        u.setName("name");
+        return u;
+    }
 }

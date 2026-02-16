@@ -18,21 +18,37 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
 
     private static Map<String, DBFieldMapping> borrowFieldMapping = Map.ofEntries(
             Map.entry("userId", new DBFieldMapping<BorrowModel>(
-                    "user_id",
-                    "INT NOT NULL",
-                    (user, val) -> user.setUserId(Long.parseLong(val)),
-                    BorrowModel::getUserId,
-                    Types.INTEGER
+                            "user_id",
+                            "INT NOT NULL",
+                            (user, val) -> user.setUserId(Long.parseLong(val)),
+                            BorrowModel::getUserId,
+                            Types.INTEGER
                     )
             ),
             Map.entry("bookId", new DBFieldMapping<BorrowModel>(
                             "book_id",
-                            "INT NOT NULL UNIQUE",
+                            "INT NOT NULL",
                             (book, val) -> book.setBookId(Long.parseLong(val)),
                             BorrowModel::getBookId,
                             Types.INTEGER
                     )
-            )
+            ),
+            Map.entry("borrowedAt",
+                    new DBFieldMapping<BorrowModel>(
+                            "borrowed_at",
+                            "INT NOT NULL",
+                            (borrow, value) -> borrow.setBorrowedAtFromEpochDay(value),
+                            BorrowModel::getBorrowedAtEpochDay,
+                            Types.BIGINT
+                    )),
+            Map.entry("returnedAt",
+                    new DBFieldMapping<BorrowModel>(
+                            "returned_at",
+                            "INT",
+                            (borrow, value) -> borrow.setReturnedAtFromEpochDay(value),
+                            BorrowModel::getReturnedAtEpochDay,
+                            Types.BIGINT
+                    ))
     );
 
     protected BorrowRepositoryImpl() {
@@ -72,7 +88,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
         var st = connection.prepareStatement("select * from " + TABLE_NAME + " where book_id = ?");
         st.setLong(1, id);
         var result = st.executeQuery();
-        if(!result.next()) {
+        if (!result.next()) {
             return Optional.empty();
         }
         var f = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class);
