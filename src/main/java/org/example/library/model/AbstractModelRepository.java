@@ -256,6 +256,10 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         return fieldMappings.values().stream().toList();
     }
 
+    public Map<String, DBFieldMapping> getFieldMappingMap() {
+        return fieldMappings;
+    }
+
     @Override
     public List<DBFieldMapping> nonIdFieldMappings() {
         return fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN)).toList();

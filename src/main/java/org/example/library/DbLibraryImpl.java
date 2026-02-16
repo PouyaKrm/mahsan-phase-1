@@ -154,7 +154,11 @@ public class DbLibraryImpl implements Library {
 
     @Override
     public BaseLibraryModel[] getBorrowedItems() {
-        return new BaseLibraryModel[0];
+        try {
+            return bookRepository.getAllByStatus(Book.Status.BORROWED);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
