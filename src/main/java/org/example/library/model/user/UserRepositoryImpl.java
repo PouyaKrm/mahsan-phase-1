@@ -39,7 +39,9 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
 
     @Override
     public User save(User model) throws SQLException {
-        return super.save(model);
+        var u = super.save(model);
+        u.getBorrowedBooks().addAll(getUserBooks(u.getId()));
+        return u;
     }
 
     protected UserRepositoryImpl() {
@@ -58,7 +60,10 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
 
     @Override
     public User getOne(Long id) throws SQLException, ItemNotFoundException {
-        return getOne(id, User.class);
+        var u = getOne(id, User.class);
+        var bs = getUserBooks(u.getId());
+        u.getBorrowedBooks().addAll(bs);
+        return u;
     }
 
     public static synchronized UserRepositoryImpl getInstance() {
@@ -102,19 +107,27 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
         var st = connection.prepareStatement(MessageFormat.format("select {0}, {1} from {2} u join {3} bo on u.id=bo.user_id join {4} b on bo.book_id=b.id order by u.id", userColumns, bookColumns, TABLE_NAME, borrowRepository.getTableName(), bookRepository.getTableName()));
         var result = st.executeQuery();
         Set<User> users = new HashSet<>();
-
-        while (result.next()) {
-            var userFactory = ModelAbstractFactory.getInstance().getDefaultFactory(User.class);
-            var u = userFactory.populateFromDB(new User(), result, getFieldMappings(), getTableName());
-            var user = users.stream().filter(item -> item.getId().equals(u.getId())).findFirst().orElse(u);
-            var bookFactory = ModelAbstractFactory.getInstance().getDefaultFactory(Book.class);
-            var b = bookFactory.populateFromDB(new Book(), result, bookRepository.nonIdFieldMappings(), bookRepository.getTableName());
-            user.borrowedBooks.add(b);
-            users.add(user);
-        }
-        if (users.isEmpty()) {
+        if (!result.next()) {
             throw new IllegalStateException("query returned no data");
         }
-        return users.iterator().next();
+        var userFactory = ModelAbstractFactory.getInstance().getDefaultFactory(User.class);
+        var u = userFactory.populateFromDB(new User(), result, getFieldMappings(), getTableName());
+        var books = getUserBooks(u.getId());
+        u.getBorrowedBooks().addAll(books);
+        return u;
+    }
+
+    private List<Book> getUserBooks(Long userId) throws SQLException {
+        var bookColumns = bookRepository.getFieldMappings().stream().map(field -> "b." + field.dbFieldName() + " AS " + field.getColumnLabel(bookRepository.getTableName())).collect(Collectors.joining(", "));
+        var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} b join {2} bo on b.id=bo.book_id where bo.user_id=?", bookColumns, bookRepository.getTableName(), borrowRepository.getTableName()));
+        st.setObject(1, userId);
+        var result = st.executeQuery();
+        List<Book> books = new ArrayList<>();
+        var bookFactory = ModelAbstractFactory.getInstance().getDefaultFactory(Book.class);
+        while (result.next()) {
+            var b = bookFactory.populateFromDB(new Book(), result, bookRepository.getFieldMappings(), bookRepository.getTableName());
+            books.add(b);
+        }
+        return books;
     }
 }
