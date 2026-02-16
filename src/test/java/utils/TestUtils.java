@@ -1,5 +1,6 @@
 package utils;
 
+import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.article.Article;
 import org.example.library.model.library.magazine.Magazine;
@@ -67,6 +68,13 @@ public class TestUtils {
 
     public static Magazine createMagazine(String title) {
         return new Magazine(LocalDate.now(), title, "author", "conten");
+    }
+
+    public static BorrowModel createBorrow(Long userId, Long bookId) {
+        var b = new BorrowModel();
+        b.setUserId(userId);
+        b.setBookId(bookId);
+        return b;
     }
 
     public static Connection getTestDBConnection() throws SQLException {

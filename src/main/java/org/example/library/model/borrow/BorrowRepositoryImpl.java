@@ -7,6 +7,7 @@ import org.example.library.model.library.ModelAbstractFactory;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,7 +77,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
         }
         var f = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class);
         var model = new BorrowModel();
-        f.populateFromDB(model, result, getFieldMappings().values());
+        f.populateFromDB(model, result, getFieldMappings());
         return Optional.of(model);
     }
 }

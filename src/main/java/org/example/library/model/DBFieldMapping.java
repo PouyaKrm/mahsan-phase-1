@@ -15,8 +15,17 @@ public record DBFieldMapping<T extends BaseModel>(
         return dbFieldName + " " + properties;
     }
 
+    public String getColumnLabel(String tableName) {
+        return tableName + "_" + dbFieldName;
+    }
+
     public void setField(T model, ResultSet resultSet) throws SQLException {
         var val = resultSet.getString(dbFieldName);
+        readFromDB.accept(model, val);
+    }
+
+    public void setField(T model, ResultSet resultSet, String tableName) throws SQLException {
+        var val = resultSet.getString(getColumnLabel(tableName));
         readFromDB.accept(model, val);
     }
 
