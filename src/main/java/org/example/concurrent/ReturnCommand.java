@@ -1,6 +1,7 @@
 package org.example.concurrent;
 
 import org.example.constansts.LibraryOperationType;
+import org.example.exception.BaseException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.Library;
 
@@ -24,6 +25,8 @@ public class ReturnCommand extends LibraryCommand {
             library.returnItem(id);
         } catch (ItemNotFoundException e) {
             System.out.println(e.getMessage());
+        } catch (BaseException | SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

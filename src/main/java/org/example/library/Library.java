@@ -1,5 +1,6 @@
 package org.example.library;
 
+import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
@@ -8,6 +9,7 @@ import org.example.library.model.library.article.Article;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.magazine.Magazine;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface Library {
@@ -32,7 +34,7 @@ public interface Library {
 
     <T extends BaseLibraryModel> T getItem(Long id, Class<T> tClass) throws ItemNotFoundException;
 
-    BaseLibraryModel returnItem(Long id) throws ItemNotFoundException;
+    BaseLibraryModel returnItem(Long id) throws BaseException, SQLException;
 
     BaseLibraryModel[] getBorrowedItems();
 }

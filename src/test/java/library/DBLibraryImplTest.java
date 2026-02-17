@@ -1,5 +1,6 @@
 package library;
 
+import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.DbLibraryImpl;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import utils.TestUtils;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -249,8 +251,27 @@ public class DBLibraryImplTest {
         borrowRepository.save(borrow);
 
         dbLibrary.borrowItem(item.getId());
+    }
 
+    @Test
+    public void return_item_works_correctly() throws SQLException, BaseException {
+        var user  = TestUtils.createUser();
+        var userRepo = UserRepositoryImpl.getInstance();
+        userRepo.save(user);
+        var book = TestUtils.createBook();
+        book.setStatus(Book.Status.BORROWED);
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.save(book);
+        var borrow = new BorrowModel();
+        borrow.setUserId(user.getId());
+        borrow.setBookId(book.getId());
+        borrow.setBorrowedAt(LocalDate.now());
+        borrowRepository.save(borrow);
 
+        var b = bookRepository.returnBook(user.getId(), book.getId());
+
+        assertThat(b.getId()).isEqualTo(book.getId());
+        assertThat(b.getStatus()).isEqualTo(Book.Status.EXIST);
     }
 
 }

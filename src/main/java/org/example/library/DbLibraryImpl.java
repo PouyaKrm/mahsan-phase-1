@@ -1,5 +1,6 @@
 package org.example.library;
 
+import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.SearchDTO;
@@ -140,25 +141,10 @@ public class DbLibraryImpl implements Library {
     }
 
     @Override
-    public BaseLibraryModel returnItem(Long id) throws ItemNotFoundException {
-        return null;
+    public BaseLibraryModel returnItem(Long id) throws BaseException, SQLException {
+        var user = userRepository.getDefaultUser();
+        return bookRepository.returnBook(user.getId(), id);
     }
-
-
-//    public Book returnItem(Long userId, Long bookId) throws ItemNotFoundException {
-//        var st = MessageFormat.format("select ")
-//        var item = getItem(bookId, Book.class);
-//        if (!item.getStatus().equals(Book.Status.BORROWED)) {
-//            throw new ItemNotFoundException("item not found");
-//        }
-//        item.setStatus(Book.Status.EXIST);
-//        try {
-//            getRepository(Book.class).save(item);
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return item;
-//    }
 
 
     @Override
