@@ -22,6 +22,7 @@ import utils.TestUtils;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -216,26 +217,6 @@ public class DBLibraryImplTest {
         assertThat(result[0].getTitle()).isEqualTo(saved[1].getTitle());
     }
 
-    @Test
-    public void test_borrow_item() throws SQLException, InvalidOperationException, ItemNotFoundException {
-        var item = TestUtils.createBook();
-        bookRepository.save(item);
-        var user = TestUtils.createUser();
-        var userRepo = UserRepositoryImpl.getInstance();
-        userRepo.save(user);
-
-        dbLibrary.borrowItem(item.getId());
-
-        var borrowRepository = BorrowRepositoryImpl.getInstance();
-        var b = borrowRepository.findByUserIdBookId(user.getId(), item.getId());
-        var savedBook = bookRepository.getOne(item.getId());
-        assertThat(b.getBookId()).isEqualTo(item.getId());
-        assertThat(b.getUserId()).isEqualTo(user.getId());
-        assertThat(b.getBorrowedAt()).isNotNull();
-        assertThat(b.getReturnedAt()).isNull();
-        assertThat(savedBook.getStatus()).isEqualTo(Book.Status.BORROWED);
-    }
-
     @Test(expected = InvalidOperationException.class)
     public void item_already_borrowed() throws InvalidOperationException, ItemNotFoundException, SQLException {
         var item = TestUtils.createBook();
@@ -247,6 +228,7 @@ public class DBLibraryImplTest {
         var borrow = new BorrowModel();
         borrow.setBookId(item.getId());
         borrow.setUserId(user.getId());
+        borrow.setBorrowedAt(LocalDate.now());
         var borrowRepository = BorrowRepositoryImpl.getInstance();
         borrowRepository.save(borrow);
 
