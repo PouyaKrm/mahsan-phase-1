@@ -1,5 +1,7 @@
 package library.model.book;
 
+import org.example.exception.BaseException;
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
@@ -13,7 +15,9 @@ import org.junit.Test;
 import utils.TestUtils;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookRepositoryImplTest {
@@ -173,6 +177,55 @@ public class BookRepositoryImplTest {
         var foundBooks = bookRepository.getNonBorrowedBooksAtAll();
         assertThat(foundBooks.length).isEqualTo(1);
         assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
+    }
+
+    @Test
+    public void return_book_works_correctly() throws SQLException, BaseException {
+        var user  = TestUtils.createUser();
+        userRepository.save(user);
+        var book = TestUtils.createBook();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.save(book);
+        var borrow = new BorrowModel();
+        borrow.setUserId(user.getId());
+        borrow.setBookId(book.getId());
+        borrow.setBorrowedAt(LocalDate.now());
+        borrowRepository.save(borrow);
+
+        var b = bookRepository.returnBook(user.getId(), book.getId());
+        var foundBorrow = borrowRepository.getOne(borrow.getId());
+        assertThat(b.getId()).isEqualTo(book.getId());
+        assertThat(b.getStatus()).isEqualTo(Book.Status.EXIST);
+        assertThat(foundBorrow.getId()).isEqualTo(borrow.getId());
+        assertThat(foundBorrow.getReturnedAt()).isNotNull();
+    }
+
+    @Test(expected = ItemNotFoundException.class)
+    public void borrow_record_not_found() throws SQLException, BaseException {
+        var user  = TestUtils.createUser();
+        userRepository.save(user);
+        var book = TestUtils.createBook();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.save(book);
+
+        bookRepository.returnBook(user.getId(), book.getId());
+    }
+
+    @Test(expected = InvalidOperationException.class)
+    public void return_book_book_already_returned() throws SQLException, BaseException {
+        var user  = TestUtils.createUser();
+        userRepository.save(user);
+        var book = TestUtils.createBook();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.save(book);
+        var borrow = new BorrowModel();
+        borrow.setUserId(user.getId());
+        borrow.setBookId(book.getId());
+        borrow.setBorrowedAt(LocalDate.now());
+        borrow.setReturnedAt(LocalDate.now());
+        borrowRepository.save(borrow);
+
+        bookRepository.returnBook(user.getId(), book.getId());
     }
 
 }

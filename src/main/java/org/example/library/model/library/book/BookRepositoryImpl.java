@@ -1,8 +1,12 @@
 package org.example.library.model.library.book;
 
+import org.example.exception.BaseException;
+import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
+import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
+import org.example.library.model.borrow.BorrowTable;
 import org.example.library.model.library.AbstractLibraryRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
@@ -15,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implements BookRepository {
@@ -31,7 +36,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
 
     private static Map<String, DBFieldMapping<BaseModel>> createFieldMappings() {
         Map<String, DBFieldMapping<BaseModel>> fieldMappings = new HashMap<>();
-        var statusMaping =   DBFieldMapping.builder()
+        var statusMaping = DBFieldMapping.builder()
                 .dbFieldName(STATUS_FIELD_NAME)
                 .definition("VARCHAR(20) NOT NULL")
                 .tableName(TABLE_NAME)
@@ -42,7 +47,6 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
         fieldMappings.put(STATUS_FIELD_NAME, statusMaping);
         return fieldMappings;
     }
-
 
 
     public synchronized static BookRepositoryImpl getInstance(Connection connection) {
@@ -63,7 +67,6 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     public static BookRepositoryImpl getInstance() {
         return getInstance(JdbcConnection.getConnection());
     }
-
 
 
     @Override
@@ -101,6 +104,44 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
         var st = connection.prepareStatement(MessageFormat.format("select * from {0} left join {1} on {0}.id={1}.book_id where {1}.book_id is NULL", tableName, borrowRepository.getTableName()));
         var result = st.executeQuery();
         return createAllFromResultSet(result);
+    }
+
+    @Override
+    public Book returnBook(Long userId, Long bookId) throws SQLException, BaseException {
+        connection.setAutoCommit(false);
+        var builder = new StringBuilder();
+        builder.append("select ").append(borrowRepository.getAllColumnsSelectLabel())
+                .append(", ")
+                .append(getAllColumnsSelectLabel())
+                .append(" from ")
+                .append(borrowRepository.getTableName())
+                .append(" join ").append(tableName).append(" on ")
+                .append(borrowRepository.getTableName()).append(".").append(BorrowTable.BOOK_ID)
+                .append(" = ")
+                .append(tableName).append(".").append(ID_COLUMN)
+                .append(" where ")
+                .append(BorrowTable.USER_ID).append(" = ?")
+                .append(" and ")
+                .append(BorrowTable.BOOK_ID).append(" =?");
+
+        var st = connection.prepareStatement(builder.toString());
+        st.setObject(1, userId);
+        st.setObject(2, bookId);
+        var result = st.executeQuery();
+        if (!result.next()) {
+            throw new ItemNotFoundException("borrowed book not found");
+        }
+        var borrow = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class).populateFromDB(new BorrowModel(), result, borrowRepository.getFieldMappings());
+        if (Objects.nonNull(borrow.getReturnedAt())) {
+            throw new InvalidOperationException("book already returned");
+        }
+        borrow.setReturnedAt(LocalDate.now());
+        borrowRepository.save(borrow);
+        var book = ModelAbstractFactory.getInstance().getFactory(Book.class).populateFromDB(new Book(), result, getFieldMappings());
+        book.setStatus(Book.Status.EXIST);
+        save(book);
+        connection.commit();
+        return book;
     }
 
     private Book[] createAllFromResultSet(ResultSet result) throws SQLException {

@@ -17,7 +17,11 @@ public interface ModelRepository<T extends BaseModel> {
 
     List<DBFieldMapping> getFieldMappings();
 
+    Map<String, DBFieldMapping> getFieldMappingMap();
+
     List<DBFieldMapping> nonIdFieldMappings();
 
     String getTableName();
+
+    String getAllColumnsSelectLabel();
 }

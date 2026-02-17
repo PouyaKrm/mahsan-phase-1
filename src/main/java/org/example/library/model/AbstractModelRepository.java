@@ -18,7 +18,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final String tableName;
     private final ModelAbstractFactory modelFactory = ModelAbstractFactory.getInstance();
     private final DBFieldMapping idDBField;
-    private final String ID_COLUMN = "id";
+    protected final String ID_COLUMN = "id";
     private final Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
@@ -271,6 +271,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         return fieldMappings.values().stream().toList();
     }
 
+    @Override
     public Map<String, DBFieldMapping> getFieldMappingMap() {
         return fieldMappings;
     }
@@ -286,9 +287,12 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         return tableName;
     }
 
-    protected String getAllColumnsSelectLabel() {
-        return fieldMappings.values().stream().map(e -> e.dbFieldName() + " AS " + e.getColumnLabel()).collect(Collectors.joining(", "));
+    @Override
+    public String getAllColumnsSelectLabel() {
+        return fieldMappings.values().stream().map(e -> e.getDbFieldNameDotted() + " AS " + e.getColumnLabel()).collect(Collectors.joining(", "));
     }
+
+
 }
 
 

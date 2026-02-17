@@ -19,6 +19,7 @@ import org.example.library.model.user.UserRepository;
 import org.example.library.model.user.UserRepositoryImpl;
 
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -144,20 +145,20 @@ public class DbLibraryImpl implements Library {
     }
 
 
-    public Book returnItem(Long userId, Long bookId) throws ItemNotFoundException {
-        var item = getItem(bookId, Book.class);
-
-        if (!item.getStatus().equals(Book.Status.BORROWED)) {
-            throw new ItemNotFoundException("item not found");
-        }
-        item.setStatus(Book.Status.EXIST);
-        try {
-            getRepository(Book.class).save(item);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return item;
-    }
+//    public Book returnItem(Long userId, Long bookId) throws ItemNotFoundException {
+//        var st = MessageFormat.format("select ")
+//        var item = getItem(bookId, Book.class);
+//        if (!item.getStatus().equals(Book.Status.BORROWED)) {
+//            throw new ItemNotFoundException("item not found");
+//        }
+//        item.setStatus(Book.Status.EXIST);
+//        try {
+//            getRepository(Book.class).save(item);
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return item;
+//    }
 
 
     @Override

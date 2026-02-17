@@ -25,6 +25,10 @@ public class DBFieldMapping<T extends BaseModel> {
         return tableName + "_" + dbFieldName;
     }
 
+    public String getDbFieldNameDotted() {
+        return tableName + "." + dbFieldName;
+    }
+
     public void setField(T model, ResultSet resultSet) throws SQLException {
         var val = resultSet.getString(dbFieldName);
         fromDB.accept(model, val);
