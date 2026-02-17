@@ -1,12 +1,13 @@
 package org.example.library.model.library.magazine;
 
 import org.example.constansts.ResourceType;
+import org.example.library.Displayable;
 import org.example.library.model.BaseLibraryModel;
 
 import java.time.LocalDate;
 
 
-public class Magazine extends BaseLibraryModel {
+public class Magazine extends BaseLibraryModel implements Displayable {
 
     public Magazine(LocalDate pubDate, String title, String author, String content) {
         super(title, author, content, pubDate);

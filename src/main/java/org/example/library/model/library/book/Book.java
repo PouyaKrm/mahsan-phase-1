@@ -2,12 +2,13 @@ package org.example.library.model.library.book;
 
 import org.example.constansts.ResourceType;
 import org.example.exception.InvalidOperationException;
+import org.example.library.Displayable;
 import org.example.library.model.BaseLibraryModel;
 
 import java.time.LocalDate;
 
 
-public class Book extends BaseLibraryModel {
+public class Book extends BaseLibraryModel implements Displayable {
     private Status status;
 
     public Book() {
