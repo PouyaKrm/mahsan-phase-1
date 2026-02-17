@@ -101,13 +101,6 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     }
 
     @Override
-    public Book[] getNonBorrowedBooksAtAll() throws SQLException {
-        var st = connection.prepareStatement(MessageFormat.format("select * from {0} left join {1} on {0}.id={1}.book_id where {1}.book_id is NULL", tableName, borrowRepository.getTableName()));
-        var result = st.executeQuery();
-        return createAllFromResultSet(result);
-    }
-
-    @Override
     public Book returnBook(Long userId, Long bookId) throws SQLException, BaseException {
         connection.setAutoCommit(false);
         var builder = new StringBuilder();
@@ -189,6 +182,26 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
             aggregates.add(a);
         }
         return Utils.listToArray(aggregates, BorrowAggregate.class);
+    }
+
+    @Override
+    public Book[] getNonBorrowedBooks() throws SQLException {
+        var idField = getFieldMappingMap().get(ID_COLUMN);
+        var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
+        var str  = new StringBuilder("select ").append(getAllColumnsSelectLabel())
+                .append(" from ")
+                .append(tableName)
+                .append(" left join ")
+                .append(borrowRepository.getTableName())
+                .append(" on ")
+                .append(idField.getDbFieldNameDotted())
+                .append(" = ")
+                .append(bookIdField.getDbFieldNameDotted())
+                .append(" where ")
+                .append(bookIdField.getDbFieldNameDotted()).append(" is null ")
+                .toString();
+        var result = connection.prepareStatement(str).executeQuery();
+        return createAllFromResultSet(result);
     }
 
 

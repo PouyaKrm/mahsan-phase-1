@@ -17,7 +17,6 @@ import utils.TestUtils;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookRepositoryImplTest {
@@ -162,7 +161,7 @@ public class BookRepositoryImplTest {
 
 
     @Test
-    public void getNonBorrowedBooksAtAll_works_correctly() throws SQLException {
+    public void getNonBorrowedBooks_works_correctly() throws SQLException {
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
@@ -174,7 +173,7 @@ public class BookRepositoryImplTest {
         };
         borrowRepository.saveAll(borrows, BorrowModel.class);
 
-        var foundBooks = bookRepository.getNonBorrowedBooksAtAll();
+        var foundBooks = bookRepository.getNonBorrowedBooks();
         assertThat(foundBooks.length).isEqualTo(1);
         assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
     }
@@ -249,6 +248,22 @@ public class BookRepositoryImplTest {
         borrowRepository.save(borrow);
 
         bookRepository.returnBook(user.getId(), book.getId());
+    }
+
+    @Test
+    public void test_getNonBorrowedBooks_works_correctly() throws SQLException {
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(user.getId(), books[0].getId()), TestUtils.createBorrow(user.getId(), books[1].getId())};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+
+        var foundBooks = bookRepository.getNonBorrowedBooks();
+
+        assertThat(foundBooks.length).isEqualTo(1);
+        assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
     }
 
 }

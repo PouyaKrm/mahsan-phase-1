@@ -10,7 +10,7 @@ public interface BookRepository extends LibraryModelRepository<Book> {
 
     Book[] getAllByStatus(Book.Status status) throws SQLException;
 
-    Book[] getNonBorrowedBooksAtAll() throws SQLException;
+    Book[] getNonBorrowedBooks() throws SQLException;
 
     Book returnBook(Long userId, Long bookId) throws SQLException, BaseException;
 

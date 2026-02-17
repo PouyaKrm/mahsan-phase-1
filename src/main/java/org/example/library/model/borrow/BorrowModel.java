@@ -14,6 +14,11 @@ public class BorrowModel extends BaseModel {
     private LocalDate borrowedAt;
     private LocalDate returnedAt;
 
+    public static final String BOOK_ID_FIELD_NAME = "bookId";
+    public static final String USER_ID_FIELD_NAME = "userId";
+    public static final String RETURNED_AT_FIELD_NAME = "returnedAt";
+    public static final String BORROWED_AT_FIELD_NAME = "borrowedAt";
+
     public Long getBorrowedAtEpochDay() {
         return Objects.nonNull(borrowedAt) ? borrowedAt.toEpochDay() : null;
     }
