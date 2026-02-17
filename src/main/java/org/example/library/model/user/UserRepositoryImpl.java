@@ -4,6 +4,7 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.UserBorrows;
 import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
+import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.borrow.BorrowTable;
@@ -71,7 +72,7 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
 
     @Override
     public UserBorrows[] getUserBorrowsCount() throws SQLException {
-        var userId = borrowRepository.getFieldMappingMap().get("userId");
+        var userId = borrowRepository.getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
         var id = getFieldMappingMap().get("id");
         final var countColumn = "user_count";
         var str = new StringBuilder()

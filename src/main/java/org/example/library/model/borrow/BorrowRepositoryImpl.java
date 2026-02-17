@@ -4,6 +4,7 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.library.ModelAbstractFactory;
+import org.example.library.model.library.book.Book;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -17,7 +18,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
     private static BorrowRepositoryImpl instance;
 
     private static Map<String, DBFieldMapping> borrowFieldMapping = Map.ofEntries(
-            Map.entry("userId",
+            Map.entry(BorrowModel.USER_ID_FIELD_NAME,
                     DBFieldMapping.<BorrowModel>builder()
                             .tableName(BorrowTable.TABLE_NAME)
                                 .dbFieldName(BorrowTable.USER_ID)
@@ -27,7 +28,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .dbType(Types.INTEGER)
                             .build()
             ),
-            Map.entry("bookId",
+            Map.entry(BorrowModel.BOOK_ID_FIELD_NAME,
                     DBFieldMapping.<BorrowModel>builder()
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.BOOK_ID)
@@ -37,7 +38,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .dbType(Types.INTEGER)
                             .build()
             ),
-            Map.entry("borrowedAt",
+            Map.entry(BorrowModel.BORROWED_AT_FIELD_NAME,
                     DBFieldMapping.<BorrowModel>builder()
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.BORROWED_AT)
@@ -47,7 +48,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .dbType(Types.BIGINT)
                             .build()
             ),
-            Map.entry("returnedAt",
+            Map.entry(BorrowModel.RETURNED_AT_FIELD_NAME,
                     DBFieldMapping.<BorrowModel>builder()
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.RETURNED_AT)
@@ -107,8 +108,8 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
 
     @Override
     public BorrowModel findByUserIdBookId(Long userId, Long bookId) throws SQLException, ItemNotFoundException {
-        var userIdField = getFieldMappingMap().get("userId");
-        var bookIdField = getFieldMappingMap().get("bookId");
+        var userIdField = getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
+        var bookIdField = getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
         var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} where {2}=? and {3}=?", getAllColumnsSelectLabel(), tableName, userIdField.dbFieldName(), bookIdField.dbFieldName()));
         st.setObject(1, userId);
         st.setObject(2, bookId);

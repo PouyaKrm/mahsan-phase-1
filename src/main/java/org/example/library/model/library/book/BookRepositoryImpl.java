@@ -151,7 +151,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     @Override
     public BorrowAggregate[] getBorrowedBooksCount(int maxResult) throws SQLException {
         var max = maxResult > 0 ? maxResult : 3;
-        var bookId = borrowRepository.getFieldMappingMap().get("bookId");
+        var bookId = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
         var idField = getFieldMappingMap().get("id");
         final String countColumn = "count_result";
         var builder = new StringBuilder();
@@ -203,6 +203,5 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
         var result = connection.prepareStatement(str).executeQuery();
         return createAllFromResultSet(result);
     }
-
 
 }
