@@ -42,7 +42,7 @@ public class UserRepositoryImplTest {
 
     @Test
     public void test_getUserBorrowsCount_works_correctly() throws SQLException {
-        var users = new User[]{TestUtils.createUser("u1"), TestUtils.createUser("u2")};
+        var users = new User[]{TestUtils.createUser("u1"), TestUtils.createUser("u2"), TestUtils.createUser("u3")};
         userRepository.saveAll(users, User.class);
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
@@ -51,10 +51,12 @@ public class UserRepositoryImplTest {
 
         var aggregate = userRepository.getUserBorrowsCount();
 
-        assertThat(aggregate.length).isEqualTo(2);
-        assertThat(aggregate[0].count()).isEqualTo(1);
-        assertThat(aggregate[0].user().getId()).isEqualTo(users[1].getId());
-        assertThat(aggregate[1].count()).isEqualTo(2);
-        assertThat(aggregate[1].user().getId()).isEqualTo(users[0].getId());
+        assertThat(aggregate.length).isEqualTo(3);
+        assertThat(aggregate[0].count()).isEqualTo(0);
+        assertThat(aggregate[0].user().getId()).isEqualTo(users[2].getId());
+        assertThat(aggregate[1].count()).isEqualTo(1);
+        assertThat(aggregate[1].user().getId()).isEqualTo(users[1].getId());
+        assertThat(aggregate[2].count()).isEqualTo(2);
+        assertThat(aggregate[2].user().getId()).isEqualTo(users[0].getId());
     }
 }
