@@ -53,12 +53,12 @@ public class BookRepositoryImplTest {
         var book1 = TestUtils.createBook("title1");
         var book2 = TestUtils.createBook("title2");
 
-       var result = bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
+        var result = bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
 
-       assertThat(result).hasSize(2);
-       assertThat(result).containsExactly(book1, book2);
-       assertThat(result[0].getTitle()).isEqualTo(book1.getTitle());
-       assertThat(result[1].getTitle()).isEqualTo(book2.getTitle());
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(book1, book2);
+        assertThat(result[0].getTitle()).isEqualTo(book1.getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(book2.getTitle());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class BookRepositoryImplTest {
     @Test
     public void getNonBorrowedBooksAtAll_works_correctly() throws SQLException {
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
-        var books= new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
         var user = TestUtils.createUser();
         userRepository.save(user);
@@ -177,6 +177,29 @@ public class BookRepositoryImplTest {
         var foundBooks = bookRepository.getNonBorrowedBooksAtAll();
         assertThat(foundBooks.length).isEqualTo(1);
         assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
+    }
+
+    @Test
+    public void getBorrowedBooksCount_works_correctly() throws SQLException {
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{
+                TestUtils.createBorrow(user.getId(), books[0].getId(), LocalDate.now()),
+                TestUtils.createBorrow(user.getId(), books[0].getId()),
+                TestUtils.createBorrow(user.getId(), books[1].getId())
+        };
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+
+        var result = bookRepository.getBorrowedBooksCount(3);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].count()).isEqualTo(2);
+        assertThat(result[0].book().getId()).isEqualTo(books[0].getId());
+        assertThat(result[1].count()).isEqualTo(1);
+        assertThat(result[1].book().getId()).isEqualTo(books[1].getId());
     }
 
     @Test

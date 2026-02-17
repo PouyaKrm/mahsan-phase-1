@@ -79,6 +79,15 @@ public class TestUtils {
         return b;
     }
 
+    public static BorrowModel createBorrow(Long userId, Long bookId, LocalDate returnedAt) {
+        var b = new BorrowModel();
+        b.setUserId(userId);
+        b.setBookId(bookId);
+        b.setBorrowedAt(LocalDate.now());
+        b.setReturnedAt(returnedAt);
+        return b;
+    }
+
     public static Connection getTestDBConnection() throws SQLException {
         var random = new Random();
         var url = MessageFormat.format("jdbc:h2:mem:testdb_{0};MODE=MYSQL", random.nextInt(100, 1000));

@@ -11,6 +11,7 @@ import org.example.library.model.library.AbstractLibraryRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.library.ModelAbstractFactory;
+import org.example.library.model.library.book.dto.BorrowAggregate;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
@@ -21,6 +22,7 @@ import java.sql.Types;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implements BookRepository {
 
@@ -153,4 +155,42 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
         }
         return Utils.listToArray(books, Book.class);
     }
+
+    @Override
+    public BorrowAggregate[] getBorrowedBooksCount(int maxResult) throws SQLException {
+        var max = maxResult > 0 ? maxResult : 3;
+        var bookId = borrowRepository.getFieldMappingMap().get("bookId");
+        var idField = getFieldMappingMap().get("id");
+        final String countColumn = "count_result";
+        var builder = new StringBuilder();
+        builder
+                .append("select ")
+                .append("count(*) as ").append(countColumn)
+                .append(", ")
+                .append(getAllColumnsSelectLabel())
+                .append(" from ")
+                .append(BorrowTable.TABLE_NAME)
+                .append(" join ")
+                .append(tableName)
+                .append(" on ")
+                .append(bookId.getDbFieldNameDotted())
+                .append(" = ")
+                .append(idField.getDbFieldNameDotted())
+                .append(" group by ").append(bookId.getDbFieldNameDotted())
+                .append(" limit ?");
+
+        var st = connection.prepareStatement(builder.toString());
+        st.setObject(1, max);
+        var result = st.executeQuery();
+        List<BorrowAggregate> aggregates = new ArrayList<>();
+        var f = ModelAbstractFactory.getInstance().getDefaultFactory(Book.class);
+        while (result.next()) {
+            var b = f.populateFromDB(new Book(), result, getFieldMappings());
+            var a = new BorrowAggregate(result.getLong(1), b);
+            aggregates.add(a);
+        }
+        return Utils.listToArray(aggregates, BorrowAggregate.class);
+    }
+
+
 }
