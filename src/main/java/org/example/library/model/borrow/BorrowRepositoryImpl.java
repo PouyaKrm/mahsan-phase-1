@@ -7,6 +7,7 @@ import org.example.library.model.library.ModelAbstractFactory;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
 
@@ -102,5 +103,22 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
         var model = new BorrowModel();
         f.populateFromDB(model, result, getFieldMappings());
         return Optional.of(model);
+    }
+
+    @Override
+    public BorrowModel findByUserIdBookId(Long userId, Long bookId) throws SQLException, ItemNotFoundException {
+        var userIdField = getFieldMappingMap().get("userId");
+        var bookIdField = getFieldMappingMap().get("bookId");
+        var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} where {2}=? and {3}=?", getAllColumnsSelectLabel(), tableName, userIdField.dbFieldName(), bookIdField.dbFieldName()));
+        st.setObject(1, userId);
+        st.setObject(2, bookId);
+       var result = st.executeQuery();
+        if (!result.next()) {
+            throw  new ItemNotFoundException("book or is not borrowed");
+        }
+        var f = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class);
+        var model = new BorrowModel();
+        f.populateFromDB(model, result, getFieldMappings());
+        return model;
     }
 }

@@ -4,6 +4,7 @@ import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.DbLibraryImpl;
 import org.example.library.model.borrow.BorrowModel;
+import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.article.Article;
 import org.example.library.model.library.article.ArticleRepositoryImpl;
@@ -28,13 +29,13 @@ public class DBLibraryImplTest {
     private final MagazineRepositoryImpl magazineRepository = MagazineRepositoryImpl.getInstance();
     private final BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
     private final ArticleRepositoryImpl articleRepository = ArticleRepositoryImpl.getInstance();
-
-
+    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
     @Before
     public void cleanUp() throws SQLException {
         magazineRepository.removeAll();
         bookRepository.removeAll();
         articleRepository.removeAll();
+        borrowRepository.removeAll();
     }
 
 
@@ -217,19 +218,19 @@ public class DBLibraryImplTest {
     public void test_borrow_item() throws SQLException, InvalidOperationException, ItemNotFoundException {
         var item = TestUtils.createBook();
         bookRepository.save(item);
-        var user = new User();
-        user.setName("username");
+        var user = TestUtils.createUser();
         var userRepo = UserRepositoryImpl.getInstance();
         userRepo.save(user);
 
         dbLibrary.borrowItem(item.getId());
 
         var borrowRepository = BorrowRepositoryImpl.getInstance();
-        var b = borrowRepository.getAll();
+        var b = borrowRepository.findByUserIdBookId(user.getId(), item.getId());
         var savedBook = bookRepository.getOne(item.getId());
-        assertThat(b.length).isEqualTo(1);
-        assertThat(b[0].getBookId()).isEqualTo(item.getId());
-        assertThat(b[0].getUserId()).isEqualTo(user.getId());
+        assertThat(b.getBookId()).isEqualTo(item.getId());
+        assertThat(b.getUserId()).isEqualTo(user.getId());
+        assertThat(b.getBorrowedAt()).isNotNull();
+        assertThat(b.getReturnedAt()).isNull();
         assertThat(savedBook.getStatus()).isEqualTo(Book.Status.BORROWED);
     }
 

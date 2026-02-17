@@ -12,12 +12,4 @@ public class DefaultModelFactoryImpl<T extends BaseModel> implements ModelFactor
         }
         return model;
     }
-
-    @Override
-    public T populateFromDB(T model, ResultSet resultSet, Collection<DBFieldMapping> fieldMappings, String tableName) throws SQLException {
-        for (var field : fieldMappings) {
-            field.setField(model, resultSet, tableName);
-        }
-        return model;
-    }
 }

@@ -285,6 +285,10 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     public String getTableName() {
         return tableName;
     }
+
+    protected String getAllColumnsSelectLabel() {
+        return fieldMappings.values().stream().map(e -> e.dbFieldName() + " AS " + e.getColumnLabel()).collect(Collectors.joining(", "));
+    }
 }
 
 

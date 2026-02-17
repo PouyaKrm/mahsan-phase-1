@@ -19,6 +19,7 @@ import org.example.library.model.user.UserRepository;
 import org.example.library.model.user.UserRepositoryImpl;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +116,7 @@ public class DbLibraryImpl implements Library {
             }
             var user = userRepository.getDefaultUser();
             var b = new BorrowModel();
+            b.setBorrowedAt(LocalDate.now());
             var book = bookRepository.getOne(id);
             book.setStatus(Book.Status.BORROWED);
             b.setBookId(id);
@@ -137,8 +139,14 @@ public class DbLibraryImpl implements Library {
     }
 
     @Override
-    public Book returnItem(Long id) throws ItemNotFoundException {
-        var item = getItem(id, Book.class);
+    public BaseLibraryModel returnItem(Long id) throws ItemNotFoundException {
+        return null;
+    }
+
+
+    public Book returnItem(Long userId, Long bookId) throws ItemNotFoundException {
+        var item = getItem(bookId, Book.class);
+
         if (!item.getStatus().equals(Book.Status.BORROWED)) {
             throw new ItemNotFoundException("item not found");
         }

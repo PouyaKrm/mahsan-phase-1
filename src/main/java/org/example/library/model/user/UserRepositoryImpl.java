@@ -102,30 +102,21 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
 
     @Override
     public User getDefaultUser() throws SQLException {
-        var bookColumns = bookRepository.getFieldMappings().stream().map(field -> "b." + field.dbFieldName() + " AS " + field.getColumnLabel(bookRepository.getTableName())).collect(Collectors.joining(", "));
-        var userColumns = getFieldMappings().stream().map(field -> "u." + field.dbFieldName() + " AS " + field.getColumnLabel(getTableName())).collect(Collectors.joining(", "));
-        var st = connection.prepareStatement(MessageFormat.format("select {0}, {1} from {2} u join {3} bo on u.id=bo.user_id join {4} b on bo.book_id=b.id order by u.id", userColumns, bookColumns, TABLE_NAME, borrowRepository.getTableName(), bookRepository.getTableName()));
-        var result = st.executeQuery();
-        Set<User> users = new HashSet<>();
-        if (!result.next()) {
-            throw new IllegalStateException("query returned no data");
-        }
-        var userFactory = ModelAbstractFactory.getInstance().getDefaultFactory(User.class);
-        var u = userFactory.populateFromDB(new User(), result, getFieldMappings(), getTableName());
-        var books = getUserBooks(u.getId());
-        u.getBorrowedBooks().addAll(books);
-        return u;
+        var user = getAll()[0];
+        var books = getUserBooks(user.getId());
+        user.getBorrowedBooks().addAll(books);
+        return user;
     }
 
     private List<Book> getUserBooks(Long userId) throws SQLException {
-        var bookColumns = bookRepository.getFieldMappings().stream().map(field -> "b." + field.dbFieldName() + " AS " + field.getColumnLabel(bookRepository.getTableName())).collect(Collectors.joining(", "));
+        var bookColumns = bookRepository.getFieldMappings().stream().map(field -> "b." + field.dbFieldName() + " AS " + field.getColumnLabel()).collect(Collectors.joining(", "));
         var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} b join {2} bo on b.id=bo.book_id where bo.user_id=?", bookColumns, bookRepository.getTableName(), borrowRepository.getTableName()));
         st.setObject(1, userId);
         var result = st.executeQuery();
         List<Book> books = new ArrayList<>();
         var bookFactory = ModelAbstractFactory.getInstance().getDefaultFactory(Book.class);
         while (result.next()) {
-            var b = bookFactory.populateFromDB(new Book(), result, bookRepository.getFieldMappings(), bookRepository.getTableName());
+            var b = bookFactory.populateFromDB(new Book(), result, bookRepository.getFieldMappings());
             books.add(b);
         }
         return books;

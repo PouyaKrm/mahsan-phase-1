@@ -13,4 +13,5 @@ public interface BorrowRepository extends ModelRepository<BorrowModel> {
     Optional<BorrowModel> findByBookId(Long id) throws SQLException, ItemNotFoundException;
 
 
+    BorrowModel findByUserIdBookId(Long userId, Long bookId) throws SQLException, ItemNotFoundException;
 }
