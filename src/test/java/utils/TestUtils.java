@@ -101,4 +101,10 @@ public class TestUtils {
         u.setName("name");
         return u;
     }
+
+    public static User createUser(String username) {
+        var u = new User();
+        u.setName(username);
+        return u;
+    }
 }

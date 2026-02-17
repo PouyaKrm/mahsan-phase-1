@@ -1,4 +1,4 @@
-package org.example.library.model.library.book.dto;
+package org.example.library.dto;
 
 import org.example.library.Displayable;
 import org.example.library.model.library.book.Book;

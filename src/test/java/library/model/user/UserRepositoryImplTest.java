@@ -39,4 +39,22 @@ public class UserRepositoryImplTest {
 
         assertThat(user.getBorrowedBooks().size()).isEqualTo(2);
     }
+
+    @Test
+    public void test_getUserBorrowsCount_works_correctly() throws SQLException {
+        var users = new User[]{TestUtils.createUser("u1"), TestUtils.createUser("u2")};
+        userRepository.saveAll(users, User.class);
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        bookRepository.saveAll(books, Book.class);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(users[0].getId(), books[0].getId()), TestUtils.createBorrow(users[0].getId(), books[1].getId()), TestUtils.createBorrow(users[1].getId(), books[2].getId())};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+
+        var aggregate = userRepository.getUserBorrowsCount();
+
+        assertThat(aggregate.length).isEqualTo(2);
+        assertThat(aggregate[0].count()).isEqualTo(1);
+        assertThat(aggregate[0].user().getId()).isEqualTo(users[1].getId());
+        assertThat(aggregate[1].count()).isEqualTo(2);
+        assertThat(aggregate[1].user().getId()).isEqualTo(users[0].getId());
+    }
 }

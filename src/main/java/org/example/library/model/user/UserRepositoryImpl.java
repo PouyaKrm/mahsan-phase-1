@@ -1,14 +1,17 @@
 package org.example.library.model.user;
 
 import org.example.exception.ItemNotFoundException;
+import org.example.library.dto.UserBorrows;
 import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
+import org.example.library.model.borrow.BorrowTable;
 import org.example.library.model.library.ModelAbstractFactory;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.book.BookRepository;
 import org.example.library.model.library.book.BookRepositoryImpl;
+import org.example.utils.Utils;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -64,6 +67,36 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
         var bs = getUserBooks(u.getId());
         u.getBorrowedBooks().addAll(bs);
         return u;
+    }
+
+    @Override
+    public UserBorrows[] getUserBorrowsCount() throws SQLException {
+        var userId = borrowRepository.getFieldMappingMap().get("userId");
+        var id = getFieldMappingMap().get("id");
+        final var countColumn = "user_count";
+        var str = new StringBuilder()
+                .append("select count(*) as ").append(countColumn).append(", ").append(getAllColumnsSelectLabel())
+                .append(" from ").append(BorrowTable.TABLE_NAME)
+                .append(" join ")
+                .append(tableName)
+                .append(" on ")
+                .append(userId.getDbFieldNameDotted())
+                .append(" = ")
+                .append(id.getDbFieldNameDotted())
+                .append(" group by ")
+                .append(getFieldMappings().stream().map(DBFieldMapping::getColumnLabel).collect(Collectors.joining(", ")))
+                .append(" order by ")
+                .append(countColumn)
+                .toString();
+        var result = connection.prepareStatement(str).executeQuery();
+        List<UserBorrows> borrows = new ArrayList<>();
+        while (result.next()) {
+            var user = ModelAbstractFactory.getInstance().getDefaultFactory(User.class).populateFromDB(new User(), result, getFieldMappings());
+            var count = result.getLong(1);
+            var borrow = new UserBorrows(count, user);
+            borrows.add(borrow);
+        }
+        return Utils.listToArray(borrows, UserBorrows.class);
     }
 
     public static synchronized UserRepositoryImpl getInstance() {

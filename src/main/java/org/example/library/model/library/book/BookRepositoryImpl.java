@@ -11,7 +11,7 @@ import org.example.library.model.library.AbstractLibraryRepository;
 import org.example.library.model.BaseModel;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.library.ModelAbstractFactory;
-import org.example.library.model.library.book.dto.BorrowAggregate;
+import org.example.library.dto.BorrowAggregate;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
@@ -22,7 +22,6 @@ import java.sql.Types;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implements BookRepository {
 
