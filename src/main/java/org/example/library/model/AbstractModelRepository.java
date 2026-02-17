@@ -17,19 +17,33 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final Connection connection;
     protected final String tableName;
     private final ModelAbstractFactory modelFactory = ModelAbstractFactory.getInstance();
-    private final DBFieldMapping idDBField = new DBFieldMapping<BaseModel>("id", "INT NOT NULL AUTO_INCREMENT PRIMARY KEY", (BaseModel model, String id) -> model.setId(Long.parseLong(id)), BaseModel::getId, Types.BIGINT);
+    private final DBFieldMapping idDBField;
     private final String ID_COLUMN = "id";
     private final Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = JdbcConnection.getConnection();
+        idDBField = createIdField();
         addMapping(fieldMappings);
     }
+
+    private DBFieldMapping createIdField() {
+        return DBFieldMapping.builder()
+                .dbFieldName("id")
+                .tableName(tableName)
+                .definition("INT NOT NULL AUTO_INCREMENT PRIMARY KEY")
+                .fromDB((BaseModel model, String id) -> model.setId(Long.parseLong(id)))
+                .toDB(BaseModel::getId)
+                .dbType(Types.BIGINT)
+                .build();
+    }
+
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
         this.tableName = tableName;
         this.connection = connection;
+        idDBField = createIdField();
         addMapping(fieldMappings);
     }
 
@@ -37,6 +51,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected AbstractModelRepository(String tableName, Connection connection, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = connection;
+        idDBField = createIdField();
         addMapping(fieldMappings);
     }
 

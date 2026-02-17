@@ -22,6 +22,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
 
     private static BookRepositoryImpl instance;
     private static final String STATUS_FIELD_NAME = "status";
+    private static final String TABLE_NAME = "books";
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
 
     protected BookRepositoryImpl(Connection connection) {
@@ -30,13 +31,15 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
 
     private static Map<String, DBFieldMapping<BaseModel>> createFieldMappings() {
         Map<String, DBFieldMapping<BaseModel>> fieldMappings = new HashMap<>();
-        fieldMappings.put(STATUS_FIELD_NAME,
-                new DBFieldMapping<>(
-                        STATUS_FIELD_NAME,
-                        "VARCHAR(20) NOT NULL",
-                        (BaseModel model, String val) -> ((Book) model).setStatus(Book.Status.valueOf(val)),
-                        model -> ((Book) model).getStatus().toString(), Types.VARCHAR)
-        );
+        var statusMaping =   DBFieldMapping.builder()
+                .dbFieldName(STATUS_FIELD_NAME)
+                .definition("VARCHAR(20) NOT NULL")
+                .tableName(TABLE_NAME)
+                .dbType(Types.VARCHAR)
+                .fromDB((BaseModel model, String val) -> ((Book) model).setStatus(Book.Status.valueOf(val)))
+                .toDB(model -> ((Book) model).getStatus().toString()
+                ).build();
+        fieldMappings.put(STATUS_FIELD_NAME, statusMaping);
         return fieldMappings;
     }
 

@@ -3,7 +3,6 @@ package org.example.library.model.user;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
-import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.ModelAbstractFactory;
@@ -11,7 +10,6 @@ import org.example.library.model.library.book.Book;
 import org.example.library.model.library.book.BookRepository;
 import org.example.library.model.library.book.BookRepositoryImpl;
 
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
@@ -27,14 +25,16 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
     private static final String TABLE_NAME = "users";
     private static final Map<String, DBFieldMapping> FIELD_MAPPING = Map.ofEntries(
             Map.entry("name",
-                    new DBFieldMapping<>(
-                            "name",
-                            "VARCHAR(40) NOT NULL",
-                            User::setName,
-                            User::getName,
-                            Types.VARCHAR
-                    )
+                    DBFieldMapping.<User>builder().
+                            tableName(TABLE_NAME)
+                            .dbFieldName("name")
+                            .definition("VARCHAR(40) NOT NULL")
+                            .fromDB(User::setName)
+                            .toDB(User::getName)
+                            .dbType(Types.VARCHAR)
+                            .build()
             )
+
     );
 
     @Override

@@ -7,7 +7,6 @@ import org.example.library.model.library.ModelAbstractFactory;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,38 +16,46 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
     private static BorrowRepositoryImpl instance;
 
     private static Map<String, DBFieldMapping> borrowFieldMapping = Map.ofEntries(
-            Map.entry("userId", new DBFieldMapping<BorrowModel>(
-                            "user_id",
-                            "INT NOT NULL",
-                            (user, val) -> user.setUserId(Long.parseLong(val)),
-                            BorrowModel::getUserId,
-                            Types.INTEGER
-                    )
+            Map.entry("userId",
+                    DBFieldMapping.<BorrowModel>builder()
+                            .tableName(TABLE_NAME)
+                            .dbFieldName("user_id")
+                            .definition("INT NOT NULL")
+                            .fromDB((user, val) -> user.setUserId(Long.parseLong(val)))
+                            .toDB(BorrowModel::getUserId)
+                            .dbType(Types.INTEGER)
+                            .build()
             ),
-            Map.entry("bookId", new DBFieldMapping<BorrowModel>(
-                            "book_id",
-                            "INT NOT NULL",
-                            (book, val) -> book.setBookId(Long.parseLong(val)),
-                            BorrowModel::getBookId,
-                            Types.INTEGER
-                    )
+            Map.entry("bookId",
+                    DBFieldMapping.<BorrowModel>builder()
+                            .tableName(TABLE_NAME)
+                            .dbFieldName("book_id")
+                            .definition("INT NOT NULL")
+                            .fromDB((book, val) -> book.setBookId(Long.parseLong(val)))
+                            .toDB(BorrowModel::getBookId)
+                            .dbType(Types.INTEGER)
+                            .build()
             ),
             Map.entry("borrowedAt",
-                    new DBFieldMapping<BorrowModel>(
-                            "borrowed_at",
-                            "INT NOT NULL",
-                            (borrow, value) -> borrow.setBorrowedAtFromEpochDay(value),
-                            BorrowModel::getBorrowedAtEpochDay,
-                            Types.BIGINT
-                    )),
+                    DBFieldMapping.<BorrowModel>builder()
+                            .tableName(TABLE_NAME)
+                            .dbFieldName("borrowed_at")
+                            .definition("INT NOT NULL")
+                            .fromDB((borrow, value) -> borrow.setBorrowedAtFromEpochDay(value))
+                            .toDB(BorrowModel::getBorrowedAtEpochDay)
+                            .dbType(Types.BIGINT)
+                            .build()
+            ),
             Map.entry("returnedAt",
-                    new DBFieldMapping<BorrowModel>(
-                            "returned_at",
-                            "INT",
-                            (borrow, value) -> borrow.setReturnedAtFromEpochDay(value),
-                            BorrowModel::getReturnedAtEpochDay,
-                            Types.BIGINT
-                    ))
+                    DBFieldMapping.<BorrowModel>builder()
+                            .tableName(TABLE_NAME)
+                            .dbFieldName("returned_at")
+                            .definition("INT")
+                            .fromDB((borrow, value) -> borrow.setReturnedAtFromEpochDay(value))
+                            .toDB(BorrowModel::getReturnedAtEpochDay)
+                            .dbType(Types.BIGINT)
+                            .build()
+            )
     );
 
     protected BorrowRepositoryImpl() {

@@ -15,13 +15,13 @@ import java.util.Objects;
 
 public abstract class AbstractLibraryRepository<T extends BaseLibraryModel> extends AbstractModelRepository<T> {
 
-    private static Map<String, DBFieldMapping> getMappings(Map<String, DBFieldMapping<BaseModel>> added) {
+    private static Map<String, DBFieldMapping> getMappings(Map<String, DBFieldMapping<BaseModel>> added, String tableName) {
         Map<String, DBFieldMapping> mappings = new HashMap<>();
-        mappings.put("title", new DBFieldMapping<BaseLibraryModel>("title", "VARCHAR(100) NOT NULL", BaseLibraryModel::setTitle, BaseLibraryModel::getTitle, Types.VARCHAR));
-        mappings.put("author", new DBFieldMapping<>("author", "VARCHAR(100) NOT NULL", BaseLibraryModel::setAuthor, BaseLibraryModel::getAuthor, Types.VARCHAR));
-        mappings.put("content", new DBFieldMapping<>("content", "TEXT NOT NULL", BaseLibraryModel::setContent, BaseLibraryModel::getContent, Types.VARCHAR));
-        mappings.put("pubDate", new DBFieldMapping<>("pub_date", "INT UNSIGNED NOT NULL", (BaseLibraryModel model, String value) -> model.setPubDate(parseDate(value)), BaseLibraryModel::getPubDateEpochDay, Types.BIGINT));
-        mappings.put("borrowDate", new DBFieldMapping<>("borrow_date", "INT UNSIGNED", (BaseLibraryModel model, String value) -> model.setBorrowDate(parseDate(value)), BaseLibraryModel::getBorrowDateEpochDay, Types.BIGINT));
+        mappings.put("title",  DBFieldMapping.<BaseLibraryModel>builder().tableName(tableName).dbFieldName("title").definition("VARCHAR(100) NOT NULL").fromDB(BaseLibraryModel::setTitle).toDB(BaseLibraryModel::getTitle).dbType( Types.VARCHAR).build());
+        mappings.put("author", DBFieldMapping.<BaseLibraryModel>builder().tableName(tableName).dbFieldName("author").definition("VARCHAR(100) NOT NULL").fromDB(BaseLibraryModel::setAuthor).toDB(BaseLibraryModel::getAuthor).dbType(Types.VARCHAR).build());
+        mappings.put("content", DBFieldMapping.<BaseLibraryModel>builder().tableName(tableName).dbFieldName("content").definition("TEXT NOT NULL").fromDB(BaseLibraryModel::setContent).toDB(BaseLibraryModel::getContent).dbType(Types.VARCHAR).build());
+        mappings.put("pubDate", DBFieldMapping.<BaseLibraryModel>builder().tableName(tableName).dbFieldName("pub_date").definition("INT UNSIGNED NOT NULL").fromDB((BaseLibraryModel model, String value) -> model.setPubDate(parseDate(value))).toDB(BaseLibraryModel::getPubDateEpochDay).dbType(Types.BIGINT).build());
+        mappings.put("borrowDate", DBFieldMapping.<BaseLibraryModel>builder().tableName(tableName).dbFieldName("borrow_date").definition("INT UNSIGNED").fromDB((BaseLibraryModel model, String value) -> model.setBorrowDate(parseDate(value))).toDB(BaseLibraryModel::getBorrowDateEpochDay).dbType(Types.BIGINT).build());
         for (var mapping : added.entrySet()) {
             if (mappings.containsKey(mapping.getKey())) {
                 mappings.replace(mapping.getKey(), mapping.getValue());
@@ -40,18 +40,18 @@ public abstract class AbstractLibraryRepository<T extends BaseLibraryModel> exte
     }
 
     public AbstractLibraryRepository(String tableName, HashMap<String, DBFieldMapping<BaseModel>> fieldMappings) {
-        super(tableName, getMappings(fieldMappings));
+        super(tableName, getMappings(fieldMappings, tableName));
     }
 
     public AbstractLibraryRepository(String tableName) {
-        super(tableName, getMappings(new HashMap<>()));
+        super(tableName, getMappings(new HashMap<>(), tableName));
     }
 
     public AbstractLibraryRepository(String tableName, Connection connection, Map<String, DBFieldMapping<BaseModel>> fieldMappings) {
-        super(tableName, connection, getMappings(fieldMappings));
+        super(tableName, connection, getMappings(fieldMappings, tableName));
     }
 
     public AbstractLibraryRepository(String tableName, Connection connection) {
-        super(tableName, connection, getMappings(new HashMap<>()));
+        super(tableName, connection, getMappings(new HashMap<>(), tableName));
     }
 }
