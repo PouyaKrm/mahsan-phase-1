@@ -159,11 +159,11 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
                 .append(" group by ")
                 .append(userIdField.getDbFieldNameDotted())
                 .append(" order by ")
-                .append("count(*) desc limit ")
-                .append(maxResults)
+                .append("count(*) desc limit ? ")
                 .append(")");
-        var result = connection.prepareStatement(str.toString()).executeQuery();
-       return createAllFromResultSet(result, User.class);
+        var st = connection.prepareStatement(str.toString());
+        st.setObject(1, maxResults);
+        return createAllFromResultSet(st.executeQuery(), User.class);
     }
 
     private List<Book> getUserBooks(Long userId) throws SQLException {
