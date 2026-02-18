@@ -2,6 +2,7 @@ package org.example.library.model;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.library.ModelAbstractFactory;
+import org.example.library.model.library.book.Book;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
@@ -295,6 +296,23 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     @Override
     public String getColumnNamesPure() {
         return fieldMappings.values().stream().map(DBFieldMapping::dbFieldName).collect(Collectors.joining(", "));
+    }
+
+    protected T[] createAllFromResultSet(ResultSet result, Class<T> tClass) throws SQLException, RuntimeException {
+        List<T> items = new ArrayList<>();
+        var f = ModelAbstractFactory.getInstance().getDefaultFactory(tClass);
+        while (result.next()) {
+            try {
+                var instance = tClass.getConstructor().newInstance();
+                var b = f.populateFromDB(instance, result, getFieldMappings());
+                items.add(b);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+        return Utils.listToArray(items, tClass);
     }
 
 

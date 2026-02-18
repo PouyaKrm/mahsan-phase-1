@@ -142,6 +142,30 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
         return user;
     }
 
+    @Override
+    public User[] getUsersWithTopBorrows(int maxResults) throws SQLException {
+        var str = new StringBuilder();
+        var idField = getFieldMappingMap().get(ID_COLUMN);
+        var userIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
+        str.append("select ").append(getColumnNames()).append(" from ")
+                .append(tableName)
+                .append(" where ")
+                .append(idField.getDbFieldNameDotted())
+                .append(" IN ")
+                .append("(select ")
+                .append(userIdField.getDbFieldNameDotted())
+                .append(" from ")
+                .append(BorrowTable.TABLE_NAME)
+                .append(" group by ")
+                .append(userIdField.getDbFieldNameDotted())
+                .append(" order by ")
+                .append("count(*) desc limit ")
+                .append(maxResults)
+                .append(")");
+        var result = connection.prepareStatement(str.toString()).executeQuery();
+       return createAllFromResultSet(result, User.class);
+    }
+
     private List<Book> getUserBooks(Long userId) throws SQLException {
         var bookColumns = bookRepository.getFieldMappings().stream().map(field -> "b." + field.dbFieldName() + " AS " + field.getColumnLabel()).collect(Collectors.joining(", "));
         var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} b join {2} bo on b.id=bo.book_id where bo.user_id=?", bookColumns, bookRepository.getTableName(), borrowRepository.getTableName()));

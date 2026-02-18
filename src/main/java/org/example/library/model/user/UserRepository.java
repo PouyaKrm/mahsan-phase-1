@@ -12,4 +12,6 @@ public interface UserRepository extends ModelRepository<User> {
     Optional<User> findByName(String name);
 
     User getDefaultUser() throws SQLException;
+
+    User[] getUsersWithTopBorrows(int maxResults) throws SQLException;
 }
