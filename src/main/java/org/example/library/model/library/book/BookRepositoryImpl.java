@@ -136,16 +136,6 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
         return book;
     }
 
-    private Book[] createAllFromResultSet(ResultSet result) throws SQLException {
-        List<Book> books = new ArrayList<>();
-        var f = ModelAbstractFactory.getInstance().getDefaultFactory(Book.class);
-        while (result.next()) {
-            var b = f.populateFromDB(new Book(), result, getFieldMappings());
-            books.add(b);
-        }
-        return Utils.listToArray(books, Book.class);
-    }
-
     @Override
     public BorrowAggregate[] getBorrowedBooksCount(int maxResult) throws SQLException {
         var max = maxResult > 0 ? maxResult : 3;
@@ -199,7 +189,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
                 .append(bookIdField.getDbFieldNameDotted()).append(" is null ")
                 .toString();
         var result = connection.prepareStatement(str).executeQuery();
-        return createAllFromResultSet(result);
+        return createAllFromResultSet(result, Book.class);
     }
 
     @Override
@@ -217,7 +207,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
                 .append(" = ")
                 .append(bookIdField.getDbFieldNameDotted());
         var st = createSearchQuery(dto, str, 0);
-        return createAllFromResultSet(st.executeQuery());
+        return createAllFromResultSet(st.executeQuery(), Book.class);
     }
 
     private PreparedStatement createSearchQuery(BookSearchDTO dto, StringBuilder preBuilt, int cuurentParamCount) throws SQLException {
