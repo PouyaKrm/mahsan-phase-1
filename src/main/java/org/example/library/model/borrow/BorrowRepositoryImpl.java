@@ -4,12 +4,10 @@ import org.example.exception.ItemNotFoundException;
 import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.library.ModelAbstractFactory;
-import org.example.library.model.library.book.Book;
 
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -110,7 +108,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
     public BorrowModel findByUserIdBookId(Long userId, Long bookId) throws SQLException, ItemNotFoundException {
         var userIdField = getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
         var bookIdField = getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
-        var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} where {2}=? and {3}=?", getAllColumnsSelectLabel(), tableName, userIdField.dbFieldName(), bookIdField.dbFieldName()));
+        var st = connection.prepareStatement(MessageFormat.format("select {0} from {1} where {2}=? and {3}=?", getColumnNames(), tableName, userIdField.dbFieldName(), bookIdField.dbFieldName()));
         st.setObject(1, userId);
         st.setObject(2, bookId);
        var result = st.executeQuery();

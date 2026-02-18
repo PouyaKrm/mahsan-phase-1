@@ -76,7 +76,7 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
         var id = getFieldMappingMap().get("id");
         final var countColumn = "user_count";
         var str = new StringBuilder()
-                .append("select count(").append(userId.getDbFieldNameDotted()).append(") as ").append(countColumn).append(", ").append(getAllColumnsSelectLabel())
+                .append("select count(").append(userId.getDbFieldNameDotted()).append(") as ").append(countColumn).append(", ").append(getColumnNames())
                 .append(" from ").append(tableName)
                 .append(" left join ")
                 .append(BorrowTable.TABLE_NAME)

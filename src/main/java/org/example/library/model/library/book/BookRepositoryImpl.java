@@ -102,9 +102,9 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     public Book returnBook(Long userId, Long bookId) throws SQLException, BaseException {
         connection.setAutoCommit(false);
         var builder = new StringBuilder();
-        builder.append("select ").append(borrowRepository.getAllColumnsSelectLabel())
+        builder.append("select ").append(borrowRepository.getColumnNames())
                 .append(", ")
-                .append(getAllColumnsSelectLabel())
+                .append(getColumnNames())
                 .append(" from ")
                 .append(borrowRepository.getTableName())
                 .append(" join ").append(tableName).append(" on ")
@@ -157,7 +157,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
                 .append("select ")
                 .append("count(*) as ").append(countColumn)
                 .append(", ")
-                .append(getAllColumnsSelectLabel())
+                .append(getColumnNames())
                 .append(" from ")
                 .append(BorrowTable.TABLE_NAME)
                 .append(" join ")
@@ -186,7 +186,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     public Book[] getNonBorrowedBooks() throws SQLException {
         var idField = getFieldMappingMap().get(ID_COLUMN);
         var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
-        var str = new StringBuilder("select ").append(getAllColumnsSelectLabel())
+        var str = new StringBuilder("select ").append(getColumnNames())
                 .append(" from ")
                 .append(tableName)
                 .append(" left join ")
@@ -206,8 +206,8 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     public Book[] search(BookSearchDTO dto) throws SQLException {
         var idField = getFieldMappingMap().get(ID_COLUMN);
         var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
-        var str = new StringBuilder("select ").append(getAllColumnsSelectLabel())
-                .append(", ").append(borrowRepository.getAllColumnsSelectLabel())
+        var str = new StringBuilder("select ").append(getColumnNames())
+                .append(", ").append(borrowRepository.getColumnNames())
                 .append(" from ")
                 .append(tableName)
                 .append(" left join ")

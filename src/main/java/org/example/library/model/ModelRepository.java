@@ -23,5 +23,7 @@ public interface ModelRepository<T extends BaseModel> {
 
     String getTableName();
 
-    String getAllColumnsSelectLabel();
+    String getColumnNames();
+
+    String getColumnNamesPure();
 }
