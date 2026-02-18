@@ -289,7 +289,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     @Override
     public String getAllColumnsSelectLabel() {
-        return fieldMappings.values().stream().map(e -> e.getDbFieldNameDotted() + " AS " + e.getColumnLabel()).collect(Collectors.joining(", "));
+        return fieldMappings.values().stream().map(e -> e.getDbFieldNameDotted()).collect(Collectors.joining(", "));
     }
 
 

@@ -10,12 +10,12 @@ import java.util.function.Function;
 @Builder
 public class DBFieldMapping<T extends BaseModel> {
 
-    private String dbFieldName;
-    private String definition;
-    private BiConsumer<T, String> fromDB;
-    private Function<T, Object> toDB;
-    private String tableName;
-    private int dbType;
+    private final String dbFieldName;
+    private final String definition;
+    private final BiConsumer<T, String> fromDB;
+    private final Function<T, Object> toDB;
+    private final String tableName;
+    private final int dbType;
 
     public String getDBField() {
         return dbFieldName + " " + definition;

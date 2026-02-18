@@ -3,6 +3,7 @@ package org.example.library.model.library.book;
 import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
+import org.example.library.dto.BookSearchDTO;
 import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
@@ -15,10 +16,7 @@ import org.example.library.dto.BorrowAggregate;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.*;
@@ -188,7 +186,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     public Book[] getNonBorrowedBooks() throws SQLException {
         var idField = getFieldMappingMap().get(ID_COLUMN);
         var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
-        var str  = new StringBuilder("select ").append(getAllColumnsSelectLabel())
+        var str = new StringBuilder("select ").append(getAllColumnsSelectLabel())
                 .append(" from ")
                 .append(tableName)
                 .append(" left join ")
@@ -202,6 +200,94 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
                 .toString();
         var result = connection.prepareStatement(str).executeQuery();
         return createAllFromResultSet(result);
+    }
+
+    @Override
+    public Book[] search(BookSearchDTO dto) throws SQLException {
+        var idField = getFieldMappingMap().get(ID_COLUMN);
+        var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
+        var str = new StringBuilder("select ").append(getAllColumnsSelectLabel())
+                .append(", ").append(borrowRepository.getAllColumnsSelectLabel())
+                .append(" from ")
+                .append(tableName)
+                .append(" left join ")
+                .append(borrowRepository.getTableName())
+                .append(" on ")
+                .append(idField.getDbFieldNameDotted())
+                .append(" = ")
+                .append(bookIdField.getDbFieldNameDotted());
+        var st = createSearchQuery(dto, str, 0);
+        return createAllFromResultSet(st.executeQuery());
+    }
+
+    private PreparedStatement createSearchQuery(BookSearchDTO dto, StringBuilder preBuilt, int cuurentParamCount) throws SQLException {
+        int count = cuurentParamCount + 1;
+        Map<Integer, Object> paramValues = new HashMap<>();
+        List<String> filters = new ArrayList<>();
+        preBuilt.append(" ");
+        if (Objects.nonNull(dto.getTitle())) {
+            var titleField = getFieldMappingMap().get(Book.TITLE_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(titleField.getDbFieldNameDotted()).append(" like ? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, "%" + dto.getTitle().toLowerCase() + "%");
+        }
+
+        if (Objects.nonNull(dto.getAuthor())) {
+            var authorField = getFieldMappingMap().get(Book.AUTHOR_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(authorField.getDbFieldNameDotted()).append(" like ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, "%" + dto.getAuthor().toLowerCase() + "%");
+        }
+
+        if (Objects.nonNull(dto.getUserId())) {
+            var idField = borrowRepository.getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(idField.getDbFieldNameDotted()).append(" = ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, dto.getUserId());
+        }
+
+        if (Objects.nonNull(dto.getReturnedAtBefore())) {
+            var returnedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.RETURNED_AT_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(returnedAtField.getDbFieldNameDotted()).append(" <= ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, dto.getReturnedAtBefore().toEpochDay());
+        }
+
+        if (Objects.nonNull(dto.getReturnedAtAfter())) {
+            var returnedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.RETURNED_AT_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(returnedAtField.getDbFieldNameDotted()).append(" >= ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, dto.getReturnedAtAfter().toEpochDay());
+        }
+
+        if (Objects.nonNull(dto.getBorrowedAtBefore())) {
+            var borrowedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.BORROWED_AT_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(borrowedAtField.getDbFieldNameDotted()).append(" <= ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, dto.getBorrowedAtBefore().toEpochDay());
+        }
+
+        if (Objects.nonNull(dto.getBorrowedAtAfter())) {
+            var borrowedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.BORROWED_AT_FIELD_NAME);
+            var sb = new StringBuilder();
+            sb.append(borrowedAtField.getDbFieldNameDotted()).append(" >= ").append("? ");
+            filters.add(sb.toString());
+            paramValues.put(count++, dto.getBorrowedAtAfter().toEpochDay());
+        }
+
+        var str = String.join(", ", filters);
+        preBuilt.append(!str.isEmpty() ? " where " + str : "");
+        var st = connection.prepareStatement(preBuilt.toString());
+        for (var entry : paramValues.entrySet()) {
+            st.setObject(entry.getKey(), entry.getValue());
+        }
+        return st;
     }
 
 }

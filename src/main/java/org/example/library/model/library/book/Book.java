@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 
 public class Book extends BaseLibraryModel implements Displayable {
+    public static final String TITLE_FIELD_NAME = "title";
+    public static final String AUTHOR_FIELD_NAME = "author";
     private Status status;
 
     public Book() {

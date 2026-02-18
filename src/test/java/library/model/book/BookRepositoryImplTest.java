@@ -3,11 +3,14 @@ package library.model.book;
 import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
+import org.example.library.dto.BookSearchDTO;
+import org.example.library.dto.SearchDTO;
 import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
 import org.example.library.model.library.book.Book;
 import org.example.library.model.library.book.BookRepositoryImpl;
+import org.example.library.model.user.User;
 import org.example.library.model.user.UserRepository;
 import org.example.library.model.user.UserRepositoryImpl;
 import org.junit.Before;
@@ -264,6 +267,123 @@ public class BookRepositoryImplTest {
 
         assertThat(foundBooks.length).isEqualTo(1);
         assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
+    }
+
+    @Test
+    public void search_by_title_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook("select"), TestUtils.createBook("select2"), TestUtils.createBook("remove")};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var dto = BookSearchDTO.builder().title("select").build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+    }
+
+    @Test
+    public void search_by_author_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBookByAuthro("select"), TestUtils.createBookByAuthro("select2"), TestUtils.createBookByAuthro("remove")};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var dto = BookSearchDTO.builder().author("select").build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+    }
+
+    @Test
+    public void search_by_user_id_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var users = new User[] {TestUtils.createUser("username1"), TestUtils.createUser("username2")};
+        userRepository.saveAll(users, User.class);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(users[0].getId(), books[0].getId()), TestUtils.createBorrow(users[0].getId(), books[1].getId()), TestUtils.createBorrow(users[1].getId(), books[2].getId())};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().userId(users[0].getId()).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+    }
+
+    @Test
+    public void search_by_returnedAtBefore_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(user.getId(), books[0].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrow(user.getId(), books[1].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrow(user.getId(), books[2].getId(), LocalDate.now().plusDays(1))};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().returnedAtBefore(LocalDate.now()).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+    }
+
+    @Test
+    public void search_by_returnedAtAfter_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(user.getId(), books[0].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrow(user.getId(), books[1].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrow(user.getId(), books[2].getId(), LocalDate.now().plusDays(1))};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().returnedAtAfter(LocalDate.now()).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0].getTitle()).isEqualTo(books[2].getTitle());
+    }
+
+
+    @Test
+    public void search_by_borrowedAtBefore_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrowByBorrowDate(user.getId(), books[0].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrowByBorrowDate(user.getId(), books[1].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrowByBorrowDate(user.getId(), books[2].getId(), LocalDate.now().plusDays(1))};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().borrowedAtBefore(LocalDate.now()).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+    }
+
+    @Test
+    public void search_by_borrowedAtAfter_works_correctly() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrowByBorrowDate(user.getId(), books[0].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrowByBorrowDate(user.getId(), books[1].getId(), LocalDate.now().minusDays(1)), TestUtils.createBorrowByBorrowDate(user.getId(), books[2].getId(), LocalDate.now().plusDays(1))};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().borrowedAtAfter(LocalDate.now()).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0].getTitle()).isEqualTo(books[2].getTitle());
     }
 
 }
