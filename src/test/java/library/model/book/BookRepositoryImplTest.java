@@ -4,7 +4,6 @@ import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.BookSearchDTO;
-import org.example.library.dto.SearchDTO;
 import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
@@ -406,7 +405,7 @@ public class BookRepositoryImplTest {
 
 
     @Test
-    public void search_by_notReturned_returns_retunrned_books() throws SQLException {
+    public void search_by_notReturned_returns_returned_books() throws SQLException {
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
