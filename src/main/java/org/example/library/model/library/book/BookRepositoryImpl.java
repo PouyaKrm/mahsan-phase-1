@@ -271,6 +271,14 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
             paramValues.put(count++, dto.getBorrowedAtAfter().toEpochDay());
         }
 
+        if(Objects.nonNull(dto.getIsReturned())) {
+            var st = dto.getIsReturned() ? " is not null " : " is null ";
+            var sb = new StringBuilder();
+            var retuernedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.RETURNED_AT_FIELD_NAME);
+            sb.append(retuernedAtField.getDbFieldNameDotted()).append(st);
+            filters.add(sb.toString());
+        }
+
         var str = String.join(", ", filters);
         preBuilt.append(!str.isEmpty() ? " where " + str : "");
         var st = connection.prepareStatement(preBuilt.toString());

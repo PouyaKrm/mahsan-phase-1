@@ -1,11 +1,9 @@
 package org.example.library.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.PrimitiveIterator;
 
 @Getter
 @Builder
@@ -17,4 +15,5 @@ public class BookSearchDTO {
     private final LocalDate returnedAtAfter;
     private final LocalDate borrowedAtBefore;
     private final LocalDate borrowedAtAfter;
+    private final Boolean isReturned;
 }

@@ -386,4 +386,39 @@ public class BookRepositoryImplTest {
         assertThat(result[0].getTitle()).isEqualTo(books[2].getTitle());
     }
 
+    @Test
+    public void search_by_notReturned_returned_still_borrowed_books() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(user.getId(), books[0].getId()), TestUtils.createBorrow(user.getId(), books[1].getId()), TestUtils.createBorrow(user.getId(), books[2].getId(), LocalDate.now())};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().isReturned(false).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getId()).isEqualTo(books[0].getId());
+        assertThat(result[1].getId()).isEqualTo(books[1].getId());
+    }
+
+
+    @Test
+    public void search_by_notReturned_returns_retunrned_books() throws SQLException {
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        bookRepository.saveAll(books, Book.class);
+        var user = TestUtils.createUser();
+        userRepository.save(user);
+        var borrows = new BorrowModel[]{TestUtils.createBorrow(user.getId(), books[0].getId()), TestUtils.createBorrow(user.getId(), books[1].getId()), TestUtils.createBorrow(user.getId(), books[2].getId(), LocalDate.now())};
+        borrowRepository.saveAll(borrows, BorrowModel.class);
+        var dto = BookSearchDTO.builder().isReturned(true).build();
+
+        var result = bookRepository.search(dto);
+
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0].getId()).isEqualTo(books[2].getId());
+    }
 }
