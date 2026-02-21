@@ -124,6 +124,9 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
             throw new ItemNotFoundException("borrowed book not found");
         }
         var borrow = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class).populateFromDB(new BorrowModel(), result, borrowRepository.getFieldMappings());
+        while (Objects.nonNull(borrow.getReturnedAt()) && result.next()) {
+            borrow = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class).populateFromDB(new BorrowModel(), result, borrowRepository.getFieldMappings());
+        }
         if (Objects.nonNull(borrow.getReturnedAt())) {
             throw new InvalidOperationException("book already returned");
         }
@@ -271,7 +274,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
             paramValues.put(count++, dto.getBorrowedAtAfter().toEpochDay());
         }
 
-        if(Objects.nonNull(dto.getIsReturned())) {
+        if (Objects.nonNull(dto.getIsReturned())) {
             var st = dto.getIsReturned() ? " is not null " : " is null ";
             var sb = new StringBuilder();
             var retuernedAtField = borrowRepository.getFieldMappingMap().get(BorrowModel.RETURNED_AT_FIELD_NAME);
