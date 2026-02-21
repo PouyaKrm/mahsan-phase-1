@@ -18,7 +18,9 @@ import org.example.library.model.library.magazine.Magazine;
 import org.example.library.model.library.magazine.MagazineRepositoryImpl;
 import org.example.library.model.user.UserRepository;
 import org.example.library.model.user.UserRepositoryImpl;
+import org.example.sql.JdbcConnection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ public class DbLibraryImpl implements Library {
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
     private final UserRepository userRepository = UserRepositoryImpl.getInstance();
+    private final Connection connection = JdbcConnection.getConnection();
 
     private final Map<Class<? extends BaseLibraryModel>, LibraryModelRepository<?>> repositoryMap = Map.ofEntries(
             Map.entry(Book.class, bookRepository),
@@ -112,6 +115,8 @@ public class DbLibraryImpl implements Library {
     @Override
     public BaseLibraryModel borrowItem(Long id) throws ItemNotFoundException, InvalidOperationException {
         try {
+
+            connection.setAutoCommit(false);
             var borrow = borrowRepository.findByBookId(id);
             if(borrow.isPresent()) {
                 throw new InvalidOperationException("can not borrow borrowed book");
@@ -119,12 +124,14 @@ public class DbLibraryImpl implements Library {
             var user = userRepository.getDefaultUser();
             var b = new BorrowModel();
             b.setBorrowedAt(LocalDate.now());
-            var book = bookRepository.getOne(id);
+            var book = bookRepository.getOneLocked(id);
+            bookRepository.getOneLocked(id);
             book.setStatus(Book.Status.BORROWED);
             b.setBookId(id);
             b.setUserId(user.getId());
             borrowRepository.save(b);
             bookRepository.save(book);
+            connection.commit();
             return book;
         } catch (SQLException e) {
             throw new RuntimeException(e);

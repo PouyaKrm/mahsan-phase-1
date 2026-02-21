@@ -92,6 +92,11 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
     }
 
     @Override
+    public BorrowModel getOneLocked(Long id) throws SQLException, ItemNotFoundException {
+        return getOneLocked(id, BorrowModel.class);
+    }
+
+    @Override
     public Optional<BorrowModel> findByBookId(Long id) throws SQLException, ItemNotFoundException {
         var st = connection.prepareStatement("select * from " + BorrowTable.TABLE_NAME + " where book_id = ?");
         st.setLong(1, id);

@@ -147,6 +147,25 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         }
     }
 
+    protected T getOneLocked(Long id, Class<T> tClass) throws SQLException, ItemNotFoundException {
+        var s = MessageFormat.format("SELECT * FROM {0} WHERE id = ? FOR UPDATE", tableName);
+        var pst = connection.prepareStatement(s);
+        var factory = modelFactory.getDefaultFactory(tClass);
+        pst.setLong(1, id);
+        var rs = pst.executeQuery();
+        if (!rs.next()) {
+            throw new ItemNotFoundException(MessageFormat.format("No item found with id {0}", id));
+
+        }
+        try {
+            var model = tClass.getConstructor().newInstance();
+            return factory.populateFromDB(model, rs, fieldMappings.values());
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public T save(T model) throws SQLException {
         return Objects.isNull(model.getId()) ? insertAll(List.of(model), tableName).getFirst() : updateAll(List.of(model)).getFirst();

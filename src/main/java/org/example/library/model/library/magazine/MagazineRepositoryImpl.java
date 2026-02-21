@@ -33,6 +33,11 @@ public class MagazineRepositoryImpl extends AbstractLibraryRepository<Magazine> 
         return getOne(id, Magazine.class);
     }
 
+    @Override
+    public Magazine getOneLocked(Long id) throws SQLException, ItemNotFoundException {
+        return getOneLocked(id, Magazine.class);
+    }
+
     public static synchronized MagazineRepositoryImpl getInstance(Connection connection) {
         if(Objects.nonNull(instance)) {
             return instance;

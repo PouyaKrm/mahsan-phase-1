@@ -1,10 +1,10 @@
 package library.collection;
 
-import org.example.library.model.library.book.Book;
-import utils.TestUtils;
 import org.example.library.collection.LinkedList;
+import org.example.library.model.library.book.Book;
 import org.junit.Assert;
 import org.junit.Test;
+import utils.TestUtils;
 
 import java.util.Comparator;
 import java.util.Random;

@@ -71,6 +71,11 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
     }
 
     @Override
+    public User getOneLocked(Long id) throws SQLException, ItemNotFoundException {
+        return getOneLocked(id, User.class);
+    }
+
+    @Override
     public UserBorrows[] getUserBorrowsCount() throws SQLException {
         var userId = borrowRepository.getFieldMappingMap().get(BorrowModel.USER_ID_FIELD_NAME);
         var id = getFieldMappingMap().get("id");

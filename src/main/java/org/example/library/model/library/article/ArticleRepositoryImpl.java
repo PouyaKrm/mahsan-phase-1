@@ -33,6 +33,11 @@ public class ArticleRepositoryImpl extends AbstractLibraryRepository<Article> im
         return super.getOne(id, Article.class);
     }
 
+    @Override
+    public Article getOneLocked(Long id) throws SQLException, ItemNotFoundException {
+        return getOneLocked(id, Article.class);
+    }
+
     public static synchronized ArticleRepositoryImpl getInstance(Connection connection) {
         if (Objects.nonNull(instance)) {
             return instance;

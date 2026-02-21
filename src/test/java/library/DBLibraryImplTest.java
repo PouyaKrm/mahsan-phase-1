@@ -15,6 +15,7 @@ import org.example.library.model.library.magazine.Magazine;
 import org.example.library.model.library.magazine.MagazineRepositoryImpl;
 import org.example.library.model.user.User;
 import org.example.library.model.user.UserRepositoryImpl;
+import org.example.sql.JdbcConnection;
 import org.junit.Before;
 import org.junit.Test;
 import utils.TestUtils;
@@ -22,8 +23,9 @@ import utils.TestUtils;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -33,6 +35,7 @@ public class DBLibraryImplTest {
     private final BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
     private final ArticleRepositoryImpl articleRepository = ArticleRepositoryImpl.getInstance();
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
+
     @Before
     public void cleanUp() throws SQLException {
         magazineRepository.removeAll();
@@ -217,6 +220,24 @@ public class DBLibraryImplTest {
         assertThat(result[0].getTitle()).isEqualTo(saved[1].getTitle());
     }
 
+    @Test
+    public void borrow_item_works_correctly() throws SQLException, InvalidOperationException, ItemNotFoundException {
+        var item = TestUtils.createBook();
+        bookRepository.save(item);
+        var user = new User();
+        user.setName("username");
+        var userRepo = UserRepositoryImpl.getInstance();
+        userRepo.save(user);
+
+        dbLibrary.borrowItem(item.getId());
+
+        var borrow = borrowRepository.findByBookId(item.getId());
+        assertThat(borrow.isPresent()).isTrue();
+        assertThat(borrow.get().getUserId()).isEqualTo(user.getId());
+        assertThat(borrow.get().getBorrowedAt()).isNotNull();
+        assertThat(borrow.get().getReturnedAt()).isNull();
+    }
+
     @Test(expected = InvalidOperationException.class)
     public void item_already_borrowed() throws InvalidOperationException, ItemNotFoundException, SQLException {
         var item = TestUtils.createBook();
@@ -237,7 +258,7 @@ public class DBLibraryImplTest {
 
     @Test
     public void return_item_works_correctly() throws SQLException, BaseException {
-        var user  = TestUtils.createUser();
+        var user = TestUtils.createUser();
         var userRepo = UserRepositoryImpl.getInstance();
         userRepo.save(user);
         var book = TestUtils.createBook();

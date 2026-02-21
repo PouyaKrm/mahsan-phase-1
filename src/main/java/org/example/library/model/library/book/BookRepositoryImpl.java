@@ -88,6 +88,11 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     }
 
     @Override
+    public Book getOneLocked(Long id) throws SQLException, ItemNotFoundException {
+        return getOneLocked(id, Book.class);
+    }
+
+    @Override
     public Book[] getAllByStatus(Book.Status status) throws SQLException {
         var field = getFieldMappingMap().get(STATUS_FIELD_NAME);
         var st = connection.prepareStatement(MessageFormat.format("select * from {0} where {1} = ?", tableName, field.dbFieldName()));
