@@ -1,9 +1,15 @@
 package org.example.library.model;
 
-import org.example.library.Displayable;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.Objects;
+
+@Getter
+@Setter
 public abstract class BaseModel {
     protected Long id;
+    protected Long version = 0L;
 
     public BaseModel() {
     }
@@ -12,12 +18,7 @@ public abstract class BaseModel {
         this.id = id;
     }
 
-    public Long getId() {
-        return id;
+    public Long getVersion() {
+        return Objects.nonNull(version) ? version : 0L;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
 }

@@ -2,7 +2,6 @@ package org.example.library.model;
 
 import org.example.exception.ItemNotFoundException;
 import org.example.library.model.library.ModelAbstractFactory;
-import org.example.library.model.library.book.Book;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
 
@@ -18,33 +17,46 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected final Connection connection;
     protected final String tableName;
     private final ModelAbstractFactory modelFactory = ModelAbstractFactory.getInstance();
-    private final DBFieldMapping idDBField;
     protected final String ID_COLUMN = "id";
+    protected final String VERSION_COLUMN = "version";
     private final Map<String, DBFieldMapping> fieldMappings = new HashMap<>();
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = JdbcConnection.getConnection();
-        idDBField = createIdField();
         addMapping(fieldMappings);
     }
 
-    private DBFieldMapping createIdField() {
-        return DBFieldMapping.builder()
-                .dbFieldName("id")
-                .tableName(tableName)
-                .definition("INT NOT NULL AUTO_INCREMENT PRIMARY KEY")
-                .fromDB((BaseModel model, String id) -> model.setId(Long.parseLong(id)))
-                .toDB(BaseModel::getId)
-                .dbType(Types.BIGINT)
-                .build();
+    private Map<String, DBFieldMapping> getDefaultMappings() {
+        return Map.ofEntries(
+                Map.entry(ID_COLUMN,
+                        DBFieldMapping.builder()
+                                .dbFieldName(ID_COLUMN)
+                                .tableName(tableName)
+                                .definition("INT NOT NULL AUTO_INCREMENT PRIMARY KEY")
+                                .fromDB((BaseModel model, String id) -> model.setId(Long.parseLong(id)))
+                                .toDB(BaseModel::getId)
+                                .dbType(Types.BIGINT)
+                                .build()
+                ),
+                Map.entry(
+                        VERSION_COLUMN,
+                        DBFieldMapping.builder()
+                                .dbFieldName(VERSION_COLUMN)
+                                .tableName(tableName)
+                                .definition("INT NOT NULL")
+                                .fromDB((BaseModel model, String version) -> model.setVersion(Objects.nonNull(version) ? Long.parseLong(version) : 1))
+                                .toDB(model -> model.getVersion() + 1)
+                                .dbType(Types.BIGINT)
+                                .build()
+                )
+        );
     }
 
 
     protected AbstractModelRepository(String tableName, Map<String, DBFieldMapping> fieldMappings, Connection connection) {
         this.tableName = tableName;
         this.connection = connection;
-        idDBField = createIdField();
         addMapping(fieldMappings);
     }
 
@@ -52,13 +64,12 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     protected AbstractModelRepository(String tableName, Connection connection, Map<String, DBFieldMapping> fieldMappings) {
         this.tableName = tableName;
         this.connection = connection;
-        idDBField = createIdField();
         addMapping(fieldMappings);
     }
 
 
     private void addMapping(Map<String, DBFieldMapping> newMappings) {
-        fieldMappings.put(ID_COLUMN, idDBField);
+        fieldMappings.putAll(getDefaultMappings());
         for (var mapping : newMappings.entrySet()) {
             if (fieldMappings.containsKey(mapping.getKey())) {
                 fieldMappings.replace(mapping.getKey(), mapping.getValue());
@@ -122,9 +133,10 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
 
     @Override
     public boolean removeOne(T model) throws SQLException {
-        var s = MessageFormat.format("DELETE FROM {0} WHERE id = ?", tableName);
+        var s = MessageFormat.format("DELETE FROM {0} WHERE id = ? and version = ?", tableName);
         var pst = connection.prepareStatement(s);
         pst.setLong(1, model.getId());
+        pst.setObject(2, model.getVersion());
         return pst.executeUpdate() > 0;
     }
 
@@ -203,6 +215,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     }
 
     private void setPrepareStatement(int index, DBFieldMapping fieldMapping, PreparedStatement pst, T model) {
+        var val = fieldMapping.toDB().apply(model);
         try {
             if (Objects.isNull(fieldMapping.toDB().apply(model))) {
                 pst.setNull(index, fieldMapping.dbType());
@@ -218,7 +231,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     private List<T> insertAll(List<T> models, String tableName) throws SQLException {
         var builder = new StringBuilder("INSERT INTO " + tableName + " ( ");
         var fields = getNoneIdFields();
-        var columns = fields.stream().map(DBFieldMapping::dbFieldName).filter(s -> !s.equals(ID_COLUMN)).collect(Collectors.joining(", "));
+        var columns = nonIdFieldMappings().stream().map(DBFieldMapping::dbFieldName).collect(Collectors.joining(", "));
         builder.append(columns).append(" ) ");
         builder.append("VALUES ");
         var values = createValuesSql();
@@ -249,10 +262,12 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         ).collect(Collectors.joining(", "));
         updateStatement.append(fieldsStatement);
         updateStatement.append("where ")
-                .append(ID_COLUMN)
+                .append("(").append(ID_COLUMN).append(", ").append(VERSION_COLUMN).append(") ")
                 .append(" IN ")
                 .append(" (select ")
                 .append(ID_COLUMN)
+                .append(", ")
+                .append(VERSION_COLUMN)
                 .append(" FROM ")
                 .append(temp_table_name)
                 .append(" )");
@@ -266,7 +281,7 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     private String createValuesSql() {
         var builder = new StringBuilder();
         builder.append(" ( ");
-        var values = fieldMappings.values().stream().filter(s -> !s.dbFieldName().equals(ID_COLUMN)).map(field -> "?").collect(Collectors.joining(", "));
+        var values = getNoneIdFields().stream().map(field -> "?").collect(Collectors.joining(", "));
         builder.append(values);
         builder.append(" ) ");
         return builder.toString();
