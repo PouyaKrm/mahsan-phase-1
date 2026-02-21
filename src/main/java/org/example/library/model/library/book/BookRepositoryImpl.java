@@ -4,6 +4,8 @@ import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
 import org.example.library.dto.BookSearchDTO;
+import org.example.library.dto.search_result.SearchResultDTO;
+import org.example.library.dto.search_result.SearchResultMapper;
 import org.example.library.model.borrow.BorrowModel;
 import org.example.library.model.borrow.BorrowRepository;
 import org.example.library.model.borrow.BorrowRepositoryImpl;
@@ -15,6 +17,7 @@ import org.example.library.model.library.ModelAbstractFactory;
 import org.example.library.dto.BorrowAggregate;
 import org.example.sql.JdbcConnection;
 import org.example.utils.Utils;
+import org.mapstruct.factory.Mappers;
 
 import java.sql.*;
 import java.text.MessageFormat;
@@ -28,6 +31,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     private static final String STATUS_FIELD_NAME = "status";
     private static final String TABLE_NAME = "books";
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
+    private final SearchResultMapper searchResultMapper = SearchResultMapper.INSTANCE;
 
     protected BookRepositoryImpl(Connection connection) {
         super("books", connection, createFieldMappings());
@@ -196,7 +200,7 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
     }
 
     @Override
-    public Book[] search(BookSearchDTO dto) throws SQLException {
+    public SearchResultDTO[] search(BookSearchDTO dto) throws SQLException {
         var idField = getFieldMappingMap().get(ID_COLUMN);
         var bookIdField = borrowRepository.getFieldMappingMap().get(BorrowModel.BOOK_ID_FIELD_NAME);
         var str = new StringBuilder("select ").append(getColumnNames())
@@ -210,7 +214,16 @@ public class BookRepositoryImpl extends AbstractLibraryRepository<Book> implemen
                 .append(" = ")
                 .append(bookIdField.getDbFieldNameDotted());
         var st = createSearchQuery(dto, str, 0);
-        return createAllFromResultSet(st.executeQuery(), Book.class);
+        var result = st.executeQuery();
+        List<SearchResultDTO> results = new ArrayList<>();
+        while (result.next()) {
+            var b = ModelAbstractFactory.getInstance().getFactory(Book.class).populateFromDB(new Book(), result, getFieldMappings());
+            var borrow = ModelAbstractFactory.getInstance().getDefaultFactory(BorrowModel.class).populateFromDB(new BorrowModel(), result, borrowRepository.getFieldMappings());
+            var resultDto = results.stream().filter(item -> item.getBookId().equals(b.getId())).findFirst().orElse(searchResultMapper.toSearchResultDTO(b));
+            resultDto.getBorrowDTOList().add(searchResultMapper.toBorrowDTO(borrow));
+            results.add(resultDto);
+        }
+        return Utils.listToArray(results, SearchResultDTO.class);
     }
 
     private PreparedStatement createSearchQuery(BookSearchDTO dto, StringBuilder preBuilt, int cuurentParamCount) throws SQLException {

@@ -85,7 +85,7 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
                 .append(" = ")
                 .append(userId.getDbFieldNameDotted())
                 .append(" group by ")
-                .append(getFieldMappings().stream().map(DBFieldMapping::getColumnLabel).collect(Collectors.joining(", ")))
+                .append(getFieldMappings().stream().map(DBFieldMapping::getDbFieldNameDotted).collect(Collectors.joining(", ")))
                 .append(" order by ")
                 .append(countColumn)
                 .toString();

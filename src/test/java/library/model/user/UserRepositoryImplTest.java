@@ -24,6 +24,12 @@ public class UserRepositoryImplTest {
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
 
+    public void cleanup() throws SQLException {
+        borrowRepository.removeAll();
+        userRepository.removeAll();
+        borrowRepository.removeAll();
+    }
+
     @Test
     public void user_created_successfully() throws SQLException {
         var u = new User();

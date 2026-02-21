@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> implements BorrowRepository {
@@ -21,7 +22,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .tableName(BorrowTable.TABLE_NAME)
                                 .dbFieldName(BorrowTable.USER_ID)
                             .definition("INT NOT NULL")
-                            .fromDB((user, val) -> user.setUserId(Long.parseLong(val)))
+                            .fromDB((borrow, val) -> borrow.setUserId(Objects.nonNull(val) ? Long.parseLong(val) : null))
                             .toDB(BorrowModel::getUserId)
                             .dbType(Types.INTEGER)
                             .build()
@@ -31,7 +32,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.BOOK_ID)
                             .definition("INT NOT NULL")
-                            .fromDB((book, val) -> book.setBookId(Long.parseLong(val)))
+                            .fromDB((book, val) -> book.setBookId(Objects.nonNull(val) ? Long.parseLong(val) : null))
                             .toDB(BorrowModel::getBookId)
                             .dbType(Types.INTEGER)
                             .build()

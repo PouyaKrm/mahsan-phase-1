@@ -266,6 +266,7 @@ public class BookRepositoryImplTest {
 
         assertThat(foundBooks.length).isEqualTo(1);
         assertThat(foundBooks[0].getId()).isEqualTo(books[2].getId());
+        assertThat(foundBooks[0].getStatus()).isEqualTo(Book.Status.EXIST);
     }
 
     @Test
@@ -311,7 +312,9 @@ public class BookRepositoryImplTest {
 
         assertThat(result.length).isEqualTo(2);
         assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
+        assertThat(result[0].getBorrowDTOList().size()).isEqualTo(1);
         assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+        assertThat(result[1].getBorrowDTOList().size()).isEqualTo(1);
     }
 
     @Test
@@ -328,8 +331,8 @@ public class BookRepositoryImplTest {
         var result = bookRepository.search(dto);
 
         assertThat(result.length).isEqualTo(2);
-        assertThat(result[0].getTitle()).isEqualTo(books[0].getTitle());
-        assertThat(result[1].getTitle()).isEqualTo(books[1].getTitle());
+        assertThat(result[0].getBookId()).isEqualTo(books[0].getId());
+        assertThat(result[1].getBookId()).isEqualTo(books[1].getId());
     }
 
     @Test
@@ -399,8 +402,8 @@ public class BookRepositoryImplTest {
         var result = bookRepository.search(dto);
 
         assertThat(result.length).isEqualTo(2);
-        assertThat(result[0].getId()).isEqualTo(books[0].getId());
-        assertThat(result[1].getId()).isEqualTo(books[1].getId());
+        assertThat(result[0].getBookId()).isEqualTo(books[0].getId());
+        assertThat(result[1].getBookId()).isEqualTo(books[1].getId());
     }
 
 
@@ -418,6 +421,6 @@ public class BookRepositoryImplTest {
         var result = bookRepository.search(dto);
 
         assertThat(result.length).isEqualTo(1);
-        assertThat(result[0].getId()).isEqualTo(books[2].getId());
+        assertThat(result[0].getBookId()).isEqualTo(books[2].getId());
     }
 }

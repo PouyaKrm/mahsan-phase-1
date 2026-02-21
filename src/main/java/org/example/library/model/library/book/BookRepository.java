@@ -2,6 +2,7 @@ package org.example.library.model.library.book;
 
 import org.example.exception.BaseException;
 import org.example.library.dto.BookSearchDTO;
+import org.example.library.dto.search_result.SearchResultDTO;
 import org.example.library.model.library.LibraryModelRepository;
 import org.example.library.dto.BorrowAggregate;
 
@@ -17,5 +18,5 @@ public interface BookRepository extends LibraryModelRepository<Book> {
 
     BorrowAggregate[] getBorrowedBooksCount(int maxResult) throws SQLException;
 
-    Book[] search(BookSearchDTO dto) throws SQLException;
+    SearchResultDTO[] search(BookSearchDTO dto) throws SQLException;
 }
