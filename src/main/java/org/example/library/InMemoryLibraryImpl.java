@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class InMemoryLibraryImpl implements Library {
+public final class InMemoryLibraryImpl implements Library {
 
     private final LibraryCollection<Book> bookCollection = new ArrayList<>();
     private final LibraryCollection<Article> articles = new ArrayList<>();

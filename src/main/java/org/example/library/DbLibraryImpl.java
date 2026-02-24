@@ -25,7 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-public class DbLibraryImpl implements Library {
+public final class DbLibraryImpl implements Library {
 
     private final BookRepository bookRepository = BookRepositoryImpl.getInstance();
     private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();

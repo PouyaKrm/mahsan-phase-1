@@ -12,7 +12,7 @@ import org.example.library.model.library.magazine.Magazine;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface Library {
+public sealed interface Library permits InMemoryLibraryImpl, DbLibraryImpl {
 
     <T extends BaseLibraryModel> void addItem(T book, Class<T> tClass);
 

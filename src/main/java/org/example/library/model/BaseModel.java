@@ -1,5 +1,6 @@
 package org.example.library.model;
 
+
 public abstract class BaseModel {
     protected Long id;
 
