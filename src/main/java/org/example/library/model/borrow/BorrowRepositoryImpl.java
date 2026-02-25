@@ -5,6 +5,7 @@ import org.example.library.model.AbstractModelRepository;
 import org.example.library.model.DBFieldMapping;
 import org.example.library.model.library.ModelAbstractFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
@@ -16,7 +17,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
 
     private static BorrowRepositoryImpl instance;
 
-    private static Map<String, DBFieldMapping> borrowFieldMapping = Map.ofEntries(
+    private static final Map<String, DBFieldMapping> borrowFieldMapping = Map.ofEntries(
             Map.entry(BorrowModel.USER_ID_FIELD_NAME,
                     DBFieldMapping.<BorrowModel>builder()
                             .tableName(BorrowTable.TABLE_NAME)
@@ -42,7 +43,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.BORROWED_AT)
                             .definition("INT NOT NULL")
-                            .fromDB((borrow, value) -> borrow.setBorrowedAtFromEpochDay(value))
+                            .fromDB(BorrowModel::setBorrowedAtFromEpochDay)
                             .toDB(BorrowModel::getBorrowedAtEpochDay)
                             .dbType(Types.BIGINT)
                             .build()
@@ -52,7 +53,7 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
                             .tableName(BorrowTable.TABLE_NAME)
                             .dbFieldName(BorrowTable.RETURNED_AT)
                             .definition("INT")
-                            .fromDB((borrow, value) -> borrow.setReturnedAtFromEpochDay(value))
+                            .fromDB(BorrowModel::setReturnedAtFromEpochDay)
                             .toDB(BorrowModel::getReturnedAtEpochDay)
                             .dbType(Types.BIGINT)
                             .build()
@@ -63,11 +64,28 @@ public class BorrowRepositoryImpl extends AbstractModelRepository<BorrowModel> i
         super(BorrowTable.TABLE_NAME, borrowFieldMapping);
     }
 
+    protected BorrowRepositoryImpl(final Connection connection) {
+        super(instance.tableName, borrowFieldMapping, connection);
+    }
+
     public static synchronized BorrowRepository getInstance() {
         if (instance != null) {
             return instance;
         }
         instance = new BorrowRepositoryImpl();
+        try {
+            instance.createTable();
+            return instance;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static synchronized BorrowRepository getInstance(Connection connection) {
+        if (instance != null) {
+            return instance;
+        }
+        instance = new BorrowRepositoryImpl(connection);
         try {
             instance.createTable();
             return instance;

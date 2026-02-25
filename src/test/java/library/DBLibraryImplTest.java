@@ -29,12 +29,14 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class DBLibraryImplTest {
+public class DBLibraryImplTest extends BaseDBTest {
     DbLibraryImpl dbLibrary = new DbLibraryImpl();
-    private final MagazineRepositoryImpl magazineRepository = MagazineRepositoryImpl.getInstance();
-    private final BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
-    private final ArticleRepositoryImpl articleRepository = ArticleRepositoryImpl.getInstance();
-    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
+    private final MagazineRepositoryImpl magazineRepository = MagazineRepositoryImpl.getInstance(getConnection());
+    private final BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance(getConnection());
+    private final ArticleRepositoryImpl articleRepository = ArticleRepositoryImpl.getInstance(getConnection());
+    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance(getConnection());
+
+
 
     @Before
     public void cleanUp() throws SQLException {

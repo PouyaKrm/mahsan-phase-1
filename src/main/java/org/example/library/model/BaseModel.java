@@ -21,4 +21,8 @@ public abstract class BaseModel {
     public Long getVersion() {
         return Objects.nonNull(version) ? version : 0L;
     }
+
+    public Long getNextVersion() {
+        return version + 1;
+    }
 }

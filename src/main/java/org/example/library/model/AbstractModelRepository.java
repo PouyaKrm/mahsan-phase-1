@@ -45,8 +45,8 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
                                 .dbFieldName(VERSION_COLUMN)
                                 .tableName(tableName)
                                 .definition("INT NOT NULL")
-                                .fromDB((BaseModel model, String version) -> model.setVersion(Objects.nonNull(version) ? Long.parseLong(version) : 1))
-                                .toDB(model -> model.getVersion() + 1)
+                                .fromDB((BaseModel model, String version) -> model.setVersion(Long.parseLong(version)))
+                                .toDB(model -> model.getNextVersion())
                                 .dbType(Types.BIGINT)
                                 .build()
                 )
@@ -215,7 +215,6 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
     }
 
     private void setPrepareStatement(int index, DBFieldMapping fieldMapping, PreparedStatement pst, T model) {
-        var val = fieldMapping.toDB().apply(model);
         try {
             if (Objects.isNull(fieldMapping.toDB().apply(model))) {
                 pst.setNull(index, fieldMapping.dbType());
@@ -225,16 +224,15 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private List<T> insertAll(List<T> models, String tableName) throws SQLException {
         var builder = new StringBuilder("INSERT INTO " + tableName + " ( ");
-        var fields = getNoneIdFields();
-        var columns = nonIdFieldMappings().stream().map(DBFieldMapping::dbFieldName).collect(Collectors.joining(", "));
+        var fields = nonIdFieldMappings();
+        var columns = fields.stream().map(DBFieldMapping::dbFieldName).collect(Collectors.joining(", "));
         builder.append(columns).append(" ) ");
         builder.append("VALUES ");
-        var values = createValuesSql();
+        var values = createValuesSql(fields);
         builder.append(values).append(";");
         var pst = connection.prepareStatement(builder.toString(), Statement.RETURN_GENERATED_KEYS);
         models.forEach(model -> addBatche(pst, model, fields));
@@ -244,7 +242,9 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         var i = 0;
         while (rs.next()) {
             long generatedId = rs.getLong(1);
-            models.get(i++).setId(generatedId);
+            models.get(i).setId(generatedId);
+            models.get(i).setVersion(models.get(i).getVersion() + 1);
+            i ++;
         }
         return models;
     }
@@ -257,10 +257,11 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         insertAll(models, temp_table_name);
         var updateStatement = new StringBuilder("UPDATE ");
         updateStatement.append(tableName).append(" set ");
-        var fieldsStatement = getNoneIdFields().stream().map(
+        List<String> fieldsStatement = nonIdFieldMappings().stream().map(
                 field -> MessageFormat.format("{0} = (select tmp.{1} from {2} tmp where tmp.{3} = {4}.{5}) ", field.dbFieldName(), field.dbFieldName(), temp_table_name, ID_COLUMN, tableName, ID_COLUMN)
-        ).collect(Collectors.joining(", "));
-        updateStatement.append(fieldsStatement);
+        ).toList();
+//        fieldsStatement.add(MessageFormat.format("{0} = (select {0} + 1 from {1})", VERSION_COLUMN, tableName));
+        updateStatement.append(String.join(", ", fieldsStatement));
         updateStatement.append("where ")
                 .append("(").append(ID_COLUMN).append(", ").append(VERSION_COLUMN).append(") ")
                 .append(" IN ")
@@ -278,10 +279,10 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         return models;
     }
 
-    private String createValuesSql() {
+    private String createValuesSql(List<DBFieldMapping> nonIdFields) {
         var builder = new StringBuilder();
         builder.append(" ( ");
-        var values = getNoneIdFields().stream().map(field -> "?").collect(Collectors.joining(", "));
+        var values = nonIdFields.stream().map(field -> "?").collect(Collectors.joining(", "));
         builder.append(values);
         builder.append(" ) ");
         return builder.toString();
@@ -297,8 +298,8 @@ public abstract class AbstractModelRepository<T extends BaseModel> implements Mo
         }
     }
 
-    private List<DBFieldMapping> getNoneIdFields() {
-        return fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN)).toList();
+    private List<DBFieldMapping> getNoneIdVersionFields() {
+        return fieldMappings.values().stream().filter(field -> !field.dbFieldName().equals(ID_COLUMN) && !field.dbFieldName().equals(VERSION_COLUMN)).toList();
     }
 
     @Override

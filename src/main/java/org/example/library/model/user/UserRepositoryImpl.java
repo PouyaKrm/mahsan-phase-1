@@ -14,6 +14,7 @@ import org.example.library.model.library.book.BookRepository;
 import org.example.library.model.library.book.BookRepositoryImpl;
 import org.example.utils.Utils;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.MessageFormat;
@@ -46,6 +47,10 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
         var u = super.save(model);
         u.getBorrowedBooks().addAll(getUserBooks(u.getId()));
         return u;
+    }
+
+    protected UserRepositoryImpl(Connection connection) {
+        super(TABLE_NAME, FIELD_MAPPING, connection);
     }
 
     protected UserRepositoryImpl() {
@@ -110,6 +115,19 @@ public class UserRepositoryImpl extends AbstractModelRepository<User> implements
             return instance;
         }
         instance = new UserRepositoryImpl();
+        try {
+            instance.createTable();
+            return instance;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static synchronized UserRepositoryImpl getInstance(Connection connection) {
+        if (Objects.nonNull(instance)) {
+            return instance;
+        }
+        instance = new UserRepositoryImpl(connection);
         try {
             instance.createTable();
             return instance;

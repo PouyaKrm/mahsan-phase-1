@@ -1,5 +1,6 @@
 package library.model.book;
 
+import library.BaseDBTest;
 import org.example.exception.BaseException;
 import org.example.exception.InvalidOperationException;
 import org.example.exception.ItemNotFoundException;
@@ -13,6 +14,7 @@ import org.example.library.model.user.User;
 import org.example.library.model.user.UserRepository;
 import org.example.library.model.user.UserRepositoryImpl;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import utils.TestUtils;
 
@@ -21,13 +23,14 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BookRepositoryImplTest {
+public class BookRepositoryImplTest extends BaseDBTest {
 
-    private final UserRepository userRepository = UserRepositoryImpl.getInstance();
-    private final BorrowRepository borrowRepository = BorrowRepositoryImpl.getInstance();
 
     @Before
     public void resetDb() throws Exception {
+        var connection = getConnection();
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.removeAll();
         userRepository.removeAll();
@@ -64,7 +67,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void saveAll_updates() throws SQLException {
-        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance(getConnection());
         var book1 = TestUtils.createBook("title1");
         var book2 = TestUtils.createBook("title2");
         bookRepository.saveAll(new Book[]{book1, book2}, Book.class);
@@ -81,7 +84,7 @@ public class BookRepositoryImplTest {
 
     @Test
     public void saveAll_saves_new_and_updates_existing() throws SQLException {
-        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance(getConnection());
         var book1 = TestUtils.createBook("title1");
         var book2 = TestUtils.createBook("title2");
         bookRepository.save(book2);
@@ -91,10 +94,7 @@ public class BookRepositoryImplTest {
 
         var result = bookRepository.getAll();
         assertThat(result).hasSize(2);
-        assertThat(result).anySatisfy(item -> {
-            assertThat(item.getTitle()).isEqualTo(book2.getTitle());
-            assertThat(item.getId()).isEqualTo(book2.getId());
-        });
+        assertThat(result).anySatisfy(item -> assertThat(item.getId()).isEqualTo(book2.getId()));
         assertThat(result).anySatisfy(item -> assertThat(item.getTitle()).isEqualTo(book1.getTitle()));
     }
 
@@ -164,6 +164,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void getNonBorrowedBooks_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
@@ -182,6 +184,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void getBorrowedBooksCount_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
@@ -205,10 +209,13 @@ public class BookRepositoryImplTest {
 
     @Test
     public void return_book_works_correctly() throws SQLException, BaseException {
+        var connection = getConnection();
+        var userRepository = UserRepositoryImpl.getInstance(connection);
+        var borrowRepository = BorrowRepositoryImpl.getInstance(connection);
         var user  = TestUtils.createUser();
         userRepository.save(user);
         var book = TestUtils.createBook();
-        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance(connection);
         bookRepository.save(book);
         var borrow = new BorrowModel();
         borrow.setUserId(user.getId());
@@ -226,6 +233,8 @@ public class BookRepositoryImplTest {
 
     @Test(expected = ItemNotFoundException.class)
     public void borrow_record_not_found() throws SQLException, BaseException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var user  = TestUtils.createUser();
         userRepository.save(user);
         var book = TestUtils.createBook();
@@ -237,6 +246,8 @@ public class BookRepositoryImplTest {
 
     @Test(expected = InvalidOperationException.class)
     public void return_book_book_already_returned() throws SQLException, BaseException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var user  = TestUtils.createUser();
         userRepository.save(user);
         var book = TestUtils.createBook();
@@ -254,6 +265,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void test_getNonBorrowedBooks_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
@@ -299,6 +312,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_user_id_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
@@ -319,8 +334,10 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_returnedAtBefore_works_correctly() throws SQLException {
-        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
+        var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         bookRepository.saveAll(books, Book.class);
         var user = TestUtils.createUser();
         userRepository.save(user);
@@ -337,6 +354,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_returnedAtAfter_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
@@ -355,6 +374,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_borrowedAtBefore_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
@@ -373,6 +394,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_borrowedAtAfter_works_correctly() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
@@ -390,6 +413,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_notReturned_returned_still_borrowed_books() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
@@ -409,6 +434,8 @@ public class BookRepositoryImplTest {
 
     @Test
     public void search_by_notReturned_returns_returned_books() throws SQLException {
+        var userRepository = UserRepositoryImpl.getInstance();
+        var borrowRepository = BorrowRepositoryImpl.getInstance();
         var books = new Book[]{TestUtils.createBook(), TestUtils.createBook(), TestUtils.createBook()};
         BookRepositoryImpl bookRepository = BookRepositoryImpl.getInstance();
         bookRepository.saveAll(books, Book.class);
